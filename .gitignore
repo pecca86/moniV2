@@ -35,6 +35,7 @@ replay_pid*
 /mvnw.cmd
 /.idea/uiDesigner.xml
 /.idea/vcs.xml
+/target/*
 /target/surefire-reports/2023-08-28T23-41-24_095-jvmRun1.dump
 /target/surefire-reports/2023-08-28T23-41-24_095-jvmRun1.dumpstream
 /target/classes/application-dev.properties
