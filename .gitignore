@@ -35,3 +35,14 @@ replay_pid*
 /mvnw.cmd
 /.idea/uiDesigner.xml
 /.idea/vcs.xml
+/target/surefire-reports/2023-08-28T23-41-24_095-jvmRun1.dump
+/target/surefire-reports/2023-08-28T23-41-24_095-jvmRun1.dumpstream
+/target/classes/application-dev.properties
+/target/surefire-reports/com.pekka.moni.MoniApplicationTests.txt
+/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
+/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+/target/moni-0.0.1-SNAPSHOT.jar.original
+/target/maven-archiver/pom.properties
+/target/surefire-reports/TEST-com.pekka.moni.MoniApplicationTests.xml
