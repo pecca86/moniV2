@@ -1,6 +1,5 @@
 package com.pekka.moni.customer;
 
-import com.pekka.moni.exception.customer.CustomerNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +19,11 @@ public class CustomerController {
 
     @GetMapping
     public List<Customer> getCustomers() {
-        return List.of(new Customer(1L, "p@p.com", "pekka", "Kuk-bytta", "kei"));
+        return customerService.getCustomers();
     }
 
     @GetMapping("/{id}")
     public Customer getCustomer(@PathVariable Long id) {
-        if (id.equals(20L)) {
-            throw new CustomerNotFoundException("Customer with id " + id + " not found");
-        }
         return customerService.getCustomer(id);
     }
 

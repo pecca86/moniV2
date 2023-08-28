@@ -12,9 +12,7 @@ public class CustomerConfig {
     private String environment;
 
     @Bean
-    CommandLineRunner commandLineRunner(CustomerService customerService) {
-        return args -> {
-            System.out.println("You are running the app in " + environment + " environment");
-        };
+    CommandLineRunner commandLineRunner() {
+        return args -> System.out.println("You are running the app in " + environment + " environment");
     }
 }

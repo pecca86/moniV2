@@ -1,7 +1,10 @@
 package com.pekka.moni.customer;
 
+import com.pekka.moni.exception.customer.CustomerNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CustomerService {
@@ -14,6 +17,12 @@ public class CustomerService {
     }
 
     public Customer getCustomer(Long id) {
-        return customerRepository.getCustomer(id);
+        return customerRepository.findById(id)
+                                 .orElseThrow(() -> new CustomerNotFoundException("Customer with id " + id + " not found"));
+
+    }
+
+    public List<Customer> getCustomers() {
+        return customerRepository.findAll();
     }
 }
