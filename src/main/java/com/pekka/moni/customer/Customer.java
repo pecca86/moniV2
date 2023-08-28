@@ -1,61 +1,42 @@
 package com.pekka.moni.customer;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.*;
 
 public record Customer(
         Long id,
-        @JsonProperty("first_name") String firstName,
-        @JsonProperty("last_name") String lastName,
-        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) String password
+        @NotBlank(message = "Email is required")
+        @Email(
+                message = "Email should be valid",
+                regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\a-zA-Z]{2,4}$"
+        )
+        String email,
+        @NotBlank(message = "First name is required")
+        @JsonProperty("first_name")
+        @Pattern(
+                regexp = "^[a-zA-Z- ]+$",
+                message = "First name should be valid"
+        )
+        @Size(
+                min = 2,
+                max = 20,
+                message = "First name should be between 2 and 20 characters"
+        )
+        String firstName,
+        @NotBlank(message = "Last name is required")
+        @JsonProperty("last_name")
+        @Pattern(
+                regexp = "^[a-zA-Z- ]+$",
+                message = "Last name should be valid"
+        )
+        @Size(
+                min = 2,
+                max = 20,
+                message = "Last name should be between 2 and 20 characters"
+        )
+        String lastName,
+        @NotBlank(message = "Password is required")
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+        String password
 ) {
 }
-//
-//public class Customer {
-//    private Long id;
-////    @JsonProperty("first_name")
-//
-//    private String firstName;
-////    @JsonProperty("last_name")
-//
-//    private String lastName;
-//    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-//    private String password;
-//
-//    public Customer() {
-//    }
-//
-//    public Customer(Long id, String firstName, String lastName, String password) {
-//        this.id = id;
-//        this.firstName = firstName;
-//        this.lastName = lastName;
-//        this.password = password;
-//    }
-//
-//    public String getFirstName() {
-//        return firstName;
-//    }
-//
-//    public String getLastName() {
-//        return lastName;
-//    }
-//
-//    public Long getId() {
-//        return id;
-//    }
-//
-//    @JsonIgnore
-//    public String getPassword() {
-//        return password;
-//    }
-//
-//    @Override
-//    public String toString() {
-//        return "Customer{" +
-//                "id=" + id +
-//                ", firstName='" + firstName + '\'' +
-//                ", lastName='" + lastName + '\'' +
-//                ", password='" + password + '\'' +
-//                '}';
-//    }
-//}

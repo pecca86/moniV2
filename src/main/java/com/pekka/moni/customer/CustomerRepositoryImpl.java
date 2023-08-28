@@ -8,7 +8,7 @@ import java.util.List;
 public class CustomerRepositoryImpl implements CustomerRepository {
     @Override
     public Customer getCustomer(Long id) {
-        return new Customer(id, "repo-pekka", "reve-aho", "kei");
+        return new Customer(id,  "p@p.com", "repo-pekka", "reve-aho", "kei");
     }
 
     @Override
