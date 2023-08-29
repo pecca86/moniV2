@@ -1,9 +1,13 @@
 package com.pekka.moni.customer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.pekka.moni.account.Account;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "Customer")
 @Table(name = "customer")
@@ -84,10 +88,36 @@ public class Customer {
     )
     private String password;
 
+    @OneToMany(
+            mappedBy = "customer",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true
+    )
+    private List<Account> accounts;
+
     public Customer(String email, String firstName, String lastName, String password) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
+    }
+
+    public void addAccount(Account account) {
+        if (accounts == null) {
+            accounts = new ArrayList<>();
+        }
+
+        if (!accounts.contains(account)) {
+            accounts.add(account);
+            account.setCustomer(this);
+        }
+    }
+
+    public void removeAccount(Account account) {
+        if (accounts != null && accounts.contains(account)) {
+            accounts.remove(account);
+            account.setCustomer(null);
+        }
     }
 }
