@@ -32,6 +32,7 @@ public class Customer {
             updatable = false
     )
     private Long id;
+
     @NotBlank(message = "Email is required")
     @Email(
             message = "Email should be valid",
@@ -44,6 +45,7 @@ public class Customer {
             columnDefinition = "TEXT"
     )
     private String email;
+
     @NotBlank(message = "First name is required")
     @JsonProperty("first_name")
     @Pattern(
@@ -79,6 +81,7 @@ public class Customer {
             columnDefinition = "TEXT"
     )
     private String lastName;
+
     @NotBlank(message = "Password is required")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(

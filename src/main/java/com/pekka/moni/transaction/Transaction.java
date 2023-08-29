@@ -45,6 +45,7 @@ public class Transaction {
             updatable = false
     )
     private Long id;
+
     @NotNull(message = "Sum is required")
     @Column(
             name = "sum",
@@ -52,6 +53,7 @@ public class Transaction {
             columnDefinition = "DECIMAL"
     )
     private Double sum;
+
     @NotBlank(message = "Transaction type is required")
     @Column(
             name = "transaction_type",
@@ -60,6 +62,7 @@ public class Transaction {
     )
     @JsonProperty("transaction_type")
     private String transactionType; // TODO: Enum?
+
     @NotBlank(message = "Description is required")
     @Column(
             name = "description",
@@ -67,6 +70,7 @@ public class Transaction {
             columnDefinition = "TEXT"
     )
     private String description;
+
     @NotBlank(message = "Date is required")
     @Column(
             name = "transaction_date",
@@ -75,6 +79,7 @@ public class Transaction {
     )
     @JsonProperty("transaction_date")
     private LocalDateTime transactionDate;
+    
     @ManyToOne
     @JoinColumn(
             name = "account_id",

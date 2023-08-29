@@ -36,6 +36,7 @@ public class Account {
             updatable = false
     )
     private Long id;
+
     @NotBlank(message = "IBAN is required")
     @Column(
             name = "iban",
@@ -44,6 +45,7 @@ public class Account {
             columnDefinition = "TEXT"
     )
     private String iban;
+
     @NotBlank(message = "Account name is required")
     @JsonProperty("name")
     @Size(
@@ -57,12 +59,14 @@ public class Account {
             columnDefinition = "TEXT"
     )
     private String name;
+
     @Column(
             name = "savings_goal",
             columnDefinition = "DECIMAL"
     )
     @JsonProperty("savings_goal")
     private Double savingsGoal;
+
     @NotBlank(message = "Account type is required")
     @Column(
             name = "account_type",
@@ -71,6 +75,7 @@ public class Account {
     )
     @JsonProperty("account_type")
     private String accountType; //Todo: ENUM?
+
     @NotNull(message = "Balance is required")
     @Column(
             name = "balance",
