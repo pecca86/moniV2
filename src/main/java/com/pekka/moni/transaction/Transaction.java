@@ -17,6 +17,19 @@ import java.time.LocalDateTime;
 @ToString
 @EqualsAndHashCode
 public class Transaction {
+
+    enum TransactionType {
+        DEPOSIT,
+        WITHDRAWAL,
+    }
+
+    enum TransactionCategory {
+        FOOD,
+        TRANSPORTATION,
+        ENTERTAINMENT,
+        OTHER,
+    }
+
     @Id
     @SequenceGenerator(
             name = "customer_sequence",
@@ -71,4 +84,6 @@ public class Transaction {
             )
     )
     private Account account;
+
 }
+

@@ -21,5 +21,7 @@ public class CustomerConfig {
                 new Customer("pep7@p.com", "Hnekka", "Pekka IX", "Pekka"),
                 new Customer("pep8@p.com", "Onekka", "Pekka IV", "Pekka")
         ));
+
+
     }
 }

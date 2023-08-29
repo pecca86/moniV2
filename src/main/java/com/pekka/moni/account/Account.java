@@ -1,12 +1,17 @@
 package com.pekka.moni.account;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pekka.moni.customer.Customer;
+import com.pekka.moni.transaction.Transaction;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "Account")
 @Table(name = "account")
@@ -74,6 +79,7 @@ public class Account {
     )
     private Double balance;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(
             name = "customer_id",
@@ -85,12 +91,38 @@ public class Account {
     )
     private Customer customer;
 
+    @JsonIgnore
+    @OneToMany(
+            mappedBy = "account",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    private List<Transaction> transactions;
+
     public Account(Customer customer, String iban, String name, Double savingsGoal, String accountType, Double balance) {
+        this.customer = customer;
         this.iban = iban;
         this.name = name;
         this.savingsGoal = savingsGoal;
         this.accountType = accountType;
         this.balance = balance;
-        this.customer = customer;
+    }
+
+    public void addTransaction(Transaction transaction) {
+        if (transactions == null) {
+            transactions = new ArrayList<>();
+        }
+
+        if (!transactions.contains(transaction) && transaction != null) {
+            this.transactions.add(transaction);
+            transaction.setAccount(this);
+        }
+    }
+
+    public void removeTransaction(Transaction transaction) {
+        if (transactions != null && transactions.contains(transaction)) {
+            this.transactions.remove(transaction);
+            transaction.setAccount(null);
+        }
     }
 }

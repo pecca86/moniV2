@@ -1,5 +1,6 @@
 package com.pekka.moni.exception;
 
+import com.pekka.moni.exception.account.AccountNotFoundException;
 import com.pekka.moni.exception.customer.CustomerAlreadyExistsException;
 import com.pekka.moni.exception.customer.CustomerNotFoundException;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(value = {CustomerNotFoundException.class})
-    public ResponseEntity<Object> handeCustomerNotFoundException(CustomerNotFoundException e) {
+    public ResponseEntity<Object> handleCustomerNotFoundException(CustomerNotFoundException e) {
         ApiException exception = new ApiException(
                 e.getMessage(),
                 HttpStatus.NOT_FOUND,
@@ -45,5 +46,16 @@ public class ApiExceptionHandler {
         );
         LOGGER.error("ApiRequestException: ", e);
         return new ResponseEntity<>(exception, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(value = {AccountNotFoundException.class})
+    public ResponseEntity<Object> handleAccountNotFoundException(AccountNotFoundException e) {
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                HttpStatus.NOT_FOUND,
+                ZonedDateTime.now()
+        );
+        LOGGER.error("ApiRequestException: ", e);
+        return new ResponseEntity<>(exception, HttpStatus.NOT_FOUND);
     }
 }

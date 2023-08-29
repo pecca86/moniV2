@@ -108,7 +108,7 @@ public class Customer {
             accounts = new ArrayList<>();
         }
 
-        if (!accounts.contains(account)) {
+        if (!accounts.contains(account) && account != null) {
             accounts.add(account);
             account.setCustomer(this);
         }
