@@ -41,9 +41,9 @@ class CustomerServiceTest {
         given(customerRepositoryMock.findAll()).willReturn(testCustomers);
         //when - then
         assertThat(underTest).isNotNull();
-        assertThat(underTest.getCustomers()).hasSize(3);
-        assertThat(underTest.getCustomers()).extracting(Customer::getFirstName)
-                                            .containsExactly("Akka", "E", "P");
+        assertThat(underTest.getCustomers("firstName", "ASC", 0, 10)).hasSize(3);
+        assertThat(underTest.getCustomers("firstName", "ASC", 0, 10)).extracting(Customer::getFirstName)
+                                                                           .containsExactly("Akka", "E", "P");
     }
 
     @Test

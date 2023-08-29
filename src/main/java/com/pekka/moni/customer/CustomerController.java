@@ -2,9 +2,8 @@ package com.pekka.moni.customer;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "api/v1/customers")
@@ -18,8 +17,14 @@ public class CustomerController {
     }
 
     @GetMapping
-    public List<Customer> getCustomers() {
-        return customerService.getCustomers();
+    public Page<Customer> getCustomers(
+            @RequestParam(name = "sortBy", required = false, defaultValue = "firstName") String sortBy,
+            @RequestParam(name = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "0") int pageSize
+    ) {
+        //TODO: Custom exception handling
+        return customerService.getCustomers(sortBy, sortDirection, page, pageSize);
     }
 
     @GetMapping("/{id}")
