@@ -1,8 +1,8 @@
-package com.pekka.moni.account;
+package com.pekka.moni.transaction;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 }

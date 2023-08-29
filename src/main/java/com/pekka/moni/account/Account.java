@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pekka.moni.customer.Customer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -57,14 +58,18 @@ public class Account {
     )
     @JsonProperty("savings_goal")
     private Double savingsGoal;
+    @NotBlank(message = "Account type is required")
     @Column(
             name = "account_type",
+            nullable = false,
             columnDefinition = "TEXT"
     )
     @JsonProperty("account_type")
     private String accountType; //Todo: ENUM?
+    @NotNull(message = "Balance is required")
     @Column(
             name = "balance",
+            nullable = false,
             columnDefinition = "DECIMAL"
     )
     private Double balance;
