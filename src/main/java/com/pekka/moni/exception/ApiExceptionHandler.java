@@ -1,5 +1,6 @@
 package com.pekka.moni.exception;
 
+import com.pekka.moni.exception.customer.CustomerAlreadyExistsException;
 import com.pekka.moni.exception.customer.CustomerNotFoundException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -33,5 +34,16 @@ public class ApiExceptionHandler {
         );
         LOGGER.error("ApiRequestException: ", e);
         return new ResponseEntity<>(exception, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value = {CustomerAlreadyExistsException.class})
+    public ResponseEntity<Object> handleCustomerAlreadyExistsException(CustomerAlreadyExistsException e) {
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                HttpStatus.CONFLICT,
+                ZonedDateTime.now()
+        );
+        LOGGER.error("ApiRequestException: ", e);
+        return new ResponseEntity<>(exception, HttpStatus.CONFLICT);
     }
 }

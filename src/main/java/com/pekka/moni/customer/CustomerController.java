@@ -29,18 +29,17 @@ public class CustomerController {
 
     @PostMapping
     public void registerNewCustomer(@RequestBody @Valid Customer customer) {
-        System.out.println(customer);
+        customerService.addNewCustomer(customer);
     }
 
     @DeleteMapping("/{id}")
     public void deleteCustomer(@PathVariable Long id) {
-        System.out.println(id);
+        customerService.deleteCustomer(id);
     }
 
     @PutMapping("/{id}")
     public void updateCustomer(@RequestBody Customer customer, @PathVariable Long id) {
-        System.out.println("Updating customer with id: " + id);
-        System.out.println(customer);
+        customerService.updateCustomer(customer, id);
     }
 
 }

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +12,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
-@DataJpaTest
 @ExtendWith(MockitoExtension.class)
 class CustomerServiceTest {
 
@@ -31,9 +29,9 @@ class CustomerServiceTest {
 
     private List<Customer> createTestData() {
         return List.of(
-                new Customer(1L, "Pekka1@p.com", "Akka", "Pen", "123AVC"),
-                new Customer(2L, "Pekka2@p.com", "E", "Hen", "123AVC"),
-                new Customer(3L, "Pekka3@p.com", "P", "Sen", "123AVC")
+                new Customer("Pekka1@p.com", "Akka", "Pen", "123AVC"),
+                new Customer("Pekka2@p.com", "E", "Hen", "123AVC"),
+                new Customer("Pekka3@p.com", "P", "Sen", "123AVC")
         );
     }
 
@@ -57,7 +55,6 @@ class CustomerServiceTest {
         //then
         assertThat(customer).isNotNull();
         assertThat(customer.getFirstName()).isEqualTo("Akka");
-        assertThat(customer.getId()).isEqualTo(1L);
     }
 
     //TODO: Test unhappy path for email, firstName, lastName, password

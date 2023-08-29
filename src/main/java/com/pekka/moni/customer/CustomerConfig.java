@@ -1,18 +1,21 @@
 package com.pekka.moni.customer;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @Configuration
 public class CustomerConfig {
 
-    @Value("${app.environment}")
-    private String environment;
-
     @Bean
-    CommandLineRunner commandLineRunner() {
-        return args -> System.out.println("You are running the app in " + environment + " environment");
+    CommandLineRunner commandLineRunner(CustomerRepository repository) {
+        return args -> repository.saveAll(List.of(
+                new Customer("pe1@p.com", "Pekka", "Pekka I", "Pekka"),
+                new Customer("pe2@p.com", "Lekka", "Pekka II", "Pekka"),
+                new Customer("pe3@p.com", "Snekka", "Pekka III", "Pekka"),
+                new Customer("pep3@p.com", "Snekka", "Pekka III", "Pekka")
+        ));
     }
 }
