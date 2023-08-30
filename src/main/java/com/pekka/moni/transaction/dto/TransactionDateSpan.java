@@ -1,4 +1,4 @@
-package com.pekka.moni.transaction;
+package com.pekka.moni.transaction.dto;
 
 import java.time.LocalDate;
 

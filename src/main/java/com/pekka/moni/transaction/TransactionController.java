@@ -1,5 +1,7 @@
 package com.pekka.moni.transaction;
 
+import com.pekka.moni.transaction.dto.TransactionDateSpan;
+import com.pekka.moni.transaction.dto.TransactionDateSpanResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,8 +36,8 @@ public class TransactionController {
     }
 
     @GetMapping("/{accountId}/span")
-    public List<Transaction> getTransactionsByDateSpan(@PathVariable Long accountId,
-                                                       @RequestBody TransactionDateSpan transactionDateSpan) {
+    public TransactionDateSpanResponse getTransactionsByDateSpan(@PathVariable Long accountId,
+                                                                 @RequestBody TransactionDateSpan transactionDateSpan) {
         return transactionService.getTransactionsByDateSpan(accountId, transactionDateSpan);
     }
 

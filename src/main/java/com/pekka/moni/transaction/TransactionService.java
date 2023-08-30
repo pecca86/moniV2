@@ -6,6 +6,8 @@ import com.pekka.moni.customer.Customer;
 import com.pekka.moni.customer.CustomerRepository;
 import com.pekka.moni.exception.account.AccountAccessException;
 import com.pekka.moni.exception.account.AccountNotFoundException;
+import com.pekka.moni.transaction.dto.TransactionDateSpan;
+import com.pekka.moni.transaction.dto.TransactionDateSpanResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -88,6 +90,9 @@ public class TransactionService {
                                           .findFirst()
                                           .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()));
 
+        if (transaction.getTransactionType().equals(Transaction.TransactionType.WITHDRAWAL)) {
+            transaction.setSum(transaction.getSum() * -1);
+        }
         account.addTransaction(transaction);
         accountRepository.save(account);
     }
@@ -128,7 +133,7 @@ public class TransactionService {
         transactionRepository.deleteById(transactionToDelete.getId());
     }
 
-    public List<Transaction> getTransactionsByDateSpan(Long accountId, TransactionDateSpan transactionDateSpan) {
+    public TransactionDateSpanResponse getTransactionsByDateSpan(Long accountId, TransactionDateSpan transactionDateSpan) {
         LocalDate from = transactionDateSpan.from();
         LocalDate to = transactionDateSpan.to();
 
@@ -143,6 +148,11 @@ public class TransactionService {
             throw new AccountAccessException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId());
         }
 
-        return transactionRepository.findTransactionsByAccountIdAndTransactionDateBetween(accountId, from, to); //TODO MapStruct into a DTO that returns a list of transactions and a sum of all transactions
+        List<Transaction> transactionsByAccountIdAndTransactionDateBetween = transactionRepository.findTransactionsByAccountIdAndTransactionDateBetween(accountId, from, to);
+        Double sum = transactionsByAccountIdAndTransactionDateBetween.stream()
+                                                                     .mapToDouble(Transaction::getSum)
+                                                                     .sum();
+
+        return new TransactionDateSpanResponse(transactionsByAccountIdAndTransactionDateBetween, sum);
     }
 }
