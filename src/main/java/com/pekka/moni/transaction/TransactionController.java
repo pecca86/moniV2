@@ -1,5 +1,6 @@
 package com.pekka.moni.transaction;
 
+import com.pekka.moni.transaction.dto.DeleteableTransactions;
 import com.pekka.moni.transaction.dto.TransactionDateSpan;
 import com.pekka.moni.transaction.dto.TransactionDateSpanResponse;
 import jakarta.validation.Valid;
@@ -55,6 +56,11 @@ public class TransactionController {
     @DeleteMapping("/{transactionId}")
     public void deleteTransaction(@PathVariable Long transactionId) {
         transactionService.deleteTransaction(transactionId);
+    }
+
+    @DeleteMapping("/delete-many")
+    public void deleteTransactions(@RequestBody DeleteableTransactions transactions) {
+        transactionService.deleteTransactions(transactions);
     }
 
     @PutMapping("/{transactionId}")

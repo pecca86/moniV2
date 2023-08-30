@@ -6,6 +6,7 @@ import com.pekka.moni.customer.Customer;
 import com.pekka.moni.customer.CustomerRepository;
 import com.pekka.moni.exception.account.AccountAccessException;
 import com.pekka.moni.exception.account.AccountNotFoundException;
+import com.pekka.moni.transaction.dto.DeleteableTransactions;
 import com.pekka.moni.transaction.dto.TransactionDateSpan;
 import com.pekka.moni.transaction.dto.TransactionDateSpanResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 //TODO: MAKE WORK WITH LOGGER IN USER AS CUSTOMER
+//TODO: Create method for removing transactions from account after deleting transaction
 @Service
 public class TransactionService {
 
@@ -133,6 +135,24 @@ public class TransactionService {
         transactionRepository.deleteById(transactionToDelete.getId());
     }
 
+    public void deleteTransactions(DeleteableTransactions deleteableTransactions) {
+        Customer loggedInCustomer = customerRepository.findById(1L)
+                                                      .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
+
+        List<Transaction> transactionsToDelete = loggedInCustomer.getAccounts()
+                                                                .stream()
+                                                                .flatMap(account -> account.getTransactions().stream())
+                                                                .filter(transaction -> deleteableTransactions.transactions().contains(transaction.getId()))
+                                                                .toList();
+
+
+        Account account = accountRepository.findById(transactionsToDelete.get(0).getAccount().getId())
+                                           .orElseThrow(() -> new AccountNotFoundException("Account with id " + transactionsToDelete.get(0).getAccount().getId() + " not found"));
+        account.getTransactions().removeAll(transactionsToDelete);
+
+        transactionRepository.deleteAll(transactionsToDelete);
+    }
+
     public TransactionDateSpanResponse getTransactionsByDateSpan(Long accountId, TransactionDateSpan transactionDateSpan) {
         LocalDate from = transactionDateSpan.from();
         LocalDate to = transactionDateSpan.to();
@@ -155,4 +175,5 @@ public class TransactionService {
 
         return new TransactionDateSpanResponse(transactionsByAccountIdAndTransactionDateBetween, sum);
     }
+
 }
