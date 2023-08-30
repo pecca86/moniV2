@@ -145,7 +145,6 @@ public class TransactionService {
                                                                 .filter(transaction -> deletableTransactions.transactions().contains(transaction.getId()))
                                                                 .toList();
 
-
         Account account = accountRepository.findById(transactionsToDelete.get(0).getAccount().getId())
                                            .orElseThrow(() -> new AccountNotFoundException("Account with id " + transactionsToDelete.get(0).getAccount().getId() + " not found"));
         account.getTransactions().removeAll(transactionsToDelete);

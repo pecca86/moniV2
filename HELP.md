@@ -27,4 +27,10 @@ The following guides illustrate how to use some features concretely:
 - Java 17
 - Spring Boot
 - GraphQL / PostgreSQL
-- Jenkins
+- Jenkins / Github Actions
+
+
+// TODO
+- Create recurring transactions
+- Enable bulk transaction creation
+- Enable bulk transaction editing
