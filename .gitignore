@@ -49,3 +49,4 @@ replay_pid*
 /target/maven-archiver/pom.properties
 /target/surefire-reports/TEST-com.pekka.moni.MoniApplicationTests.xml
 /.idea/dataSources.xml
+/logs/app.log.2023-08-29.0.gz
