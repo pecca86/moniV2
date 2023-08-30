@@ -6,7 +6,7 @@ import com.pekka.moni.customer.Customer;
 import com.pekka.moni.customer.CustomerRepository;
 import com.pekka.moni.exception.account.AccountAccessException;
 import com.pekka.moni.exception.account.AccountNotFoundException;
-import com.pekka.moni.transaction.dto.DeleteableTransactions;
+import com.pekka.moni.transaction.dto.DeletableTransactions;
 import com.pekka.moni.transaction.dto.TransactionDateSpan;
 import com.pekka.moni.transaction.dto.TransactionDateSpanResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,14 +135,14 @@ public class TransactionService {
         transactionRepository.deleteById(transactionToDelete.getId());
     }
 
-    public void deleteTransactions(DeleteableTransactions deleteableTransactions) {
+    public void deleteTransactions(DeletableTransactions deletableTransactions) {
         Customer loggedInCustomer = customerRepository.findById(1L)
                                                       .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
 
         List<Transaction> transactionsToDelete = loggedInCustomer.getAccounts()
                                                                 .stream()
                                                                 .flatMap(account -> account.getTransactions().stream())
-                                                                .filter(transaction -> deleteableTransactions.transactions().contains(transaction.getId()))
+                                                                .filter(transaction -> deletableTransactions.transactions().contains(transaction.getId()))
                                                                 .toList();
 
 
