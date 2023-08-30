@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
+    // TODO add SQL statement
     Page<Transaction> findAllByAccountId(Long accountId, PageRequest pageRequest);
 }

@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "api/v1/transactions")
 public class TransactionController {
@@ -29,6 +31,11 @@ public class TransactionController {
                                                     @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                                     @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
         return transactionService.getAccountTransactions(accountId, sortBy, sortDirection, page, pageSize);
+    }
+
+    @GetMapping()
+    public List<Transaction> getAllTransactions() {
+        return transactionService.getCustomerTransactions();
     }
 
     @PostMapping("/{accountId}")
