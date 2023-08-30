@@ -56,14 +56,15 @@ public class Transaction {
     )
     private Double sum;
 
-    @NotBlank(message = "Transaction type is required")
+    @NotNull(message = "Transaction type is required")
     @Column(
             name = "transaction_type",
             nullable = false,
             columnDefinition = "TEXT"
     )
     @JsonProperty("transaction_type")
-    private String transactionType; // TODO: Enum?
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType;
 
     @NotBlank(message = "Description is required")
     @Column(

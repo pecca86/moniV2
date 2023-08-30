@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 //TODO: MAKE WORK WITH LOGGER IN USER AS CUSTOMER
@@ -125,5 +126,23 @@ public class TransactionService {
                                            .orElseThrow(() -> new AccountNotFoundException("Account with id " + transactionToDelete.getAccount().getId() + " not found"));
         account.removeTransaction(transactionToDelete);
         transactionRepository.deleteById(transactionToDelete.getId());
+    }
+
+    public List<Transaction> getTransactionsByDateSpan(Long accountId, TransactionDateSpan transactionDateSpan) {
+        LocalDate from = transactionDateSpan.from();
+        LocalDate to = transactionDateSpan.to();
+
+        Customer loggedInCustomer = customerRepository.findById(1L)
+                                                      .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
+
+        boolean isLoggedInUsersAccount = loggedInCustomer.getAccounts()
+                                                         .stream()
+                                                         .anyMatch(account -> account.getId().equals(accountId));
+
+        if (!isLoggedInUsersAccount) {
+            throw new AccountAccessException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId());
+        }
+
+        return transactionRepository.findTransactionsByAccountIdAndTransactionDateBetween(accountId, from, to); //TODO MapStruct into a DTO that returns a list of transactions and a sum of all transactions
     }
 }

@@ -118,7 +118,7 @@ public class Account {
             transactions = new ArrayList<>();
         }
 
-        if (!transactions.contains(transaction) && transaction != null) {
+        if (transaction != null) {
             this.transactions.add(transaction);
             transaction.setAccount(this);
         }

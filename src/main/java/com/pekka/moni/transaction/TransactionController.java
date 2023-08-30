@@ -33,6 +33,12 @@ public class TransactionController {
         return transactionService.getAccountTransactions(accountId, sortBy, sortDirection, page, pageSize);
     }
 
+    @GetMapping("/{accountId}/span")
+    public List<Transaction> getTransactionsByDateSpan(@PathVariable Long accountId,
+                                                       @RequestBody TransactionDateSpan transactionDateSpan) {
+        return transactionService.getTransactionsByDateSpan(accountId, transactionDateSpan);
+    }
+
     @GetMapping()
     public List<Transaction> getAllTransactions() {
         return transactionService.getCustomerTransactions();
