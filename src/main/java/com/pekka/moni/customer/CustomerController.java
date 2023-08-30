@@ -21,9 +21,9 @@ public class CustomerController {
             @RequestParam(name = "sortBy", required = false, defaultValue = "firstName") String sortBy,
             @RequestParam(name = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "0") int pageSize
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
     ) {
-        //TODO: Custom exception handling
+        //TODO: Custom exception handling for invalid params
         return customerService.getCustomers(sortBy, sortDirection, page, pageSize);
     }
 
@@ -43,7 +43,8 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public void updateCustomer(@RequestBody Customer customer, @PathVariable Long id) {
+    public void updateCustomer(@RequestBody @Valid Customer customer,
+                               @PathVariable Long id) {
         customerService.updateCustomer(customer, id);
     }
 

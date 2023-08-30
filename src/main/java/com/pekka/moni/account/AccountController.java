@@ -1,5 +1,6 @@
 package com.pekka.moni.account;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +28,7 @@ public class AccountController {
     }
 
     @PostMapping
-    public void createAccount(@RequestBody Account account) {
+    public void createAccount(@RequestBody @Valid Account account) {
         accountService.createAccount(account);
     }
 
@@ -37,7 +38,8 @@ public class AccountController {
     }
 
     @PutMapping("/{accountId}")
-    public void updateAccount(@RequestBody Account account , @PathVariable Long accountId ) {
+    public void updateAccount(@RequestBody @Valid Account account,
+                              @PathVariable Long accountId ) {
         accountService.updateAccount(account, accountId);
     }
 }

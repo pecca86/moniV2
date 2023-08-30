@@ -1,13 +1,15 @@
 package com.pekka.moni.transaction;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pekka.moni.account.Account;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity(name = "Transaction")
 @Table(name = "transaction")
@@ -71,14 +73,15 @@ public class Transaction {
     )
     private String description;
 
-    @NotBlank(message = "Date is required")
+    @Past(message = "Transaction date must be in the past")
     @Column(
             name = "transaction_date",
             nullable = false,
             columnDefinition = "TIMESTAMP WITHOUT TIME ZONE"
     )
     @JsonProperty("transaction_date")
-    private LocalDateTime transactionDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate transactionDate;
     
     @ManyToOne
     @JoinColumn(

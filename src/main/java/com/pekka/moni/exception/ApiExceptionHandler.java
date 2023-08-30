@@ -1,8 +1,10 @@
 package com.pekka.moni.exception;
 
+import com.pekka.moni.exception.account.AccountAccessException;
 import com.pekka.moni.exception.account.AccountNotFoundException;
 import com.pekka.moni.exception.customer.CustomerAlreadyExistsException;
 import com.pekka.moni.exception.customer.CustomerNotFoundException;
+import com.pekka.moni.exception.transaction.TransactionNotFoundException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,4 +60,27 @@ public class ApiExceptionHandler {
         LOGGER.error("ApiRequestException: ", e);
         return new ResponseEntity<>(exception, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(value = {TransactionNotFoundException.class})
+    public ResponseEntity<Object> handleTransactionNotFoundException(TransactionNotFoundException e) {
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                HttpStatus.NOT_FOUND,
+                ZonedDateTime.now()
+        );
+        LOGGER.error("ApiRequestException: ", e);
+        return new ResponseEntity<>(exception, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value = {AccountAccessException.class})
+public ResponseEntity<Object> handleAccountAccessException(AccountAccessException e) {
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                HttpStatus.FORBIDDEN,
+                ZonedDateTime.now()
+        );
+        LOGGER.error("ApiRequestException: ", e);
+        return new ResponseEntity<>(exception, HttpStatus.FORBIDDEN);
+    }
+
 }
