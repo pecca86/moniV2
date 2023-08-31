@@ -58,9 +58,10 @@ public class TransactionController {
         transactionService.deleteTransaction(transactionId);
     }
 
-    @DeleteMapping("/delete-many")
-    public void deleteTransactions(@RequestBody DeletableTransactions transactions) {
-        transactionService.deleteTransactions(transactions);
+    @DeleteMapping("/{accountId}/delete-all")
+    public void deleteAllSelectedTransactionsForAccount(@RequestBody @Valid DeletableTransactions transactions,
+                                                        @PathVariable Long accountId) {
+        transactionService.deleteAllSelectedTransactionsForAccount(accountId, transactions);
     }
 
     @PutMapping("/{transactionId}")

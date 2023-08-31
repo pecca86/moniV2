@@ -55,13 +55,7 @@ public class TransactionService {
         Customer loggedInCustomer = customerRepository.findById(1L)
                                                       .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
 
-        boolean isLoggedInUsersAccount = loggedInCustomer.getAccounts()
-                                                         .stream()
-                                                         .anyMatch(account -> account.getId().equals(accountId));
-
-        if (!isLoggedInUsersAccount) {
-            throw new AccountAccessException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId());
-        }
+        isLoggedInUsersAccount(accountId, loggedInCustomer);
 
         PageRequest pageRequest = PageRequest.of(page, pageSize);
 
@@ -135,20 +129,24 @@ public class TransactionService {
         transactionRepository.deleteById(transactionToDelete.getId());
     }
 
-    public void deleteTransactions(DeletableTransactions deletableTransactions) {
+    public void deleteAllSelectedTransactionsForAccount(Long accountId, DeletableTransactions deletableTransactions) {
         Customer loggedInCustomer = customerRepository.findById(1L)
                                                       .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
 
-        List<Transaction> transactionsToDelete = loggedInCustomer.getAccounts()
-                                                                .stream()
-                                                                .flatMap(account -> account.getTransactions().stream())
-                                                                .filter(transaction -> deletableTransactions.transactions().contains(transaction.getId()))
-                                                                .toList();
+        isLoggedInUsersAccount(accountId, loggedInCustomer);
 
-        Account account = accountRepository.findById(transactionsToDelete.get(0).getAccount().getId())
-                                           .orElseThrow(() -> new AccountNotFoundException("Account with id " + transactionsToDelete.get(0).getAccount().getId() + " not found"));
+        List<Transaction> transactionsToDelete = transactionRepository.findAllById(deletableTransactions.transactions());
+
+        Account account = accountRepository.findById(accountId)
+                                           .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found"));
+
+        transactionsToDelete.forEach(transaction -> {
+            if (!transaction.getAccount().getId().equals(accountId)) {
+                throw new AccountAccessException("Transaction with id " + transaction.getId() + " does not belong to account with id " + accountId);
+            }
+        });
+
         account.getTransactions().removeAll(transactionsToDelete);
-
         transactionRepository.deleteAll(transactionsToDelete);
     }
 
@@ -159,6 +157,17 @@ public class TransactionService {
         Customer loggedInCustomer = customerRepository.findById(1L)
                                                       .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
 
+        isLoggedInUsersAccount(accountId, loggedInCustomer);
+
+        List<Transaction> targetTransactions = transactionRepository.findTransactionsByAccountIdAndTransactionDateBetween(accountId, from, to);
+        Double sum = targetTransactions.stream()
+                                       .mapToDouble(Transaction::getSum)
+                                       .sum();
+
+        return new TransactionDateSpanResponse(targetTransactions, sum);
+    }
+
+    private static void isLoggedInUsersAccount(Long accountId, Customer loggedInCustomer) {
         boolean isLoggedInUsersAccount = loggedInCustomer.getAccounts()
                                                          .stream()
                                                          .anyMatch(account -> account.getId().equals(accountId));
@@ -166,13 +175,6 @@ public class TransactionService {
         if (!isLoggedInUsersAccount) {
             throw new AccountAccessException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId());
         }
-
-        List<Transaction> transactionsByAccountIdAndTransactionDateBetween = transactionRepository.findTransactionsByAccountIdAndTransactionDateBetween(accountId, from, to);
-        Double sum = transactionsByAccountIdAndTransactionDateBetween.stream()
-                                                                     .mapToDouble(Transaction::getSum)
-                                                                     .sum();
-
-        return new TransactionDateSpanResponse(transactionsByAccountIdAndTransactionDateBetween, sum);
     }
 
 }
