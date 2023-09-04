@@ -1,9 +1,6 @@
 package com.pekka.moni.transaction;
 
-import com.pekka.moni.transaction.dto.DeletableTransactions;
-import com.pekka.moni.transaction.dto.TransactionDateSpan;
-import com.pekka.moni.transaction.dto.TransactionDateSpanResponse;
-import com.pekka.moni.transaction.dto.UpdatableTransactions;
+import com.pekka.moni.transaction.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -52,6 +49,12 @@ public class TransactionController {
     public void addNewTransaction(@RequestBody @Valid Transaction transaction,
                                   @PathVariable Long accountId) {
         transactionService.addAccountTransaction(transaction, accountId);
+    }
+
+    @PostMapping("/{accountId}/create-monthly")
+    public void addMonthlyTransactionsForAccount(@RequestBody @Valid MonthlyTransaction monthlyTransaction,
+                                                 @PathVariable Long accountId) {
+        transactionService.addMonthlyTransactionsForAccount(monthlyTransaction, accountId);
     }
 
     @DeleteMapping("/{transactionId}")
