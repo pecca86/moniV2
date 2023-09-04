@@ -119,16 +119,20 @@ public class TransactionService {
         isLoggedInUsersAccount(accountId, loggedInCustomer);
 
         List<Transaction> transactionsToUpdate = transactionRepository.findAllById(updatableTransactions.transactionIds());
-        transactionsToUpdate.stream()
+        transactionsToUpdate
                             .forEach(t -> {
                                 t.setSum(updatableTransactions.data().getSum() != null
-                                        ? updatableTransactions.data().getSum() : t.getSum());
+                                        ? updatableTransactions.data().getSum()
+                                        : t.getSum());
                                 t.setTransactionType(updatableTransactions.data().getTransactionType() != null
-                                        ? updatableTransactions.data().getTransactionType() : t.getTransactionType());
+                                        ? updatableTransactions.data().getTransactionType()
+                                        : t.getTransactionType());
                                 t.setDescription(updatableTransactions.data().getDescription() != null
-                                        ? updatableTransactions.data().getDescription() : t.getDescription());
+                                        ? updatableTransactions.data().getDescription()
+                                        : t.getDescription());
                                 t.setTransactionDate(updatableTransactions.data().getTransactionDate() != null
-                                        ? updatableTransactions.data().getTransactionDate() : t.getTransactionDate());
+                                        ? updatableTransactions.data().getTransactionDate()
+                                        : t.getTransactionDate());
                             });
 
         transactionRepository.saveAll(transactionsToUpdate);
