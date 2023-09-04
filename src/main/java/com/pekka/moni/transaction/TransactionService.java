@@ -9,6 +9,7 @@ import com.pekka.moni.exception.account.AccountNotFoundException;
 import com.pekka.moni.transaction.dto.DeletableTransactions;
 import com.pekka.moni.transaction.dto.TransactionDateSpan;
 import com.pekka.moni.transaction.dto.TransactionDateSpanResponse;
+import com.pekka.moni.transaction.dto.UpdatableTransactions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -110,6 +111,39 @@ public class TransactionService {
         transactionToUpdate.setTransactionDate(newData.getTransactionDate());
 
         transactionRepository.save(transactionToUpdate);
+    }
+
+    public void updateAllSelectedTransactionsForAccount(Long accountId, UpdatableTransactions updatableTransactions) {
+        Customer loggedInCustomer = customerRepository.findById(1L)
+                                                      .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
+        isLoggedInUsersAccount(accountId, loggedInCustomer);
+
+        List<Transaction> transactionsToUpdate = transactionRepository.findAllById(updatableTransactions.transactionIds());
+        transactionsToUpdate.stream()
+                            .forEach(t -> {
+                                if (updatableTransactions.data().getSum() != null) {
+                                    t.setSum(updatableTransactions.data().getSum());
+                                } else {
+                                    t.setSum(t.getSum());
+                                }
+                                if (updatableTransactions.data().getTransactionType() != null) {
+                                    t.setTransactionType(updatableTransactions.data().getTransactionType());
+                                } else {
+                                    t.setTransactionType(t.getTransactionType());
+                                }
+                                if (updatableTransactions.data().getDescription() != null) {
+                                    t.setDescription(updatableTransactions.data().getDescription());
+                                } else {
+                                    t.setDescription(t.getDescription());
+                                }
+                                if (updatableTransactions.data().getTransactionDate() != null) {
+                                    t.setTransactionDate(updatableTransactions.data().getTransactionDate());
+                                } else {
+                                    t.setTransactionDate(t.getTransactionDate());
+                                }
+                            });
+
+        transactionRepository.saveAll(transactionsToUpdate);
     }
 
     public void deleteTransaction(Long transactionId) {

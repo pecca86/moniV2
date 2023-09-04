@@ -3,6 +3,7 @@ package com.pekka.moni.transaction;
 import com.pekka.moni.transaction.dto.DeletableTransactions;
 import com.pekka.moni.transaction.dto.TransactionDateSpan;
 import com.pekka.moni.transaction.dto.TransactionDateSpanResponse;
+import com.pekka.moni.transaction.dto.UpdatableTransactions;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -68,5 +69,11 @@ public class TransactionController {
     public void updateTransaction(@RequestBody @Valid Transaction transaction,
                                   @PathVariable Long transactionId) {
         transactionService.updateTransaction(transaction, transactionId);
+    }
+
+    @PutMapping("/{accountId}/update-all")
+    public void updateAllSelectedTransactionsForAccount(@RequestBody @Valid UpdatableTransactions transactions,
+                                                        @PathVariable Long accountId) {
+        transactionService.updateAllSelectedTransactionsForAccount(accountId, transactions);
     }
 }
