@@ -121,26 +121,14 @@ public class TransactionService {
         List<Transaction> transactionsToUpdate = transactionRepository.findAllById(updatableTransactions.transactionIds());
         transactionsToUpdate.stream()
                             .forEach(t -> {
-                                if (updatableTransactions.data().getSum() != null) {
-                                    t.setSum(updatableTransactions.data().getSum());
-                                } else {
-                                    t.setSum(t.getSum());
-                                }
-                                if (updatableTransactions.data().getTransactionType() != null) {
-                                    t.setTransactionType(updatableTransactions.data().getTransactionType());
-                                } else {
-                                    t.setTransactionType(t.getTransactionType());
-                                }
-                                if (updatableTransactions.data().getDescription() != null) {
-                                    t.setDescription(updatableTransactions.data().getDescription());
-                                } else {
-                                    t.setDescription(t.getDescription());
-                                }
-                                if (updatableTransactions.data().getTransactionDate() != null) {
-                                    t.setTransactionDate(updatableTransactions.data().getTransactionDate());
-                                } else {
-                                    t.setTransactionDate(t.getTransactionDate());
-                                }
+                                t.setSum(updatableTransactions.data().getSum() != null
+                                        ? updatableTransactions.data().getSum() : t.getSum());
+                                t.setTransactionType(updatableTransactions.data().getTransactionType() != null
+                                        ? updatableTransactions.data().getTransactionType() : t.getTransactionType());
+                                t.setDescription(updatableTransactions.data().getDescription() != null
+                                        ? updatableTransactions.data().getDescription() : t.getDescription());
+                                t.setTransactionDate(updatableTransactions.data().getTransactionDate() != null
+                                        ? updatableTransactions.data().getTransactionDate() : t.getTransactionDate());
                             });
 
         transactionRepository.saveAll(transactionsToUpdate);
