@@ -4,6 +4,7 @@ import com.pekka.moni.exception.account.AccountAccessException;
 import com.pekka.moni.exception.account.AccountNotFoundException;
 import com.pekka.moni.exception.customer.CustomerAlreadyExistsException;
 import com.pekka.moni.exception.customer.CustomerNotFoundException;
+import com.pekka.moni.exception.datespan.DateSpanNotFoundException;
 import com.pekka.moni.exception.transaction.TransactionNotFoundException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -73,7 +74,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(value = {AccountAccessException.class})
-public ResponseEntity<Object> handleAccountAccessException(AccountAccessException e) {
+    public ResponseEntity<Object> handleAccountAccessException(AccountAccessException e) {
         ApiException exception = new ApiException(
                 e.getMessage(),
                 HttpStatus.FORBIDDEN,
@@ -81,6 +82,17 @@ public ResponseEntity<Object> handleAccountAccessException(AccountAccessExceptio
         );
         LOGGER.error("ApiRequestException: ", e);
         return new ResponseEntity<>(exception, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(value = {DateSpanNotFoundException.class})
+    public ResponseEntity<Object> handleDateSpanNotFoundException(DateSpanNotFoundException e) {
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                HttpStatus.NOT_FOUND,
+                ZonedDateTime.now()
+        );
+        LOGGER.error("ApiRequestException: ", e);
+        return new ResponseEntity<>(exception, HttpStatus.NOT_FOUND);
     }
 
 }

@@ -27,7 +27,9 @@ public class TransactionService {
     private final AccountRepository accountRepository;
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, CustomerRepository customerRepository, AccountRepository accountRepository) {
+    public TransactionService(TransactionRepository transactionRepository,
+                              CustomerRepository customerRepository,
+                              AccountRepository accountRepository) {
         this.transactionRepository = transactionRepository;
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pekka.moni.customer.Customer;
 import com.pekka.moni.transaction.Transaction;
+import com.pekka.moni.datespan.DateSpan;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -104,6 +105,14 @@ public class Account {
     )
     private List<Transaction> transactions;
 
+    @JsonIgnore
+    @OneToMany(
+            mappedBy = "account",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    private List<DateSpan> dateSpans;
+
     public Account(Customer customer, String iban, String name, Double savingsGoal, String accountType, Double balance) {
         this.customer = customer;
         this.iban = iban;
@@ -128,6 +137,24 @@ public class Account {
         if (transactions != null && transactions.contains(transaction)) {
             this.transactions.remove(transaction);
             transaction.setAccount(null);
+        }
+    }
+
+    public void addDateSpan(DateSpan dateSpan) {
+        if (dateSpans == null) {
+            dateSpans = new ArrayList<>();
+        }
+
+        if (dateSpan != null) {
+            this.dateSpans.add(dateSpan);
+            dateSpan.setAccount(this);
+        }
+    }
+
+    public void removeDateSpan(DateSpan dateSpan) {
+        if (dateSpans != null && dateSpans.contains(dateSpan)) {
+            this.dateSpans.remove(dateSpan);
+            dateSpan.setAccount(null);
         }
     }
 }
