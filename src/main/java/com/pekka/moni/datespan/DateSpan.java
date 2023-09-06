@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pekka.moni.account.Account;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Past;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
 @Entity(name = "DateSpan")
 @Table(name = "datespan")
+@ToString
+@EqualsAndHashCode
 public class DateSpan {
     @Id
     @SequenceGenerator(

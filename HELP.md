@@ -28,9 +28,9 @@ The following guides illustrate how to use some features concretely:
 - Spring Boot
 - GraphQL / PostgreSQL
 - Jenkins / Github Actions
+- Cypress
 
 
-// TODO
-- Create recurring transactions
-- Enable bulk transaction creation
-- Enable bulk transaction editing
+### TODO
+- User new way of filtering in *SecurityConfiguration.java* (see: https://docs.spring.io/spring-security/reference/5.8/migration/servlet/config.html)
+- Check how to verify if logged user has access to a specific resource (see: https://docs.spring.io/spring-security/site/docs/5.0.0.M1/reference/htmlsingle/#el-common-built-in)

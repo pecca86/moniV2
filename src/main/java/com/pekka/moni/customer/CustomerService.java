@@ -1,6 +1,5 @@
 package com.pekka.moni.customer;
 
-import com.pekka.moni.exception.customer.CustomerAlreadyExistsException;
 import com.pekka.moni.exception.customer.CustomerNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,16 +30,6 @@ public class CustomerService {
             case ASC -> customerRepository.findAll(pageRequest.withSort(Sort.by(sortBy).ascending()));
             case DESC -> customerRepository.findAll(pageRequest.withSort(Sort.by(sortBy).descending()));
         };
-    }
-
-    public void addNewCustomer(Customer customer) {
-        customerRepository.findCustomerByEmail(customer.getEmail())
-                          .ifPresentOrElse(
-                                  c -> {
-                                      throw new CustomerAlreadyExistsException("Email taken");
-                                  },
-                                  () -> customerRepository.save(customer)
-                          );
     }
 
     public void deleteCustomer(Long id) {

@@ -32,11 +32,6 @@ public class CustomerController {
         return customerService.getCustomer(id);
     }
 
-    @PostMapping
-    public void registerNewCustomer(@RequestBody @Valid Customer customer) {
-        customerService.addNewCustomer(customer);
-    }
-
     @DeleteMapping("/{id}")
     public void deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomer(id);
