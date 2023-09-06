@@ -1,5 +1,6 @@
 package com.pekka.moni.account;
 
+import com.pekka.moni.auth.LoggedInCustomerService;
 import com.pekka.moni.customer.Customer;
 import com.pekka.moni.customer.CustomerRepository;
 import com.pekka.moni.exception.account.AccountNotFoundException;
@@ -16,20 +17,24 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
+    private final LoggedInCustomerService loggedInCustomerService;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository, CustomerRepository customerRepository) {
+    public AccountService(AccountRepository accountRepository,
+                          CustomerRepository customerRepository,
+                          LoggedInCustomerService loggedInCustomerService) {
         this.accountRepository = accountRepository;
         this.customerRepository = customerRepository;
+        this.loggedInCustomerService = loggedInCustomerService;
     }
 
     public List<Account> getCustomerAccounts(Authentication authentication) {
-        Customer loggedInCustomer = getLoggedInCustomer(authentication);
+        Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
         return loggedInCustomer.getAccounts();
     }
 
     public Account getAccount(Authentication authentication, Long accountId) {
-        Customer loggedInCustomer = getLoggedInCustomer(authentication);
+        Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
         return loggedInCustomer.getAccounts()
                                .stream()
                                .filter(account -> account.getId().equals(accountId))
@@ -39,7 +44,7 @@ public class AccountService {
 
     public void createAccount(Authentication authentication, Account account) {
         if (account != null) {
-            Customer loggedInCustomer = getLoggedInCustomer(authentication);
+            Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
             account.setIban(account.getIban().replaceAll("\\s", "")); // Remove whitespace from IBAN
             loggedInCustomer.addAccount(account);
             customerRepository.save(loggedInCustomer);
@@ -47,7 +52,7 @@ public class AccountService {
     }
 
     public void deleteAccount(Authentication authentication, Long accountId) {
-        Customer loggedInCustomer = getLoggedInCustomer(authentication);
+        Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         Optional<Account> accountToDelete = loggedInCustomer.getAccounts()
                                                             .stream()
@@ -62,7 +67,7 @@ public class AccountService {
     }
 
     public void updateAccount(Authentication authentication, Account account, Long accountId) {
-        Customer loggedInCustomer = getLoggedInCustomer(authentication);
+        Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         Optional<Account> accountToUpdate = loggedInCustomer.getAccounts()
                                                             .stream()
@@ -79,10 +84,5 @@ public class AccountService {
         } else {
             throw new AccountNotFoundException("Account with id " + account.getId() + " not found for this customer");
         }
-    }
-
-    private Customer getLoggedInCustomer(Authentication authentication) {
-        return customerRepository.findCustomerByEmail(authentication.getName())
-                                 .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
     }
 }

@@ -16,7 +16,7 @@ public class LoggedInCustomerService {
         this.customerRepository = customerRepository;
     }
 
-    public Customer getLoggerInCustomer(Authentication authentication) {
+    public Customer getLoggedInCustomer(Authentication authentication) {
          return customerRepository.findCustomerByEmail(authentication.getName()).orElseThrow(
                  () -> new CustomerNotFoundException("Customer with not found")
          );
