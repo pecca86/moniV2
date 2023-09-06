@@ -3,7 +3,6 @@ package com.pekka.moni.transaction;
 import com.pekka.moni.transaction.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +28,7 @@ public class TransactionController {
     }
 
     @GetMapping( "/{accountId}")
-    public Page<Transaction> getAccountTransactions(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public TransactionResponse getAccountTransactions(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                     @PathVariable Long accountId,
                                                     @RequestParam(name = "sortBy", required = false, defaultValue = "transactionDate") String sortBy,
                                                     @RequestParam(name = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
@@ -89,5 +88,10 @@ public class TransactionController {
                                                         @RequestBody @Valid UpdatableTransactions transactions,
                                                         @PathVariable Long accountId) {
         transactionService.updateAllSelectedTransactionsForAccount(authentication, accountId, transactions);
+    }
+
+    @GetMapping("/categories")
+    public List<TransactionCategory> getTransactionCategories() {
+        return transactionService.getTransactionCategories();
     }
 }

@@ -49,7 +49,7 @@ public class TransactionService {
                                .orElseThrow(() -> new AccountNotFoundException("Transaction with id " + transactionId + " not found for account with id " + accountId));
     }
 
-    public Page<Transaction> getAccountTransactions(Authentication authentication, Long accountId, String sortBy, String sortDirection, int page, int pageSize) {
+    public TransactionResponse getAccountTransactions(Authentication authentication, Long accountId, String sortBy, String sortDirection, int page, int pageSize) {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         isLoggedInUsersAccount(accountId, loggedInCustomer);
@@ -57,10 +57,20 @@ public class TransactionService {
         PageRequest pageRequest = PageRequest.of(page, pageSize);
 
         return switch (Sort.Direction.fromString(sortDirection)) {
-            case ASC ->
-                    transactionRepository.findAllByAccountId(accountId, pageRequest.withSort(Sort.by(sortBy).ascending()));
-            case DESC ->
-                    transactionRepository.findAllByAccountId(accountId, pageRequest.withSort(Sort.by(sortBy).descending()));
+            case ASC -> {
+                Page<Transaction> targetTransactions = transactionRepository.findAllByAccountId(accountId, pageRequest.withSort(Sort.by(sortBy).ascending()));
+                Double sum = targetTransactions.stream()
+                                               .mapToDouble(Transaction::getSum)
+                                               .sum();
+                yield new TransactionResponse(targetTransactions, sum);
+            }
+            case DESC -> {
+                Page<Transaction> targetTransactions = transactionRepository.findAllByAccountId(accountId, pageRequest.withSort(Sort.by(sortBy).descending()));
+                Double sum = targetTransactions.stream()
+                                               .mapToDouble(Transaction::getSum)
+                                               .sum();
+                yield new TransactionResponse(targetTransactions, sum);
+            }
         };
 
     }
@@ -105,7 +115,8 @@ public class TransactionService {
                     monthlyTransaction.data().getTransactionType(),
                     monthlyTransaction.data().getDescription(),
                     date,
-                    account
+                    account,
+                    monthlyTransaction.data().getTransactionCategory()
             );
             createdTransactions.add(transaction);
             date = date.plusMonths(1);
@@ -130,6 +141,7 @@ public class TransactionService {
         transactionToUpdate.setTransactionType(newData.getTransactionType());
         transactionToUpdate.setDescription(newData.getDescription());
         transactionToUpdate.setTransactionDate(newData.getTransactionDate());
+        transactionToUpdate.setTransactionCategory(newData.getTransactionCategory());
 
         transactionRepository.save(transactionToUpdate);
     }
@@ -153,6 +165,9 @@ public class TransactionService {
                     t.setTransactionDate(updatableTransactions.data().getTransactionDate() != null
                             ? updatableTransactions.data().getTransactionDate()
                             : t.getTransactionDate());
+                    t.setTransactionCategory(updatableTransactions.data().getTransactionCategory() != null
+                            ? updatableTransactions.data().getTransactionCategory()
+                            : t.getTransactionCategory());
                 });
 
         transactionRepository.saveAll(transactionsToUpdate);
@@ -209,6 +224,10 @@ public class TransactionService {
                                        .sum();
 
         return new TransactionDateSpanResponse(targetTransactions, sum);
+    }
+
+    public List<TransactionCategory> getTransactionCategories() {
+        return List.of(TransactionCategory.values());
     }
 
     private static void isLoggedInUsersAccount(Long accountId, Customer loggedInCustomer) {

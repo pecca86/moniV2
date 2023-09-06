@@ -13,9 +13,8 @@ import java.time.LocalDate;
 
 @Entity(name = "Transaction")
 @Table(name = "transaction")
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
 @ToString
 @EqualsAndHashCode
 public class Transaction {
@@ -23,13 +22,6 @@ public class Transaction {
     public enum TransactionType {
         DEPOSIT,
         WITHDRAWAL,
-    }
-
-    public enum TransactionCategory {
-        FOOD,
-        TRANSPORTATION,
-        ENTERTAINMENT,
-        OTHER,
     }
 
     @Id
@@ -66,6 +58,16 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
+    @NotNull(message = "Transaction category is required")
+    @Column(
+            name = "transaction_category",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
+    @JsonProperty("transaction_category")
+    @Enumerated(EnumType.STRING)
+    private TransactionCategory transactionCategory;
+
     @NotBlank(message = "Description is required")
     @Column(
             name = "description",
@@ -94,52 +96,13 @@ public class Transaction {
     )
     private Account account;
 
-    public Transaction(Double sum, TransactionType transactionType, String description, LocalDate transactionDate, Account account) {
+    public Transaction(Double sum, TransactionType transactionType, String description, LocalDate transactionDate, Account account, TransactionCategory transactionCategory) {
         this.sum = sum;
         this.transactionType = transactionType;
         this.description = description;
         this.transactionDate = transactionDate;
         this.account = account;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getSum() {
-        return sum;
-    }
-
-    public void setSum(Double sum) {
-        this.sum = sum;
-    }
-
-    public TransactionType getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDate getTransactionDate() {
-        return transactionDate;
-    }
-
-    public void setTransactionDate(LocalDate transactionDate) {
-        this.transactionDate = transactionDate;
+        this.transactionCategory = transactionCategory;
     }
 
 }

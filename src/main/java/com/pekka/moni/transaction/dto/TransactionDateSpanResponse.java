@@ -4,4 +4,4 @@ import com.pekka.moni.transaction.Transaction;
 
 import java.util.List;
 
-public record TransactionDateSpanResponse (List<Transaction> transactions, Double sum) {}
+public record TransactionDateSpanResponse(List<Transaction> transactions, Double sum) {}
