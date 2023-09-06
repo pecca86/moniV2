@@ -36,7 +36,7 @@ The following guides illustrate how to use some features concretely:
 
 
 ### TODO
-- Check how to verify if logged user has access to a specific resource (see: https://docs.spring.io/spring-security/site/docs/5.0.0.M1/reference/htmlsingle/#el-common-built-in)
+- Add sum to Customer All transactions
 - Add SQL statements
 - Add test BE
 - Add test FE

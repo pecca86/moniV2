@@ -25,6 +25,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final LoggedInCustomerService loggedInCustomerService;
 
     public AuthenticationResponse register(RegisterRequest registerRequest) {
         var customer = new Customer(
@@ -72,9 +73,7 @@ public class AuthenticationService {
     }
 
     public void updatePassword(NewPasswordRequest passwordRequest, Authentication authentication) {
-        String email = authentication.getName();
-        Customer customerToUpdate = customerRepository.findCustomerByEmail(email)
-                                                     .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+        Customer customerToUpdate = loggedInCustomerService.getLoggedInCustomer(authentication);
         customerToUpdate.setPassword(passwordEncoder.encode(passwordRequest.password()));
         customerRepository.save(customerToUpdate);
     }

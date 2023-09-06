@@ -1,6 +1,8 @@
 package com.pekka.moni.datespan;
 
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,24 +18,29 @@ public class DateSpanController {
     }
 
     @GetMapping("/{accountId}/{dateSpanId}")
-    public DateSpan getDateSpan(@PathVariable Long accountId, @PathVariable Long dateSpanId) {
-        return dateSpanService.getDateSpan(accountId, dateSpanId);
+    public DateSpan getDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                                @PathVariable Long accountId,
+                                @PathVariable Long dateSpanId) {
+        return dateSpanService.getDateSpan(authentication, accountId, dateSpanId);
     }
 
     @GetMapping("/{accountId}")
-    public List<DateSpan> getAllDateSpans(@PathVariable Long accountId) {
-        return dateSpanService.getAllDateSpans(accountId);
+    public List<DateSpan> getAllDateSpans(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                                          @PathVariable Long accountId) {
+        return dateSpanService.getAllDateSpans(authentication, accountId);
     }
 
     @PostMapping("/{accountId}")
-    public void createDateSpanForAccount(@RequestBody @Valid DateSpan dateSpan,
+    public void createDateSpanForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                                         @RequestBody @Valid DateSpan dateSpan,
                                          @PathVariable Long accountId) {
-        dateSpanService.createDateSpan(dateSpan, accountId);
+        dateSpanService.createDateSpan(authentication, dateSpan, accountId);
     }
 
     @DeleteMapping("/{accountId}/{dateSpanId}")
-    public void deleteDateSpan(@PathVariable Long accountId,
+    public void deleteDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                               @PathVariable Long accountId,
                                @PathVariable Long dateSpanId) {
-        dateSpanService.deleteDateSpan(accountId, dateSpanId);
+        dateSpanService.deleteDateSpan(authentication, accountId, dateSpanId);
     }
 }
