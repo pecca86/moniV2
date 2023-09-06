@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-//TODO: MAKE WORK WITH LOGGER IN USER AS CUSTOMER
 @Service
 public class AccountService {
 
