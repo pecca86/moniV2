@@ -30,7 +30,7 @@ public class AuthenticationService {
                 registerRequest.getFirstName(),
                 registerRequest.getLastName(),
                 passwordEncoder.encode(registerRequest.getPassword()),
-                Role.USER
+                Role.ROLE_USER
         );
 
         try {
