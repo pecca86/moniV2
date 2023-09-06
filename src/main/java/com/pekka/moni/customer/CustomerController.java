@@ -23,7 +23,6 @@ public class CustomerController {
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
     ) {
-        //TODO: Custom exception handling for invalid params
         return customerService.getCustomers(sortBy, sortDirection, page, pageSize);
     }
 

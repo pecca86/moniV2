@@ -11,7 +11,6 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    // TODO add SQL statement
     Page<Transaction> findAllByAccountId(Long accountId, PageRequest pageRequest);
 
     List<Transaction> findTransactionsByAccountIdAndTransactionDateBetween(Long accountId, LocalDate from, LocalDate to);

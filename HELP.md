@@ -36,7 +36,6 @@ The following guides illustrate how to use some features concretely:
 
 
 ### TODO
-- Add sum to Customer All transactions
 - Add SQL statements
 - Add test BE
 - Add test FE

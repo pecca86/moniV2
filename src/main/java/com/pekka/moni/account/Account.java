@@ -75,7 +75,7 @@ public class Account {
             columnDefinition = "TEXT"
     )
     @JsonProperty("account_type")
-    private String accountType; //Todo: ENUM?
+    private String accountType;
 
     @NotNull(message = "Balance is required")
     @Column(
