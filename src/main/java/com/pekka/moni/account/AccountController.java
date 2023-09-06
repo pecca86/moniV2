@@ -2,6 +2,8 @@ package com.pekka.moni.account;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,28 +20,32 @@ public class AccountController {
     }
 
     @GetMapping
-    public List<Account> getCustomerAccounts() {
-        return accountService.getCustomerAccounts();
+    public List<Account> getCustomerAccounts(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
+        return accountService.getCustomerAccounts(authentication);
     }
 
     @GetMapping("/{accountId}")
-    public Account getAccount(@PathVariable Long accountId) {
-        return accountService.getAccount(accountId);
+    public Account getAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                              @PathVariable Long accountId) {
+        return accountService.getAccount(authentication, accountId);
     }
 
     @PostMapping
-    public void createAccount(@RequestBody @Valid Account account) {
-        accountService.createAccount(account);
+    public void createAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                              @RequestBody @Valid Account account) {
+        accountService.createAccount(authentication, account);
     }
 
     @DeleteMapping("/{accountId}")
-    public void deleteAccount(@PathVariable Long accountId) {
-        accountService.deleteAccount(accountId);
+    public void deleteAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                              @PathVariable Long accountId) {
+        accountService.deleteAccount(authentication, accountId);
     }
 
     @PutMapping("/{accountId}")
-    public void updateAccount(@RequestBody @Valid Account account,
-                              @PathVariable Long accountId ) {
-        accountService.updateAccount(account, accountId);
+    public void updateAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                              @RequestBody @Valid Account account,
+                              @PathVariable Long accountId) {
+        accountService.updateAccount(authentication, account, accountId);
     }
 }

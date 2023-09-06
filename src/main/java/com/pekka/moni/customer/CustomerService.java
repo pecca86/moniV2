@@ -23,7 +23,6 @@ public class CustomerService {
     }
 
     public Page<Customer> getCustomers(String sortBy, String sortDirection, int page, int pageSize) {
-        //TODO: Mapper to map Page<Customer> to Page<CustomerDto>
         PageRequest pageRequest = PageRequest.of(page, pageSize);
         return switch (Sort.Direction.fromString(sortDirection)) {
             case ASC -> customerRepository.findAll(pageRequest.withSort(Sort.by(sortBy).ascending()));

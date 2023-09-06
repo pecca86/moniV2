@@ -4,6 +4,7 @@ import com.pekka.moni.customer.Customer;
 import com.pekka.moni.customer.CustomerRepository;
 import com.pekka.moni.exception.account.AccountNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,15 +23,13 @@ public class AccountService {
         this.customerRepository = customerRepository;
     }
 
-    public List<Account> getCustomerAccounts() {
-        Customer loggedInCustomer = customerRepository.findById(1L)
-                                                      .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
+    public List<Account> getCustomerAccounts(Authentication authentication) {
+        Customer loggedInCustomer = getLoggedInCustomer(authentication);
         return loggedInCustomer.getAccounts();
     }
 
-    public Account getAccount(Long accountId) {
-        Customer loggedInCustomer = customerRepository.findById(1L)
-                                                      .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
+    public Account getAccount(Authentication authentication, Long accountId) {
+        Customer loggedInCustomer = getLoggedInCustomer(authentication);
         return loggedInCustomer.getAccounts()
                                .stream()
                                .filter(account -> account.getId().equals(accountId))
@@ -38,19 +37,17 @@ public class AccountService {
                                .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()));
     }
 
-    public void createAccount(Account account) {
+    public void createAccount(Authentication authentication, Account account) {
         if (account != null) {
-            Customer loggedInCustomer = customerRepository.findById(1L)
-                                                          .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
+            Customer loggedInCustomer = getLoggedInCustomer(authentication);
             account.setIban(account.getIban().replaceAll("\\s", "")); // Remove whitespace from IBAN
             loggedInCustomer.addAccount(account);
             customerRepository.save(loggedInCustomer);
         }
     }
 
-    public void deleteAccount(Long accountId) {
-        Customer loggedInCustomer = customerRepository.findById(1L)
-                                                      .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
+    public void deleteAccount(Authentication authentication, Long accountId) {
+        Customer loggedInCustomer = getLoggedInCustomer(authentication);
 
         Optional<Account> accountToDelete = loggedInCustomer.getAccounts()
                                                             .stream()
@@ -64,9 +61,8 @@ public class AccountService {
         }
     }
 
-    public void updateAccount(Account account, Long accountId) {
-        Customer loggedInCustomer = customerRepository.findById(1L)
-                                                      .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
+    public void updateAccount(Authentication authentication, Account account, Long accountId) {
+        Customer loggedInCustomer = getLoggedInCustomer(authentication);
 
         Optional<Account> accountToUpdate = loggedInCustomer.getAccounts()
                                                             .stream()
@@ -83,5 +79,10 @@ public class AccountService {
         } else {
             throw new AccountNotFoundException("Account with id " + account.getId() + " not found for this customer");
         }
+    }
+
+    private Customer getLoggedInCustomer(Authentication authentication) {
+        return customerRepository.findCustomerByEmail(authentication.getName())
+                                 .orElseThrow(() -> new AccountNotFoundException("Customer with id 1 not found"));
     }
 }
