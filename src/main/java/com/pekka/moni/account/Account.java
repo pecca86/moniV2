@@ -22,6 +22,12 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 public class Account {
+
+    public enum AccountType {
+        SAVINGS,
+        USER_ACCOUNT
+    }
+
     @Id
     @SequenceGenerator(
             name = "customer_sequence",
@@ -68,14 +74,15 @@ public class Account {
     @JsonProperty("savings_goal")
     private Double savingsGoal;
 
-    @NotBlank(message = "Account type is required")
+    @NotNull(message = "Transaction category is required")
     @Column(
             name = "account_type",
             nullable = false,
             columnDefinition = "TEXT"
     )
     @JsonProperty("account_type")
-    private String accountType;
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
 
     @NotNull(message = "Balance is required")
     @Column(
@@ -113,7 +120,7 @@ public class Account {
     )
     private List<DateSpan> dateSpans;
 
-    public Account(Customer customer, String iban, String name, Double savingsGoal, String accountType, Double balance) {
+    public Account(Customer customer, String iban, String name, Double savingsGoal, AccountType accountType, Double balance) {
         this.customer = customer;
         this.iban = iban;
         this.name = name;
