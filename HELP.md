@@ -19,18 +19,24 @@ The following guides illustrate how to use some features concretely:
 
 
 ## PROJECT DEPENDENCIES:
-- Typescript
-- Vue.js
-- OAuth
-- AWS
-- Tailwind
-- Java 17
-- Spring Boot
-- GraphQL / PostgreSQL
-- Jenkins / Github Actions
-- Cypress
+- FE
+  - Typescript
+  - Vue.js
+  - Tailwind
+  - Cypress
+- BE
+  - Java 17
+  - Spring Boot 3.1.3
+  - GraphQL / PostgreSQL
+  - JWT / OAuth2
+- DevOps
+  - Docker
+  - AWS
+  - Jenkins / Github Actions
 
 
 ### TODO
-- User new way of filtering in *SecurityConfiguration.java* (see: https://docs.spring.io/spring-security/reference/5.8/migration/servlet/config.html)
 - Check how to verify if logged user has access to a specific resource (see: https://docs.spring.io/spring-security/site/docs/5.0.0.M1/reference/htmlsingle/#el-common-built-in)
+- Add SQL statements
+- Add test BE
+- Add test FE

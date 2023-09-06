@@ -2,6 +2,7 @@ package com.pekka.moni.auth;
 
 import com.pekka.moni.auth.dto.AuthenticationRequest;
 import com.pekka.moni.auth.dto.AuthenticationResponse;
+import com.pekka.moni.auth.dto.NewPasswordRequest;
 import com.pekka.moni.auth.dto.RegisterRequest;
 import com.pekka.moni.config.JwtService;
 import com.pekka.moni.customer.Customer;
@@ -12,6 +13,7 @@ import com.pekka.moni.exception.customer.CustomerNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,5 +62,20 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                                      .token(jwtToken)
                                      .build();
+    }
+
+    public Customer getLoggedInCustomer(Authentication authentication) {
+        String email = authentication.getName();
+        return customerRepository.findCustomerByEmail(email)
+                                 .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+
+    }
+
+    public void updatePassword(NewPasswordRequest passwordRequest, Authentication authentication) {
+        String email = authentication.getName();
+        Customer customerToUpdate = customerRepository.findCustomerByEmail(email)
+                                                     .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+        customerToUpdate.setPassword(passwordEncoder.encode(passwordRequest.password()));
+        customerRepository.save(customerToUpdate);
     }
 }

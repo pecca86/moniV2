@@ -2,13 +2,14 @@ package com.pekka.moni.auth;
 
 import com.pekka.moni.auth.dto.AuthenticationRequest;
 import com.pekka.moni.auth.dto.AuthenticationResponse;
+import com.pekka.moni.auth.dto.NewPasswordRequest;
 import com.pekka.moni.auth.dto.RegisterRequest;
+import com.pekka.moni.customer.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "api/v1/auth")
@@ -25,5 +26,16 @@ public class AuthenticationController {
     @PostMapping(path = "/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest loginRequest) {
         return ResponseEntity.ok(authenticationService.login(loginRequest));
+    }
+
+    @GetMapping("/me")
+    public Customer getCustomer(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
+        return authenticationService.getLoggedInCustomer(authentication);
+    }
+
+    @PostMapping("/password")
+    public void changePassword(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                               @RequestBody NewPasswordRequest password) {
+        authenticationService.updatePassword(password, authentication);
     }
 }

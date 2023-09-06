@@ -29,9 +29,9 @@ class CustomerServiceTest {
 
     private List<Customer> createTestData() {
         return List.of(
-                new Customer("Pekka1@p.com", "Akka", "Pen", "123AVC"),
-                new Customer("Pekka2@p.com", "E", "Hen", "123AVC"),
-                new Customer("Pekka3@p.com", "P", "Sen", "123AVC")
+                new Customer("Pekka1@p.com", "Akka", "Pen", "123AVC", Role.ROLE_ADMIN),
+                new Customer("Pekka2@p.com", "E", "Hen", "123AVC", Role.ROLE_USER),
+                new Customer("Pekka3@p.com", "P", "Sen", "123AVC", Role.ROLE_USER)
         );
     }
 

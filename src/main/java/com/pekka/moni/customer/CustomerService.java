@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-// TODO, Make work with logger in user as customer
+
 @Service
 public class CustomerService {
 
@@ -18,8 +18,7 @@ public class CustomerService {
     }
 
     public Customer getCustomer(Long id) {
-        return customerRepository.findById(id)
-                                 .orElseThrow(() -> new CustomerNotFoundException("Customer with id " + id + " not found"));
+        return findCustomer(id);
 
     }
 
@@ -40,12 +39,16 @@ public class CustomerService {
     }
 
     public void updateCustomer(Customer customer, Long id) {
-        Customer customerToUpdate = customerRepository.findById(id)
-                                                      .orElseThrow(() -> new CustomerNotFoundException("Customer with id " + id + " not found"));
+        Customer customerToUpdate = findCustomer(id);
 
         customerToUpdate.setEmail(customer.getEmail());
         customerToUpdate.setFirstName(customer.getFirstName());
         customerToUpdate.setLastName(customer.getLastName());
         customerRepository.save(customerToUpdate);
+    }
+
+    private Customer findCustomer(Long id) {
+        return customerRepository.findById(id)
+                                 .orElseThrow(() -> new CustomerNotFoundException("Customer with id " + id + " not found"));
     }
 }
