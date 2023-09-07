@@ -68,7 +68,7 @@ class AccountServiceTest {
     }
 
     @Test
-    @DisplayName("Should create a new account")
+    @DisplayName("Should create a new account for logged in customer")
     void should_create_new_account() {
         //given
         Account account = new Account();
