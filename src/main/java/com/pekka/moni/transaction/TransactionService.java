@@ -111,7 +111,9 @@ public class TransactionService {
 
         for (int i = 0; i < monthlyTransaction.months(); i++) {
             Transaction transaction = new Transaction(
-                    monthlyTransaction.data().getSum(),
+                    monthlyTransaction.data().getTransactionType().equals(Transaction.TransactionType.DEPOSIT)
+                            ? monthlyTransaction.data().getSum()
+                            : monthlyTransaction.data().getSum() * -1,
                     monthlyTransaction.data().getTransactionType(),
                     monthlyTransaction.data().getDescription(),
                     date,
@@ -122,7 +124,7 @@ public class TransactionService {
             date = date.plusMonths(1);
         }
 
-        account.getTransactions().addAll(createdTransactions);
+        account.addTransactions(createdTransactions);
 
         accountRepository.save(account);
     }

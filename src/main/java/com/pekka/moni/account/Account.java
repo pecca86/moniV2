@@ -134,16 +134,38 @@ public class Account {
             transactions = new ArrayList<>();
         }
 
+        if (balance == null) {
+            balance = 0.0;
+        }
+
         if (transaction != null) {
             this.transactions.add(transaction);
             transaction.setAccount(this);
+            this.balance = calculateBalance();
         }
     }
 
+    public void addTransactions(List<Transaction> createdTransactions) {
+        if (transactions == null) {
+            transactions = new ArrayList<>();
+        }
+
+        if (balance == null) {
+            balance = 0.0;
+        }
+        transactions.addAll(createdTransactions);
+        this.balance = calculateBalance();
+    }
+
     public void removeTransaction(Transaction transaction) {
+        if (balance == null) {
+            balance = 0.0;
+        }
+
         if (transactions != null && transactions.contains(transaction)) {
             this.transactions.remove(transaction);
             transaction.setAccount(null);
+            this.balance -= transaction.getSum();
         }
     }
 
@@ -164,4 +186,15 @@ public class Account {
             dateSpan.setAccount(null);
         }
     }
+
+    public Double getBalance() {
+        return calculateBalance();
+    }
+
+    private Double calculateBalance() {
+        return transactions.stream()
+                           .mapToDouble(Transaction::getSum)
+                           .sum();
+    }
+
 }
