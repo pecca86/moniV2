@@ -51,7 +51,7 @@ class AccountServiceTest {
     }
 
     @Test
-    @DisplayName("Should find all accounts for a customer")
+    @DisplayName("Should find all accounts for a logged in customer")
     void should_find_all_accounts_for_a_customer() {
         //given
         Account account = new Account();
