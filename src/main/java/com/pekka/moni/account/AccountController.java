@@ -21,14 +21,14 @@ public class AccountController {
     }
 
     @GetMapping
-    public List<Account> getCustomerAccounts(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
-        return accountService.getCustomerAccounts(authentication);
+    public ResponseEntity<List<Account>> getCustomerAccounts(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
+        return ResponseEntity.ok(accountService.getCustomerAccounts(authentication));
     }
 
     @GetMapping("/{accountId}")
-    public Account getAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<Account> getAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                               @PathVariable Long accountId) {
-        return accountService.getAccount(authentication, accountId);
+        return ResponseEntity.ok(accountService.getAccount(authentication, accountId));
     }
 
     @PostMapping
@@ -39,15 +39,17 @@ public class AccountController {
     }
 
     @DeleteMapping("/{accountId}")
-    public void deleteAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<String> deleteAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                               @PathVariable Long accountId) {
         accountService.deleteAccount(authentication, accountId);
+        return ResponseEntity.ok("Account deleted");
     }
 
     @PutMapping("/{accountId}")
-    public void updateAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<String> updateAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                               @RequestBody @Valid Account account,
                               @PathVariable Long accountId) {
         accountService.updateAccount(authentication, account, accountId);
+        return ResponseEntity.status(201).body("Account updated");
     }
 }

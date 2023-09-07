@@ -1,6 +1,7 @@
 package com.pekka.moni.datespan;
 
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
@@ -18,29 +19,31 @@ public class DateSpanController {
     }
 
     @GetMapping("/{accountId}/{dateSpanId}")
-    public DateSpan getDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
-                                @PathVariable Long accountId,
-                                @PathVariable Long dateSpanId) {
-        return dateSpanService.getDateSpan(authentication, accountId, dateSpanId);
+    public ResponseEntity<DateSpan> getDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                                               @PathVariable Long accountId,
+                                               @PathVariable Long dateSpanId) {
+        return ResponseEntity.ok(dateSpanService.getDateSpan(authentication, accountId, dateSpanId));
     }
 
     @GetMapping("/{accountId}")
-    public List<DateSpan> getAllDateSpans(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<List<DateSpan>> getAllDateSpans(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                           @PathVariable Long accountId) {
-        return dateSpanService.getAllDateSpans(authentication, accountId);
+        return ResponseEntity.ok(dateSpanService.getAllDateSpans(authentication, accountId));
     }
 
     @PostMapping("/{accountId}")
-    public void createDateSpanForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<String> createDateSpanForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                          @RequestBody @Valid DateSpan dateSpan,
                                          @PathVariable Long accountId) {
         dateSpanService.createDateSpan(authentication, dateSpan, accountId);
+        return ResponseEntity.status(201).body("DateSpan created");
     }
 
     @DeleteMapping("/{accountId}/{dateSpanId}")
-    public void deleteDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<String> deleteDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                @PathVariable Long accountId,
                                @PathVariable Long dateSpanId) {
         dateSpanService.deleteDateSpan(authentication, accountId, dateSpanId);
+        return ResponseEntity.ok("DateSpan deleted");
     }
 }
