@@ -86,7 +86,7 @@ class AccountServiceTest {
     }
 
     @Test
-    @DisplayName("Should update an existing account by id")
+    @DisplayName("Should update an existing account by id when account belongs to logged in customer")
     void should_update_account_by_id() {
         //given
         Account account = new Account();
