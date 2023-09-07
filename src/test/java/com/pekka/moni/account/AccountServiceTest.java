@@ -96,6 +96,7 @@ class AccountServiceTest {
         updated.setIban("FI1234567890123500");
         Customer customer = new Customer();
         customer.setAccounts(List.of(account));
+        account.setCustomer(customer);
         given(loggedInCustomerServiceMock.getLoggedInCustomer(any())).willReturn(customer);
         //when
         underTest.updateAccount(null, updated, 1L);

@@ -188,6 +188,12 @@ public class Account {
     }
 
     public Double getBalance() {
+        if (balance == null) {
+            balance = 0.0;
+        }
+        if (transactions == null) {
+            transactions = new ArrayList<>();
+        }
         return calculateBalance();
     }
 
