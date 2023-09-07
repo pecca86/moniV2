@@ -2,6 +2,7 @@ package com.pekka.moni.account;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +32,10 @@ public class AccountController {
     }
 
     @PostMapping
-    public void createAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
-                              @RequestBody @Valid Account account) {
+    public ResponseEntity<String> createAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                                        @RequestBody @Valid Account account) {
         accountService.createAccount(authentication, account);
+        return ResponseEntity.status(201).body("Account created");
     }
 
     @DeleteMapping("/{accountId}")
