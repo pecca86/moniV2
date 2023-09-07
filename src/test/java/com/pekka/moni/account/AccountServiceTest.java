@@ -55,7 +55,7 @@ class AccountServiceTest {
     void should_find_all_accounts_for_a_customer() {
         //given
         Account account = new Account();
-        account.setId(1L);
+        account.setId(2L);
         Customer customer = new Customer();
         customer.setAccounts(List.of(account));
         given(loggedInCustomerServiceMock.getLoggedInCustomer(any())).willReturn(customer);
