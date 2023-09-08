@@ -1,6 +1,5 @@
 package com.pekka.moni.customer;
 
-import com.pekka.moni.auth.LoggedInCustomerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
