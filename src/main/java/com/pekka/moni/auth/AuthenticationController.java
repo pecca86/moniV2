@@ -29,13 +29,14 @@ public class AuthenticationController {
     }
 
     @GetMapping("/me")
-    public Customer getCustomer(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
-        return authenticationService.getLoggedInCustomer(authentication);
+    public ResponseEntity<Customer> getCustomer(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
+        return ResponseEntity.ok(authenticationService.getLoggedInCustomer(authentication));
     }
 
     @PostMapping("/password")
-    public void changePassword(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<String> changePassword(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                @RequestBody NewPasswordRequest password) {
         authenticationService.updatePassword(password, authentication);
+        return ResponseEntity.ok("Password updated");
     }
 }

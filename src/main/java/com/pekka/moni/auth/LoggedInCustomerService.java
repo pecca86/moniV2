@@ -18,7 +18,7 @@ public class LoggedInCustomerService {
 
     public Customer getLoggedInCustomer(Authentication authentication) {
          return customerRepository.findCustomerByEmail(authentication.getName()).orElseThrow(
-                 () -> new CustomerNotFoundException("Customer with not found")
+                 () -> new CustomerNotFoundException("Customer not found")
          );
      }
 }
