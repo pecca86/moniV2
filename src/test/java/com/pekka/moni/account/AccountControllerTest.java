@@ -24,10 +24,10 @@ import static org.mockito.BDDMockito.given;
 class AccountControllerTest {
 
     @InjectMocks
-    AccountController underTest;
+    private AccountController underTest;
 
     @Mock
-    AccountService accountServiceMock;
+    private AccountService accountServiceMock;
 
     @BeforeEach
     void setUp() {

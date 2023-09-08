@@ -28,10 +28,10 @@ import static org.mockito.BDDMockito.given;
 class TransactionControllerTest {
 
     @InjectMocks
-    TransactionController underTest;
+    private TransactionController underTest;
 
     @Mock
-    TransactionService transactionServiceMock;
+    private TransactionService transactionServiceMock;
 
     @BeforeEach
     void setUp() {
