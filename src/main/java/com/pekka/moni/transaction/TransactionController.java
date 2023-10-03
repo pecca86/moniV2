@@ -3,6 +3,8 @@ package com.pekka.moni.transaction;
 import com.pekka.moni.transaction.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -22,6 +24,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{accountId}/{transactionId}")
+    @Cacheable(value = "transaction", key = "#transactionId")
     public ResponseEntity<Transaction> getTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                      @PathVariable Long accountId,
                                                      @PathVariable Long transactionId) {
@@ -29,6 +32,7 @@ public class TransactionController {
     }
 
     @GetMapping( "/{accountId}")
+    @Cacheable(value = "transactions", key = "#accountId")
     public ResponseEntity<TransactionResponse> getAccountTransactions(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                     @PathVariable Long accountId,
                                                     @RequestParam(name = "sortBy", required = false, defaultValue = "transactionDate") String sortBy,
@@ -39,6 +43,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{accountId}/span")
+    @Cacheable(value = "transactions", key = "#accountId") //TODO: Double check this
     public ResponseEntity<TransactionDateSpanResponse> getTransactionsByDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                                  @PathVariable Long accountId,
                                                                  @RequestBody TransactionDateSpan transactionDateSpan) {
@@ -46,11 +51,13 @@ public class TransactionController {
     }
 
     @GetMapping()
+    @Cacheable(value = "transactions", key = "#authentication.name")
     public ResponseEntity<List<Transaction>> getAllTransactions(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
         return ResponseEntity.ok(transactionService.getCustomerTransactions(authentication));
     }
 
     @PostMapping("/{accountId}")
+    @CacheEvict(value = "transactions", key = "#authentication.name")
     public ResponseEntity<String> addNewTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                   @RequestBody @Valid Transaction transaction,
                                   @PathVariable Long accountId) {
@@ -59,6 +66,7 @@ public class TransactionController {
     }
 
     @PostMapping("/{accountId}/create-monthly")
+    @CacheEvict(value = "transactions", key = "#authentication.name")
     public ResponseEntity<String> addMonthlyTransactionsForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                  @RequestBody @Valid MonthlyTransaction monthlyTransaction,
                                                  @PathVariable Long accountId) {
@@ -67,6 +75,7 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{transactionId}")
+    @CacheEvict(value = "transactions", key = "#authentication.name")
     public ResponseEntity<String> deleteTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                   @PathVariable Long transactionId) {
         transactionService.deleteTransaction(authentication, transactionId);
@@ -74,6 +83,7 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{accountId}/delete-all")
+    @CacheEvict(value = "transactions", key = "#authentication.name")
     public ResponseEntity<String> deleteAllSelectedTransactionsForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                         @RequestBody @Valid DeletableTransactions transactions,
                                                         @PathVariable Long accountId) {
@@ -82,6 +92,7 @@ public class TransactionController {
     }
 
     @PutMapping("/{transactionId}")
+    @CacheEvict(value = "transactions", key = "#authentication.name")
     public ResponseEntity<String> updateTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                   @RequestBody @Valid Transaction transaction,
                                   @PathVariable Long transactionId) {
@@ -98,6 +109,7 @@ public class TransactionController {
     }
 
     @GetMapping("/categories")
+    @Cacheable(value = "transactionCategories")
     public ResponseEntity<List<TransactionCategory>> getTransactionCategories() {
         return ResponseEntity.ok(transactionService.getTransactionCategories());
     }

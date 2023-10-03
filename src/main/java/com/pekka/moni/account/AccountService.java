@@ -28,11 +28,13 @@ public class AccountService {
     }
 
     public List<Account> getCustomerAccounts(Authentication authentication) {
+        System.out.println("getCustomerAccounts called");
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
         return loggedInCustomer.getAccounts();
     }
 
     public Account getAccount(Authentication authentication, Long accountId) {
+        System.out.println("getAccount called");
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
         return loggedInCustomer.getAccounts()
                                .stream()
