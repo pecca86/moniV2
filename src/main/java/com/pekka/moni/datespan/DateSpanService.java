@@ -37,6 +37,7 @@ public class DateSpanService {
     }
 
     public DateSpan getDateSpan(Authentication authentication, Long accountId, Long dateSpanId) {
+        System.out.println("Getting date span from database");
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         isLoggedInUsersAccount(accountId, loggedInCustomer);
@@ -45,6 +46,7 @@ public class DateSpanService {
     }
 
     public List<DateSpan> getAllDateSpans(Authentication authentication, Long accountId) {
+        System.out.println("Getting all date spans from database");
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         isLoggedInUsersAccount(accountId, loggedInCustomer);

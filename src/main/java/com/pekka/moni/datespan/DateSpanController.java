@@ -1,6 +1,8 @@
 package com.pekka.moni.datespan;
 
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -26,12 +28,14 @@ public class DateSpanController {
     }
 
     @GetMapping("/{accountId}")
+    @Cacheable(value = "dateSpans", key = "#accountId")
     public ResponseEntity<List<DateSpan>> getAllDateSpans(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                           @PathVariable Long accountId) {
         return ResponseEntity.ok(dateSpanService.getAllDateSpans(authentication, accountId));
     }
 
     @PostMapping("/{accountId}")
+    @CacheEvict(value = "dateSpans", key = "#accountId")
     public ResponseEntity<String> createDateSpanForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                          @RequestBody @Valid DateSpan dateSpan,
                                          @PathVariable Long accountId) {
@@ -40,6 +44,7 @@ public class DateSpanController {
     }
 
     @DeleteMapping("/{accountId}/{dateSpanId}")
+    @CacheEvict(value = "dateSpans", key = "#accountId")
     public ResponseEntity<String> deleteDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                @PathVariable Long accountId,
                                @PathVariable Long dateSpanId) {
