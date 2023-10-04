@@ -19,6 +19,7 @@ public class CachingConfig {
         cacheManager.setCaches(List.of(
                 new ConcurrentMapCache("accounts"),
                 new ConcurrentMapCache("transactionCategories"),
+                new ConcurrentMapCache("buckets"),
                 new ConcurrentMapCache("transactions")));
         return cacheManager;
     }

@@ -5,27 +5,46 @@ import com.pekka.moni.auth.dto.AuthenticationResponse;
 import com.pekka.moni.auth.dto.NewPasswordRequest;
 import com.pekka.moni.auth.dto.RegisterRequest;
 import com.pekka.moni.customer.Customer;
-import lombok.RequiredArgsConstructor;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Refill;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+
 @RestController
 @RequestMapping(path = "api/v1/auth")
-@RequiredArgsConstructor
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final Bucket bucket;
+
+    public AuthenticationController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+
+        Bandwidth bandwidth = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));
+        this.bucket = Bucket.builder()
+                            .addLimit(bandwidth)
+                            .build();
+    }
 
     @PostMapping(path = "/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest registerRequest) {
-        return ResponseEntity.ok(authenticationService.register(registerRequest));
+        if (bucket.tryConsume(1)) {
+            return ResponseEntity.ok(authenticationService.register(registerRequest));
+        }
+        return ResponseEntity.status(429).body(AuthenticationResponse.builder().build());
     }
 
     @PostMapping(path = "/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest loginRequest) {
-        return ResponseEntity.ok(authenticationService.login(loginRequest));
+        if (bucket.tryConsume(1)) {
+            return ResponseEntity.ok(authenticationService.login(loginRequest));
+        }
+        return ResponseEntity.status(429).body(AuthenticationResponse.builder().build());
     }
 
     @GetMapping("/me")
@@ -35,8 +54,11 @@ public class AuthenticationController {
 
     @PostMapping("/password")
     public ResponseEntity<String> changePassword(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
-                               @RequestBody NewPasswordRequest password) {
-        authenticationService.updatePassword(password, authentication);
-        return ResponseEntity.ok("Password updated");
+                                                 @RequestBody NewPasswordRequest password) {
+        if (bucket.tryConsume(1)) {
+            authenticationService.updatePassword(password, authentication);
+            return ResponseEntity.ok("Password updated");
+        }
+        return ResponseEntity.status(429).body("Too many requests, please try again later");
     }
 }
