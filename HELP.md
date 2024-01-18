@@ -21,8 +21,9 @@ The following guides illustrate how to use some features concretely:
 ## PROJECT DEPENDENCIES:
 - FE
   - Typescript
-  - Vue.js
+  - React + React Native
   - Tailwind
+  - SASS CSS
   - Cypress
 - BE
   - Java 17

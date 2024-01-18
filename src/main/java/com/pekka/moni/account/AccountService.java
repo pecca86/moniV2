@@ -5,6 +5,7 @@ import com.pekka.moni.customer.Customer;
 import com.pekka.moni.customer.CustomerRepository;
 import com.pekka.moni.exception.account.AccountNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ public class AccountService {
         return loggedInCustomer.getAccounts();
     }
 
-    public Account getAccount(Authentication authentication, Long accountId) {
+    public Account getAccount(@NonNull Authentication authentication, @NonNull Long accountId) throws AccountNotFoundException {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
         return loggedInCustomer.getAccounts()
                                .stream()
