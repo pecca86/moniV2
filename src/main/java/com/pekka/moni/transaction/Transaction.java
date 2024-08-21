@@ -15,8 +15,6 @@ import java.time.LocalDate;
 @Table(name = "transaction")
 @Data
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode
 public class Transaction {
 
     public enum TransactionType {

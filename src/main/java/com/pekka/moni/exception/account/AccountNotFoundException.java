@@ -6,5 +6,4 @@ public class AccountNotFoundException extends ApiRequestException {
     public AccountNotFoundException(String message) {
         super(message);
     }
-
 }
