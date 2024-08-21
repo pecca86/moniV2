@@ -3,12 +3,17 @@ import AccordionActions from '@mui/material/AccordionActions';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
 import TransactionList from '../TransactionList';
 
 const TimeSpans = () => {
     return (
         <div className='pt-2 pr-2'>
+            <Button sx={{ color: 'red'}} variant="outlined" startIcon={<AddIcon />}>
+                Add new timespan
+            </Button>
             <Accordion>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
@@ -16,7 +21,7 @@ const TimeSpans = () => {
                     id="panel1-header"
                 >
                     <div className='flex gap-2'>
-                        <span>12.8.2023 - 12.8.2024</span> <span>140 €</span> <span>Delete</span>
+                        <span>12.8.2023 - 12.8.2024</span> <span>140 €</span>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -37,7 +42,7 @@ const TimeSpans = () => {
                     id="panel2-header"
                 >
                     <div className='flex gap-2'>
-                        <span>12.8.2023 - 12.8.2024</span> <span>1430 €</span> <span>Delete</span>
+                        <span>12.8.2023 - 12.8.2024</span> <span>1430 €</span>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -58,7 +63,7 @@ const TimeSpans = () => {
                     id="panel3-header"
                 >
                     <div className='flex gap-2'>
-                        <span>12.8.2023 - 12.8.2024</span> <span>1240 €</span> <span>Delete</span>
+                        <span>12.8.2023 - 12.8.2024</span> <span>1240 €</span>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>

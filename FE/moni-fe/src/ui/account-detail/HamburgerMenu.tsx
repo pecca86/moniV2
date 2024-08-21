@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function HamburgerMenu() {
     const navigate = useNavigate();
+    const menuRef = useRef<HTMLDivElement | null>(null);
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
+
+    const handleClickOutside = (event: any) => {
+        if (menuRef.current && !menuRef.current.contains(event.target)) {
+            setIsOpen(false);
+        }
+    }
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        // to avoid bubbling effect
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     return (
         <nav>
@@ -34,14 +49,11 @@ function HamburgerMenu() {
                     ></span>
                 </div>
             </button>
-            <aside className={`${isOpen ? "block" : "hidden"} bg-orange-300 row-span-3`}>
-
+            <aside className={`${isOpen ? "block" : "hidden"} row-span-3`}>
                 <div className="relative">
-
-
                     {/* Menu Items */}
-                    <nav className={`${isOpen ? "block" : "hidden"} md:flex flex-col md:flex-row  md:relative top-12 md:top-0 left-0 w-full z-50 md:w-auto`}>
-                        <div className="bg-gray-400 absolute z-50">
+                    <nav className={`${isOpen ? "block" : "hidden"} md:flex flex-col md:flex-row  md:relative top-12 md:top-0 left-0 w-full z-50 md:w-auto`} >
+                        <div className="bg-gray-400 absolute z-50" ref={menuRef}>
                             <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/main')}>Transactions</span>
                             <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/timespans')}>Timespans</span>
                             <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/charts')}>Charts</span>
