@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AccountDetail from "./pages/AccountDetail";
 import NotFoundPage from "./pages/NotFoundPage";
 import Accounts from "./pages/Accounts";
-import DetailMain from "./ui/account-detail/main/DetailMain";
+import DetailMain from "./ui/account-detail/transactions/DetailMain";
 import TimeSpans from "./ui/account-detail/timespans/TimeSpans";
 import DetailCharts from "./ui/account-detail/charts/DetailCharts";
 import { Toaster } from "react-hot-toast";

@@ -3,17 +3,20 @@ import AccordionActions from '@mui/material/AccordionActions';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
 import TransactionList from '../TransactionList';
+import AddModal from '../../cta/AddModal';
+import TimeSpanForm from './TimeSpanForm';
 
 const TimeSpans = () => {
     return (
         <div className='pt-2 pr-2'>
-            <Button sx={{ color: 'red'}} variant="outlined" startIcon={<AddIcon />}>
-                Add new timespan
-            </Button>
+            <AddModal
+                ctaText='Add Time Span'
+                heading='Add a new time span'
+                paragraph='Fill in the form below to add a new time span'
+                form={<TimeSpanForm />}
+            />
             <Accordion>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
@@ -46,7 +49,7 @@ const TimeSpans = () => {
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
-                    {/* TODO: Make a info panel component here */}
+                    {/* TODO: Make a info panel component here that hold Delete / Edit buttons*/}
                     <div className='flex flex-col gap-1 mb-1'>
                         <span>Incomes: 400€</span>
                         <span>Spendings: -100€</span>

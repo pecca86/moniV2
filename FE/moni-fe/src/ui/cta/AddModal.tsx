@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import AccountForm from '../accounts/AccountForm';
 
-const AddModal = ({heading, paragraph, form}: {heading: string, paragraph: string, form:any}) => {
+const AddModal = ({ctaText, heading, paragraph, form}: {ctaText: string, heading: string, paragraph: string, form:any}) => {
 
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
@@ -29,7 +29,7 @@ const AddModal = ({heading, paragraph, form}: {heading: string, paragraph: strin
     return (
         <>
             <button className='m-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded' onClick={handleOpen}>
-                Add Account
+                {ctaText}
             </button>
             <Modal
                 open={open}

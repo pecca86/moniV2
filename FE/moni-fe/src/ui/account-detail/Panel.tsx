@@ -1,7 +1,15 @@
+import AddModal from "../cta/AddModal";
+import AccountInfoForm from "./AccountInfoForm";
+
 const Panel = () => {
     return (
         <div className='bg-yellow-300'>
-            Panel
+            <AddModal
+                ctaText="Update Account Info"
+                heading='Update Account Info'
+                paragraph='Edit the fields below'
+                form={<AccountInfoForm />}
+            />
             <p>IBAN: NL85 033030 ABNA 3020</p>
             <p>Balance: 300 €</p>
             <p>Account name: Savings</p>
