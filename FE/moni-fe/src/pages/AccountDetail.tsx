@@ -1,16 +1,15 @@
 import SideNav from "../ui/account-detail/SideNav";
-import Panel from "../ui/account-detail/Panel";
-import TransactionList from "../ui/account-detail/TransactionList";
-
+import { Outlet } from "react-router-dom";
 
 const AccountDetail = () => {
     return (
         <>
-            <section className="grid grid-rows-2 grid-flow-col gap-4 h-screen">
+            {/* <section className="grid grid-rows-3 grid-flow-col gap-0 h-screen"> */}
+            <section className="flex gap-2 h-screen">
                 <SideNav />
-                <Panel />
-                <TransactionList />
-
+                <div>
+                    <Outlet />
+                </div>
             </section>
         </>
     );

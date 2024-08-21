@@ -2,7 +2,7 @@ import TransactionListItem
  from "./TransactionListItem";
 const TransactionList = () => {
     return (
-        <div className='bg-purple-300 col-span-2'>
+        <div className='bg-purple-300 col-span-3'>
             TransactionList
             <TransactionListItem />
             <TransactionListItem />

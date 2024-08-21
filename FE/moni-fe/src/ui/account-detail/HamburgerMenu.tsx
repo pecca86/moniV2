@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 function HamburgerMenu() {
     const [isOpen, setIsOpen] = useState(false);
@@ -8,7 +8,7 @@ function HamburgerMenu() {
     };
 
     return (
-        <div className="relative">
+        <nav>
             {/* Hamburger Button */}
             <button
                 onClick={toggleMenu}
@@ -32,38 +32,23 @@ function HamburgerMenu() {
                     ></span>
                 </div>
             </button>
+            <aside className={`${isOpen ? "block" : "hidden"} bg-orange-300 row-span-3`}>
 
-            {/* Menu Items */}
-            <nav
-                className={`${isOpen ? "block" : "hidden"
-                    } md:flex flex-col md:flex-row absolute md:relative top-12 md:top-0 left-0 w-full md:w-auto bg-white md:bg-transparent`}
-            >
-                <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-                >
-                    Home
-                </a>
-                <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-                >
-                    About
-                </a>
-                <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-                >
-                    Services
-                </a>
-                <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-                >
-                    Contact
-                </a>
-            </nav>
-        </div>
+                <div className="relative">
+
+
+                    {/* Menu Items */}
+                    <nav className={`${isOpen ? "block" : "hidden"} md:flex flex-col md:flex-row  md:relative top-12 md:top-0 left-0 w-full md:w-auto md:bg-transparent`}>
+                        <div className="bg-gray-400 absolute">
+                            <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">Transactions</a>
+                            <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">Timespans</a>
+                            <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">Charts</a>
+                        </div>
+                    </nav>
+                </div>
+            </aside>
+        </nav>
+
     );
 }
 
