@@ -40,9 +40,9 @@ function HamburgerMenu() {
 
 
                     {/* Menu Items */}
-                    <nav className={`${isOpen ? "block" : "hidden"} md:flex flex-col md:flex-row  md:relative top-12 md:top-0 left-0 w-full md:w-auto md:bg-transparent`}>
+                    <nav className={`${isOpen ? "block" : "hidden"} md:flex flex-col md:flex-row  md:relative top-12 md:top-0 left-0 w-full z-50 md:w-auto`}>
                         <div className="bg-gray-400 absolute">
-                            <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/main')}>Timespans</span>
+                            <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/main')}>Transactions</span>
                             <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/timespans')}>Timespans</span>
                             <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/charts')}>Charts</span>
                         </div>

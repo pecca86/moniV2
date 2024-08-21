@@ -1,8 +1,9 @@
-
+import MoniLineChart from "../../charts/MoniLineChart";
 const DetailCharts = () => {
     return (
-        <div>
+        <div className="w-full">
             Charts
+            <MoniLineChart />
         </div>
     );
 }

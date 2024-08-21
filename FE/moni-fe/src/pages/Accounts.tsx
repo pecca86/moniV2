@@ -1,14 +1,13 @@
 import AccountList from '../ui/accounts/AccountList';
-import LineChart from '../ui/charts/LineChart';
 import AddCta from '../ui/cta/AddCta';
+import MoniLineChart from '../ui/charts/MoniLineChart';
 
 const Accounts = () => {
     return (
-        <section className='px-8'>
-            ACCOUNTS
+        <section className='px-8 flex flex-col gap-2'>
             <AddCta />
             <AccountList />
-            <LineChart />
+            <MoniLineChart />
         </section>
     );
 }
