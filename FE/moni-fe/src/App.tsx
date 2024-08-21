@@ -3,8 +3,9 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AccountDetail from "./pages/AccountDetail";
 import NotFoundPage from "./pages/NotFoundPage";
 import Accounts from "./pages/Accounts";
-import Login from "./pages/Login";
 import DetailMain from "./ui/account-detail/main/DetailMain";
+import TimeSpans from "./ui/account-detail/timespans/TimeSpans";
+import DetailCharts from "./ui/account-detail/charts/DetailCharts";
 
 function App() {
 
@@ -21,6 +22,8 @@ function App() {
             <Route path='/account-details' element={<AccountDetail />} >
             {/* This makes all childs routes render inside this route when calling Outlet inside AccountDetails */}
             <Route path="/account-details/:accountId/main" element={<DetailMain />} />
+            <Route path="/account-details/:accountId/timespans" element={<TimeSpans />} />
+            <Route path="/account-details/:accountId/charts" element={<DetailCharts />} />
           </Route>
           </Route>
 

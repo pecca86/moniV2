@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function HamburgerMenu() {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleMenu = () => {
@@ -40,9 +42,9 @@ function HamburgerMenu() {
                     {/* Menu Items */}
                     <nav className={`${isOpen ? "block" : "hidden"} md:flex flex-col md:flex-row  md:relative top-12 md:top-0 left-0 w-full md:w-auto md:bg-transparent`}>
                         <div className="bg-gray-400 absolute">
-                            <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">Transactions</a>
-                            <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">Timespans</a>
-                            <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">Charts</a>
+                            <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/main')}>Timespans</span>
+                            <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/timespans')}>Timespans</span>
+                            <span className='block px-4 py-2 text-gray-700 hover:bg-gray-200' onClick={() => navigate('1/charts')}>Charts</span>
                         </div>
                     </nav>
                 </div>
