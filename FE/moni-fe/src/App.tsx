@@ -6,6 +6,7 @@ import Accounts from "./pages/Accounts";
 import DetailMain from "./ui/account-detail/transactions/DetailMain";
 import TimeSpans from "./ui/account-detail/timespans/TimeSpans";
 import DetailCharts from "./ui/account-detail/charts/DetailCharts";
+import ProfilePage from "./pages/ProfilePage";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -18,8 +19,9 @@ function App() {
             {/* This makes all childs routes render inside this route when calling Outlet inside AppLayout */}
             <Route index element={<Navigate replace to={'/accounts'} />} />
             <Route path="/accounts" element={<Accounts />} />
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path='/account-details' element={<AccountDetail />} >
+            <Route path="*" element={<NotFoundPage />} />
               {/* This makes all childs routes render inside this route when calling Outlet inside AccountDetails */}
               <Route path="/account-details/:accountId/main" element={<DetailMain />} />
               <Route path="/account-details/:accountId/timespans" element={<TimeSpans />} />

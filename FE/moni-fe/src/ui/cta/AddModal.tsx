@@ -26,9 +26,11 @@ const AddModal = ({ctaText, heading, paragraph, form}: {ctaText: string, heading
     // allows us to pass props to the form component
     const clonedForm = cloneElement(form, {handleClose: handleClose});
 
+    // TODO: Remove the margins from the button and let the parent component handle the margins
+
     return (
         <>
-            <button className='m-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded' onClick={handleOpen}>
+            <button className='bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded' onClick={handleOpen}>
                 {ctaText}
             </button>
             <Modal
