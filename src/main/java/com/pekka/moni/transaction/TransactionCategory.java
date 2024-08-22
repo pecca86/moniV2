@@ -8,6 +8,15 @@ public enum TransactionCategory {
     UTILITIES,
     HEALTH,
     HOME,
+    KIDS,
+    TRAVEL,
+    SALARY,
+    BILLS,
+    MORTAGE,
+    HOTELS,
+    CLOTHES,
+    RENT,
+    RESTAURANTS,
     SAVINGS,
     OTHER
 }
