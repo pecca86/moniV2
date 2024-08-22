@@ -363,6 +363,6 @@ class TransactionServiceTest {
     void getTransactionCategories() {
         List<TransactionCategory> categories = underTest.getTransactionCategories();
         assertThat(categories).isNotNull()
-                              .hasSize(9);
+                              .hasSize(18);
     }
 }
