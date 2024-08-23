@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,10 @@ public class Account {
 
     public enum AccountType {
         SAVINGS,
-        USER_ACCOUNT
+        DEPOSIT,
+        CREDIT,
+        INVESTMENT,
+        OTHER
     }
 
     @Id
@@ -92,6 +96,10 @@ public class Account {
     )
     private Double balance;
 
+    @Transient
+    @JsonProperty("balance_with_transactions")
+    private Double balanceWithTransactions;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(
@@ -134,15 +142,9 @@ public class Account {
             transactions = new ArrayList<>();
         }
 
-        if (balance == null) {
-            balance = 0.0;
-        }
-
-        if (transaction != null) {
-            this.transactions.add(transaction);
-            transaction.setAccount(this);
-            this.balance = calculateBalance();
-        }
+        this.transactions.add(transaction);
+        transaction.setAccount(this);
+        this.balanceWithTransactions = calculateBalance();
     }
 
     public void addTransactions(List<Transaction> createdTransactions) {
@@ -158,14 +160,22 @@ public class Account {
     }
 
     public void removeTransaction(Transaction transaction) {
+        if (transactions == null) {
+            transactions = new ArrayList<>();
+        }
+
         if (balance == null) {
             balance = 0.0;
         }
 
-        if (transactions != null && transactions.contains(transaction)) {
+        if (balanceWithTransactions == null) {
+            balanceWithTransactions = 0.0;
+        }
+
+        if (transactions.contains(transaction)) {
             this.transactions.remove(transaction);
             transaction.setAccount(null);
-            this.balance -= transaction.getSum();
+            this.balanceWithTransactions -= transaction.getSum();
         }
     }
 
@@ -187,18 +197,25 @@ public class Account {
         }
     }
 
-    public Double getBalance() {
+    public Double getBalanceWithTransactions() {
+        if (transactions == null) {
+            return this.balance;
+        }
+
         if (balance == null) {
             balance = 0.0;
         }
-        if (transactions == null) {
-            transactions = new ArrayList<>();
-        }
-        return calculateBalance();
+
+        double transactionsSum = transactions.stream()
+                                             .mapToDouble(Transaction::getSum)
+                                             .sum();
+        return this.balance + transactionsSum;
     }
 
     private Double calculateBalance() {
+        var today = LocalDate.now();
         return transactions.stream()
+                           .filter(transaction -> transaction.getTransactionDate().isAfter(today.minusDays(1)))
                            .mapToDouble(Transaction::getSum)
                            .sum();
     }

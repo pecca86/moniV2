@@ -5,12 +5,14 @@ import com.pekka.moni.account.AccountRepository;
 import com.pekka.moni.auth.LoggedInCustomerService;
 import com.pekka.moni.customer.Customer;
 import com.pekka.moni.exception.account.AccountAccessException;
+import com.pekka.moni.exception.datespan.InvalidDateSpanException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -150,6 +152,22 @@ class DateSpanServiceTest {
         assertThatThrownBy(() -> underTest.createDateSpan(null, dateSpan, 2L))
                 .isInstanceOf(AccountAccessException.class)
                 .hasMessageContaining("Account with id 2 not found for customer with id 1");
+    }
+
+    @Test
+    @DisplayName("Should throw exception when 'from' date is greater than 'to' date")
+    void should_throw_exception_when_from_date_is_gt_to_date() {
+        //given
+        LocalDate from = LocalDate.of(2021, 1, 2);
+        LocalDate to = LocalDate.of(2021, 1, 1);
+        DateSpan dateSpan = new DateSpan(from, to, null);
+        dateSpan.setId(1L);
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.createDateSpan(null, dateSpan, 1L))
+                .isInstanceOf(InvalidDateSpanException.class)
+                .hasMessageContaining("From date must be before to date");
+
     }
 
 }

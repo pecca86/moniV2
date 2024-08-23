@@ -40,7 +40,7 @@ public class AccountController {
     public ResponseEntity<String> createAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                         @RequestBody @Valid Account account) {
         accountService.createAccount(authentication, account);
-        return ResponseEntity.status(201).body("Account created");
+        return ResponseEntity.status(201).body("Account created"); // Use a Response object instead of a String
     }
 
     @DeleteMapping("/{accountId}")

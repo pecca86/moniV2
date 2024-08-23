@@ -6,6 +6,8 @@ import com.pekka.moni.auth.LoggedInCustomerService;
 import com.pekka.moni.customer.Customer;
 import com.pekka.moni.exception.account.AccountAccessException;
 import com.pekka.moni.exception.datespan.DateSpanNotFoundException;
+import com.pekka.moni.exception.datespan.InvalidDateSpanException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +28,11 @@ public class DateSpanService {
         this.loggedInCustomerService = loggedInCustomerService;
     }
 
-    public void createDateSpan(Authentication authentication, DateSpan dateSpan, Long accountId) {
+    public ResponseEntity<String> createDateSpan(Authentication authentication, DateSpan dateSpan, Long accountId) {
+        if (dateSpan.getFrom().isAfter(dateSpan.getTo())) {
+            throw new InvalidDateSpanException("From date must be before to date");
+        }
+
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         isLoggedInUsersAccount(accountId, loggedInCustomer);
@@ -34,6 +40,7 @@ public class DateSpanService {
                                            .orElseThrow(() -> new AccountAccessException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()));
         account.addDateSpan(dateSpan);
         accountRepository.save(account);
+        return ResponseEntity.status(201).body("Date span created");
     }
 
     public DateSpan getDateSpan(Authentication authentication, Long accountId, Long dateSpanId) {

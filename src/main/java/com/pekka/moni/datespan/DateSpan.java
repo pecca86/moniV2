@@ -3,6 +3,8 @@ package com.pekka.moni.datespan;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pekka.moni.account.Account;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Past;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -30,7 +32,7 @@ public class DateSpan {
     )
     private Long id;
 
-    @Past(message = "Date should be in the past")
+    @FutureOrPresent(message = "Date should be today's date or in the future")
     @Column(
             name = "from_date",
             nullable = false,
@@ -38,7 +40,8 @@ public class DateSpan {
     )
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate from;
-    @Past(message = "Date should be in the past")
+
+    @Future(message = "Date should be in the future")
     @Column(
             name = "to_date",
             nullable = false,

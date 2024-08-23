@@ -5,6 +5,7 @@ import com.pekka.moni.exception.account.AccountNotFoundException;
 import com.pekka.moni.exception.customer.CustomerAlreadyExistsException;
 import com.pekka.moni.exception.customer.CustomerNotFoundException;
 import com.pekka.moni.exception.datespan.DateSpanNotFoundException;
+import com.pekka.moni.exception.datespan.InvalidDateSpanException;
 import com.pekka.moni.exception.transaction.TransactionNotFoundException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,17 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(value = {ApiRequestException.class})
     public ResponseEntity<Object> handleApiRequestException(ApiRequestException e) {
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST,
+                ZonedDateTime.now()
+        );
+        LOGGER.error("ApiRequestException: ", e);
+        return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {InvalidDateSpanException.class})
+    public ResponseEntity<Object> handleInvalidDateSpanException(InvalidDateSpanException e) {
         ApiException exception = new ApiException(
                 e.getMessage(),
                 HttpStatus.BAD_REQUEST,

@@ -146,10 +146,12 @@ class TransactionServiceTest {
         transaction.setId(1L);
         transaction.setTransactionType(transactionType);
         transaction.setSum(100.0);
+        transaction.setTransactionDate(LocalDate.of(2021, 1, 1));
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
         transaction2.setTransactionType(transactionType);
         transaction2.setSum(200.0);
+        transaction2.setTransactionDate(LocalDate.of(2021, 1, 2));
         List<Account> accounts = new ArrayList<>(List.of(account));
         customer.setAccounts(accounts);
         given(loggedInCustomerServiceMock.getLoggedInCustomer(any())).willReturn(customer);
@@ -160,9 +162,9 @@ class TransactionServiceTest {
         assertThat(account.getTransactions()).isNotNull();
         assertThat(account.getTransactions()).hasSize(2);
         if (transactionType == Transaction.TransactionType.WITHDRAWAL) {
-            assertThat(account.getBalance()).isEqualTo(-300.0);
+            assertThat(account.getBalanceWithTransactions()).isEqualTo(-300.0);
         } else {
-            assertThat(account.getBalance()).isEqualTo(300.0);
+            assertThat(account.getBalanceWithTransactions()).isEqualTo(300.0);
         }
     }
 
@@ -193,9 +195,9 @@ class TransactionServiceTest {
         assertThat(account.getTransactions()).isNotNull();
         assertThat(account.getTransactions()).hasSize(3);
         if (transactionType == Transaction.TransactionType.WITHDRAWAL) {
-            assertThat(account.getBalance()).isEqualTo(-300.0);
+            assertThat(account.getBalanceWithTransactions()).isEqualTo(-300.0);
         } else {
-            assertThat(account.getBalance()).isEqualTo(300.0);
+            assertThat(account.getBalanceWithTransactions()).isEqualTo(300.0);
         }
     }
 
