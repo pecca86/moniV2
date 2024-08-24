@@ -4,6 +4,7 @@ import com.pekka.moni.account.Account;
 import com.pekka.moni.account.AccountRepository;
 import com.pekka.moni.auth.LoggedInCustomerService;
 import com.pekka.moni.customer.Customer;
+import com.pekka.moni.datespan.dto.DateSpanResponseDto;
 import com.pekka.moni.exception.account.AccountAccessException;
 import com.pekka.moni.exception.datespan.InvalidDateSpanException;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,12 +56,12 @@ class DateSpanServiceTest {
         dateSpan.setId(1L);
         given(dateSpanRepositoryMock.findById(1L)).willReturn(Optional.of(dateSpan));
         //when
-        DateSpan result = underTest.getDateSpan(null, 1L, 1L);
+        ResponseEntity<DateSpanResponseDto> result = underTest.getDateSpan(null, 1L, 1L);
         //then
         assertThat(result).isNotNull();
-        assertThat(result.getFrom()).isEqualTo(from);
-        assertThat(result.getTo()).isEqualTo(to);
-        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getBody().dateSpan().getFrom()).isEqualTo(from);
+        assertThat(result.getBody().dateSpan().getTo()).isEqualTo(to);
+        assertThat(result.getBody().dateSpan().getId()).isEqualTo(1L);
     }
 
     @Test

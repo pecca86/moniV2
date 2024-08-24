@@ -4,6 +4,7 @@ import com.pekka.moni.account.Account;
 import com.pekka.moni.account.AccountRepository;
 import com.pekka.moni.auth.LoggedInCustomerService;
 import com.pekka.moni.customer.Customer;
+import com.pekka.moni.datespan.dto.DateSpanResponseDto;
 import com.pekka.moni.exception.account.AccountAccessException;
 import com.pekka.moni.exception.datespan.DateSpanNotFoundException;
 import com.pekka.moni.exception.datespan.InvalidDateSpanException;
@@ -28,7 +29,7 @@ public class DateSpanService {
         this.loggedInCustomerService = loggedInCustomerService;
     }
 
-    public ResponseEntity<String> createDateSpan(Authentication authentication, DateSpan dateSpan, Long accountId) {
+    public ResponseEntity<DateSpanResponseDto> createDateSpan(Authentication authentication, DateSpan dateSpan, Long accountId) {
         if (dateSpan.getFrom().isAfter(dateSpan.getTo())) {
             throw new InvalidDateSpanException("From date must be before to date");
         }
@@ -40,16 +41,17 @@ public class DateSpanService {
                                            .orElseThrow(() -> new AccountAccessException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()));
         account.addDateSpan(dateSpan);
         accountRepository.save(account);
-        return ResponseEntity.status(201).body("Date span created");
+        return ResponseEntity.status(201).body(new DateSpanResponseDto("Date span created", 201, dateSpan));
     }
 
-    public DateSpan getDateSpan(Authentication authentication, Long accountId, Long dateSpanId) {
+    public ResponseEntity<DateSpanResponseDto>  getDateSpan(Authentication authentication, Long accountId, Long dateSpanId) {
         System.out.println("Getting date span from database");
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         isLoggedInUsersAccount(accountId, loggedInCustomer);
-        return dateSpanRepository.findById(dateSpanId)
+        DateSpan dateSpan = dateSpanRepository.findById(dateSpanId)
                                  .orElseThrow(() -> new DateSpanNotFoundException("Date span with id " + dateSpanId + " not found"));
+        return ResponseEntity.ok(new DateSpanResponseDto("Date span found", 200, dateSpan));
     }
 
     public List<DateSpan> getAllDateSpans(Authentication authentication, Long accountId) {
@@ -61,7 +63,7 @@ public class DateSpanService {
         return dateSpanRepository.findAllByAccountId(accountId);
     }
 
-    public void deleteDateSpan(Authentication authentication, Long accountId, Long dateSpanId) {
+    public ResponseEntity<DateSpanResponseDto> deleteDateSpan(Authentication authentication, Long accountId, Long dateSpanId) {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         isLoggedInUsersAccount(accountId, loggedInCustomer);
@@ -72,6 +74,7 @@ public class DateSpanService {
                                                .orElseThrow(() -> new DateSpanNotFoundException("Date span with id " + dateSpanId + " not found"));
         account.removeDateSpan(dateSpan);
         dateSpanRepository.deleteById(dateSpanId);
+        return ResponseEntity.ok(new DateSpanResponseDto("Date span deleted", 200, dateSpan));
     }
 
     private static void isLoggedInUsersAccount(Long accountId, Customer loggedInCustomer) {

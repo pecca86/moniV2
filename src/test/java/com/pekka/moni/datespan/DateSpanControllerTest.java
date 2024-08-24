@@ -1,5 +1,6 @@
 package com.pekka.moni.datespan;
 
+import com.pekka.moni.datespan.dto.DateSpanResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+// TODO: Implement using TestContainers!
 @ExtendWith(MockitoExtension.class)
 class DateSpanControllerTest {
 
@@ -42,12 +44,13 @@ class DateSpanControllerTest {
         DateSpan dateSpan = new DateSpan();
         dateSpan.setFrom(LocalDate.of(2020, 1, 1));
         dateSpan.setTo(LocalDate.of(2020, 1, 31));
-        given(dateSpanServiceMock.getDateSpan(any(), any(Long.class), any(Long.class))).willReturn(dateSpan);
+        ResponseEntity<DateSpanResponseDto> expectedResponse = ResponseEntity.ok(new DateSpanResponseDto("Date span found", 200, dateSpan));
+        given(dateSpanServiceMock.getDateSpan(any(), any(Long.class), any(Long.class))).willReturn(expectedResponse);
         //when
-        ResponseEntity<DateSpan> response = underTest.getDateSpan(any(), any(Long.class), any(Long.class));
+        ResponseEntity<DateSpanResponseDto> response = underTest.getDateSpan(any(), any(Long.class), any(Long.class));
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(dateSpan);
+        assertThat(response.getBody().dateSpan()).isEqualTo(dateSpan);
     }
 
     @Test
@@ -75,11 +78,14 @@ class DateSpanControllerTest {
         DateSpan dateSpan = new DateSpan();
         dateSpan.setFrom(LocalDate.of(2020, 1, 1));
         dateSpan.setTo(LocalDate.of(2020, 1, 31));
+
+        ResponseEntity<DateSpanResponseDto> expectedResponse = ResponseEntity.status(201).body(new DateSpanResponseDto("DateSpan created", 201, dateSpan));
+        given(dateSpanServiceMock.createDateSpan(any(), any(DateSpan.class), any(Long.class))).willReturn(expectedResponse);
         //when
-        ResponseEntity<String> response = underTest.createDateSpanForAccount(null, dateSpan, 1L);
+        ResponseEntity<DateSpanResponseDto> response = underTest.createDateSpanForAccount(null, dateSpan, 1L);
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(201);
-        assertThat(response.getBody()).isEqualTo("DateSpan created");
+        assertThat(response.getBody().message()).isEqualTo("DateSpan created");
     }
 
     @Test
@@ -89,10 +95,12 @@ class DateSpanControllerTest {
         DateSpan dateSpan = new DateSpan();
         dateSpan.setFrom(LocalDate.of(2020, 1, 1));
         dateSpan.setTo(LocalDate.of(2020, 1, 31));
+        ResponseEntity<DateSpanResponseDto> expectedResponse = ResponseEntity.status(200).body(new DateSpanResponseDto("DateSpan deleted", 200, dateSpan));
+        given(dateSpanServiceMock.deleteDateSpan(any(), any(Long.class), any(Long.class))).willReturn(expectedResponse);
         //when
-        ResponseEntity<String> response = underTest.deleteDateSpan(null, 1L, 1L);
+        ResponseEntity<DateSpanResponseDto> response = underTest.deleteDateSpan(null, 1L, 1L);
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo("DateSpan deleted");
+        assertThat(response.getBody().message()).isEqualTo("DateSpan deleted");
     }
 }

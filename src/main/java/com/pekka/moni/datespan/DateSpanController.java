@@ -1,5 +1,6 @@
 package com.pekka.moni.datespan;
 
+import com.pekka.moni.datespan.dto.DateSpanResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,10 +22,10 @@ public class DateSpanController {
     }
 
     @GetMapping("/{accountId}/{dateSpanId}")
-    public ResponseEntity<DateSpan> getDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
-                                               @PathVariable Long accountId,
-                                               @PathVariable Long dateSpanId) {
-        return ResponseEntity.ok(dateSpanService.getDateSpan(authentication, accountId, dateSpanId));
+    public ResponseEntity<DateSpanResponseDto> getDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                                                           @PathVariable Long accountId,
+                                                           @PathVariable Long dateSpanId) {
+        return dateSpanService.getDateSpan(authentication, accountId, dateSpanId);
     }
 
     @GetMapping("/{accountId}")
@@ -36,19 +37,17 @@ public class DateSpanController {
 
     @PostMapping("/{accountId}")
     @CacheEvict(value = "dateSpans", key = "#accountId")
-    public ResponseEntity<String> createDateSpanForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<DateSpanResponseDto> createDateSpanForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                          @RequestBody @Valid DateSpan dateSpan,
                                          @PathVariable Long accountId) {
-        dateSpanService.createDateSpan(authentication, dateSpan, accountId);
-        return ResponseEntity.status(201).body("DateSpan created");
+        return dateSpanService.createDateSpan(authentication, dateSpan, accountId);
     }
 
     @DeleteMapping("/{accountId}/{dateSpanId}")
     @CacheEvict(value = "dateSpans", key = "#accountId")
-    public ResponseEntity<String> deleteDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<DateSpanResponseDto> deleteDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                @PathVariable Long accountId,
                                @PathVariable Long dateSpanId) {
-        dateSpanService.deleteDateSpan(authentication, accountId, dateSpanId);
-        return ResponseEntity.ok("DateSpan deleted");
+        return dateSpanService.deleteDateSpan(authentication, accountId, dateSpanId);
     }
 }
