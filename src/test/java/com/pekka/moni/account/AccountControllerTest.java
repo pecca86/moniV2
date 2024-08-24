@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+// TODO: Refactor to use TestCointainers
 @ExtendWith(MockitoExtension.class)
 class AccountControllerTest {
 
@@ -69,11 +70,16 @@ class AccountControllerTest {
         //given
         Account account = new Account();
         account.setId(1L);
+        AccountResponseDto accountResponseDto = new AccountResponseDto("Account created", 201, account);
+        ResponseEntity<AccountResponseDto> expectedResponse = ResponseEntity.status(201).body(accountResponseDto);
+        given(accountServiceMock.createAccount(null, account)).willReturn(expectedResponse);
         //when
-        ResponseEntity<String> response = underTest.createAccount(any(), any(Account.class));
+        ResponseEntity<AccountResponseDto> response = underTest.createAccount(null, account);
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(201);
-        assertThat(response.getBody()).isEqualTo("Account created");
+        assertThat(response.getBody().account()).isEqualTo(account);
+        assertThat(response.getBody().status()).isEqualTo(201);
+        assertThat(response.getBody().message()).isEqualTo("Account created");
     }
 
     @Test
@@ -82,11 +88,16 @@ class AccountControllerTest {
         //given
         Account account = new Account();
         account.setId(1L);
+        AccountResponseDto accountResponseDto = new AccountResponseDto("Account deleted", 200, account);
+        ResponseEntity<AccountResponseDto> expectedResponse = ResponseEntity.status(200).body(accountResponseDto);
+        given(accountServiceMock.deleteAccount(null, 1L)).willReturn(expectedResponse);
         //when
-        ResponseEntity<String> response = underTest.deleteAccount(any(), any(Long.class));
+        ResponseEntity<AccountResponseDto> response = underTest.deleteAccount(null, 1L);
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo("Account deleted");
+        assertThat(response.getBody().account()).isEqualTo(account);
+        assertThat(response.getBody().status()).isEqualTo(200);
+        assertThat(response.getBody().message()).isEqualTo("Account deleted");
     }
 
     @Test
@@ -95,10 +106,15 @@ class AccountControllerTest {
         //given
         Account account = new Account();
         account.setId(1L);
+        AccountResponseDto accountResponseDto = new AccountResponseDto("Account updated", 201, account);
+        ResponseEntity<AccountResponseDto> expectedResponse = ResponseEntity.status(201).body(accountResponseDto);
+        given(accountServiceMock.updateAccount(null, account, 1L)).willReturn(expectedResponse);
         //when
-        ResponseEntity<String> response = underTest.updateAccount(any(), any(Account.class), any(Long.class));
+        ResponseEntity<AccountResponseDto> response = underTest.updateAccount(null, account, 1L);
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(201);
-        assertThat(response.getBody()).isEqualTo("Account updated");
+        assertThat(response.getBody().account()).isEqualTo(account);
+        assertThat(response.getBody().status()).isEqualTo(201);
+        assertThat(response.getBody().message()).isEqualTo("Account updated");
     }
 }

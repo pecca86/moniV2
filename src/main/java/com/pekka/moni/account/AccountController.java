@@ -37,26 +37,23 @@ public class AccountController {
 
     @PostMapping
     @CacheEvict(value = "accounts", key = "#authentication.name")
-    public ResponseEntity<String> createAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<AccountResponseDto> createAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                         @RequestBody @Valid Account account) {
-        accountService.createAccount(authentication, account);
-        return ResponseEntity.status(201).body("Account created"); // Use a Response object instead of a String
+        return accountService.createAccount(authentication, account);
     }
 
     @DeleteMapping("/{accountId}")
     @CacheEvict(value = "accounts", key = "#authentication.name")
-    public ResponseEntity<String> deleteAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<AccountResponseDto> deleteAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                               @PathVariable Long accountId) {
-        accountService.deleteAccount(authentication, accountId);
-        return ResponseEntity.ok("Account deleted");
+        return accountService.deleteAccount(authentication, accountId);
     }
 
     @PutMapping("/{accountId}")
     @CacheEvict(value = "accounts", key = "#authentication.name")
-    public ResponseEntity<String> updateAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<AccountResponseDto> updateAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                               @RequestBody @Valid Account account,
                               @PathVariable Long accountId) {
-        accountService.updateAccount(authentication, account, accountId);
-        return ResponseEntity.status(201).body("Account updated");
+        return accountService.updateAccount(authentication, account, accountId);
     }
 }

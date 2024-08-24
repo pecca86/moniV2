@@ -2,6 +2,7 @@ package com.pekka.moni.exception;
 
 import com.pekka.moni.exception.account.AccountAccessException;
 import com.pekka.moni.exception.account.AccountNotFoundException;
+import com.pekka.moni.exception.account.InvalidAccountDataException;
 import com.pekka.moni.exception.customer.CustomerAlreadyExistsException;
 import com.pekka.moni.exception.customer.CustomerNotFoundException;
 import com.pekka.moni.exception.datespan.DateSpanNotFoundException;
@@ -19,6 +20,17 @@ import java.time.ZonedDateTime;
 @ControllerAdvice // This annotation makes this class a global exception handler
 public class ApiExceptionHandler {
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ApiExceptionHandler.class);
+
+    @ExceptionHandler(value = {InvalidAccountDataException.class})
+    public ResponseEntity<Object> handleInvalidAccountDataException(InvalidAccountDataException e) {
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST,
+                ZonedDateTime.now()
+        );
+        LOGGER.error("ApiRequestException: ", e);
+        return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(value = {MethodArgumentTypeMismatchException.class})
     public ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
