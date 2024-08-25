@@ -27,11 +27,11 @@ const AccountForm = ({ handleClose }: any) => {
                 <label htmlFor="balance">Balance</label>
                 <input className={inputStyle} type="number" id="balance" {...register('balance')} />
 
-                <label htmlFor="savingsGoal">Savings goal</label>
-                <input className={inputStyle} type="number" id="savingsGoal" {...register('savingsGoal')} />
+                <label htmlFor="savings_goal">Savings goal</label>
+                <input className={inputStyle} type="number" id="savings_goal" {...register('savings_goal')} />
 
-                <label htmlFor="accountType">Account type</label>
-                <select className={inputStyle} {...register('accountType')}>
+                <label htmlFor="account_type">Account type</label>
+                <select className={inputStyle} {...register('account_type')}>
                     <option value="checking">Checking</option>
                     <option value="savings">Savings</option>
                 </select>
