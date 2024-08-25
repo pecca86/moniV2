@@ -7,11 +7,13 @@ import { useParams } from "react-router-dom";
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import MoniBanner from "../../banners/MoniBanner";
+import { Add, Delete } from "@mui/icons-material";
+import AccountDeleteForm from "../../accounts/AccountDeleteForm";
 
 const Panel = () => {
 
     // accountId is specified in App.tsx as a route parameter
-    const {accountId} = useParams<{accountId: string}>();
+    const { accountId } = useParams<{ accountId: string }>();
 
     const { isPending, account, error } = useFetchAccount(accountId);
 
@@ -32,13 +34,22 @@ const Panel = () => {
     return (
         <div className='bg-white flex flex-col px-2 rounded-lg shadow-lg p-2'>
             <div className="my-2">
-                <AddModal
-                    ctaText=""
-                    heading='Update Account Info'
-                    paragraph='Edit the fields below'
-                    form={<AccountForm update={true} accountData={account}/>}
-                    buttonIcon={<EditIcon />}
-                />
+                <div className="flex gap-2">
+                    <AddModal
+                        ctaText=""
+                        heading='Update Account Info'
+                        paragraph='Edit the fields below'
+                        form={<AccountForm update={true} accountData={account} />}
+                        buttonIcon={<EditIcon />}
+                    />
+                    <AddModal
+                        ctaText=""
+                        heading='Delete account'
+                        paragraph='Are you sure you want to delete this account and all related transactions?'
+                        form={<AccountDeleteForm />}
+                        buttonIcon={<Delete />}
+                    />
+                </div>
             </div>
             <div className="grid grid-cols-2">
                 <div className="col-1">

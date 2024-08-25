@@ -80,7 +80,7 @@ export async function updateAccount(accountData: AccountFormData) {
     }
 }
 
-export async function deleteAccount(id: string) { 
+export async function deleteAccount(id: string | undefined) { 
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${id}`, {
             method: 'DELETE',
