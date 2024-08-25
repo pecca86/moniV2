@@ -20,7 +20,7 @@ const AccountList = () => {
         return <MoniBanner style="warning">There was a problem fetching the account data, please try again later!</MoniBanner>
     }
 
-    const totalBalance = accounts?.reduce((acc, curr) => acc + curr.balance, 0);
+    const totalBalance = accounts?.reduce((acc, curr) => acc + curr.balance, 0); // TOOD: Make this a BE responsibility
 
     return (
         <div className="my-2">

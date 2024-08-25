@@ -2,8 +2,11 @@ import AddModal from "../../cta/AddModal";
 import AccountForm from "../../accounts/AccountForm";
 import EditIcon from '@mui/icons-material/Edit';
 import { Divider } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import { getAccountById } from "../../../services/apiAccounts";
+import { useFetchAccount } from "../../../hooks/account/useFetchAccount";
+import { useParams } from "react-router-dom";
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
+import MoniBanner from "../../banners/MoniBanner";
 
 const Panel = () => {
 
@@ -16,6 +19,25 @@ const Panel = () => {
         id: 1
     }
 
+    // accountId is specified in App.tsx as a route parameter
+    const {accountId} = useParams<{accountId: string}>();
+
+    const { isPending, account, error } = useFetchAccount(accountId);
+
+    if (isPending) {
+        return (
+            <Stack spacing={1}>
+                <Skeleton variant="rectangular" width={350} height={137} />
+            </Stack>
+        )
+    }
+
+    if (!isPending && error) {
+        return <MoniBanner style="warning">There was a problem fetching the account data, please try again later!</MoniBanner>
+    }
+
+    console.log(account);
+
     return (
         <div className='bg-white flex flex-col px-2 rounded-lg shadow-lg p-2'>
             <div className="my-2">
@@ -23,7 +45,7 @@ const Panel = () => {
                     ctaText=""
                     heading='Update Account Info'
                     paragraph='Edit the fields below'
-                    form={<AccountForm update={true} accountData={data}/>}
+                    form={<AccountForm update={true} accountData={account}/>}
                     buttonIcon={<EditIcon />}
                 />
             </div>
@@ -38,13 +60,13 @@ const Panel = () => {
                     <p className="pt-1">Savings goal</p>
                 </div>
                 <div className="col-2">
-                    <p className="text-lg mb-1 font-bold">100 €</p>
+                    <p className="text-lg mb-1 font-bold">{account?.balance} €</p>
                     <Divider />
-                    <p className="pt-1">FI 2030230203</p>
+                    <p className="pt-1">{account?.iban}</p>
                     <Divider />
-                    <p className="pt-1">FI Deposit</p>
+                    <p className="pt-1">{account?.name}</p>
                     <Divider />
-                    <p className="pt-1">9999.90 €</p>
+                    <p className="pt-1">{account?.savings_goal} €</p>
                 </div>
             </div>
         </div>

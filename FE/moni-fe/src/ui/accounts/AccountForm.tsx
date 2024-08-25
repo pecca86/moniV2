@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { useAddAccount } from "../../hooks/account/useAddAccount";
 import { useUpdateAccount } from "../../hooks/account/useUpdateAccount";
 
-const AccountForm = ({ handleClose, update = false, accountData }: { handleClose: any, update: boolean, accountData: Account }) => {
+const AccountForm = ({ handleClose, update = false, accountData }: { handleClose: any, update: boolean, accountData: Account | undefined }) => {
 
     // get the query client so we can invalidate the cache
     const { register, handleSubmit, reset } = useForm();
