@@ -14,8 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -36,6 +38,13 @@ public class AccountService {
     public ResponseEntity<AllAccountsResponse> getCustomerAccounts(Authentication authentication) {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
         List<Account> accounts = loggedInCustomer.getAccounts();
+
+        // Sort accounts by account name
+
+        accounts.sort(Comparator.comparing(Account::getName));
+
+
+
         BigDecimal totalBalance = accounts.stream()
                                           .map(Account::getBalance)
                                           .reduce(BigDecimal.ZERO, BigDecimal::add);

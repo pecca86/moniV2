@@ -14,8 +14,6 @@ export async function getAccounts() {
 
         const data: AccountsResponse = await response.json();
 
-        console.log(data);
-
         return data;
     } catch (error) {
         toast.error('Error fetching accounts');

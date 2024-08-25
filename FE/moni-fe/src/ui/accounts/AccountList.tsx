@@ -20,6 +20,9 @@ const AccountList = () => {
         return <MoniBanner style="warning">There was a problem fetching the account data, please try again later!</MoniBanner>
     }
 
+    // accountsData?.accounts?.sort((a, b) => a.name.localeCompare(b.name));
+    // console.log("sort ", accountsData?.accounts.sort());
+
     return (
         <div className="my-2">
             {accountsData?.accounts?.length === 0 && <MoniBanner style="info">Click the 'add account' button on top, to create a new account!</MoniBanner>}
