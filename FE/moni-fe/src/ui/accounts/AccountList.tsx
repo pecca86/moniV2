@@ -4,7 +4,6 @@ import { getAccounts } from "../../services/apiAccounts";
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import MoniBanner from "../banners/MoniBanner";
-import { Divider } from "@mui/material";
 
 const AccountList = () => {
 

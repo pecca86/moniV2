@@ -1,9 +1,12 @@
-import Panel from "../Panel";
+import Panel from "./Panel";
 import TransactionList from "../TransactionList";
+import { Divider } from "@mui/material";
+
 const DetailMain = () => {
     return (
-        <div className="px-2 mt-2">
+        <div className="flex flex-col gap-5">
             <Panel />
+            <Divider />
             <TransactionList />
         </div>
     );

@@ -13,6 +13,7 @@ type AccountFormData = {
     balance: number;
     savings_goal: number;
     account_type: string;
+    id: string;
 };
 
 type AccountDataResponse = {

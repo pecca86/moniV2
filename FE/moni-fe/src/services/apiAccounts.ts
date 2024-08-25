@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 
-const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjQ1ODA3MjYsImV4cCI6MTcyNTE4NTUyNn0.vxmg8pZCekePIQ7P1MvrgtNDp8ElnoThKyIXb3GS6oA";
+const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjQ1OTk4MDAsImV4cCI6MTcyNTIwNDYwMH0.xWDEjtLAcrR9PLunRa1b5xvexj3jVvxTXxWjhQJT3hs";
 
 export async function getAccounts() {
     try {
@@ -39,10 +39,31 @@ export async function getAccountById(id: string) {
 }
 
 export async function addAccount(accountData: AccountFormData) {
+    console.log("Account: ", accountData);
     try {
         accountData.account_type = accountData.account_type.toUpperCase();
         const response: Response = await fetch('http://localhost:8080/api/v1/accounts', {
             method: 'POST',
+            body: JSON.stringify(accountData),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data: AccountDataResponse = await response.json();
+        return data;
+
+    } catch (error) {
+        toast.error('Error adding account');
+    }
+}
+
+export async function updateAccount(accountData: AccountFormData) {
+    try {
+        accountData.account_type = accountData.account_type.toUpperCase();
+        const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${accountData.id}`, {
+            method: 'PUT',
             body: JSON.stringify(accountData),
             headers: {
                 'Content-Type': 'application/json',
@@ -58,6 +79,6 @@ export async function addAccount(accountData: AccountFormData) {
         return data;
 
     } catch (error) {
-        toast.error('Error adding account');
+        toast.error('Error updating account');
     }
 }

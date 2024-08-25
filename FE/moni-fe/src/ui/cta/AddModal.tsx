@@ -3,9 +3,8 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import AddIcon from '@mui/icons-material/Add';
 
-const AddModal = ({ ctaText, heading, paragraph, form }: { ctaText: string, heading: string, paragraph: string, form: any }) => {
+const AddModal = ({ ctaText, heading, paragraph, form, buttonIcon }: { ctaText: string, heading: string, paragraph: string, form: any, buttonIcon: any}) => {
 
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
@@ -32,7 +31,7 @@ const AddModal = ({ ctaText, heading, paragraph, form }: { ctaText: string, head
     return (
         <>
             <button className='bg-violet-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded' onClick={handleOpen}>
-                <span><AddIcon /></span>{ctaText}
+                {buttonIcon}{ctaText}
             </button>
             <Modal
                 open={open}
