@@ -1,32 +1,40 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { addAccount, updateAccount } from "../../services/apiAccounts";
+import { useAddAccount } from "../../hooks/account/useAddAccount";
+import { useUpdateAccount } from "../../hooks/account/useUpdateAccount";
 
 const AccountForm = ({ handleClose, update = false, accountData }: { handleClose: any, update: boolean, accountData: Account }) => {
 
     // get the query client so we can invalidate the cache
-    const queryClient = useQueryClient();
     const { register, handleSubmit, reset } = useForm();
-    
-    // React query mutation
-    const { mutate, isPending } = useMutation({
-        mutationFn: update ? updateAccount : addAccount,
-        onSuccess: () => {
-            toast.success('Account added successfully');
-            queryClient.invalidateQueries({ queryKey: ['accounts'] });
-            reset(); // reset the form using react-hook-form
-            handleClose();
-        },
-        onError: () => {
-            toast.error('Error adding account');
-        }
-    });
 
+    const { isAdding, addAccountMutation } = useAddAccount();
+    const { isUpdating, updateAccountMutation } = useUpdateAccount();
 
     const onSubmit = (data: any) => {
-        mutate(data); // let react-query handle the mutation
+        // mutate(data); // let react-query handle the mutation
+        if (update) {
+            updateAccountMutation(
+                { ...data },
+                {
+                    onSuccess: () => {
+                        reset(); // reset the form using react-hook-form
+                        handleClose();
+                    }
+                }
+            )
+        } else {
+            addAccountMutation(
+                { ...data },
+                {
+                    onSuccess: () => {
+                        reset(); // reset the form using react-hook-form
+                        handleClose();
+                    }
+                }
+            );
+        }
     }
+
 
     const inputStyle = "block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
     const submitBtnStyle = "mt-5 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
@@ -48,17 +56,17 @@ const AccountForm = ({ handleClose, update = false, accountData }: { handleClose
                 <input value={accountData && accountData?.savings_goal} className={inputStyle} type="number" step="0.01" id="savings_goal" {...register('savings_goal')} />
 
                 <label htmlFor="account_type">Account type</label>
-                <select className={inputStyle} {...register('account_type')}>
-                    <option selected={accountData?.account_type === 'DEPOSIT'} value="DEPOSIT">Deposit</option>
-                    <option selected={accountData?.account_type === 'SAVINGS'} value="SAVINGS">Savings</option>
-                    <option selected={accountData?.account_type === 'CREDIT'} value="CREDIT">Credit</option>
-                    <option selected={accountData?.account_type === 'INVESTMENT'} value="INVESTMENT">Investment</option>
-                    <option selected={accountData?.account_type === 'OTHER'} value="OTHER">Other</option>
+                <select value={accountData && accountData?.account_type} className={inputStyle} {...register('account_type')}>
+                    <option value="DEPOSIT">Deposit</option>
+                    <option value="SAVINGS">Savings</option>
+                    <option value="CREDIT">Credit</option>
+                    <option value="INVESTMENT">Investment</option>
+                    <option value="OTHER">Other</option>
                 </select>
 
                 {update && <input value={'dd'} type="hidden" {...register('id')} />}
 
-                <input className={submitBtnStyle} disabled={isPending} type="submit" value="submit" />
+                <input className={submitBtnStyle} disabled={isAdding || isUpdating} type="submit" value="submit" />
             </div>
         </form>
     );

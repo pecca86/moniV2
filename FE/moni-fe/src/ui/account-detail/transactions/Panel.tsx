@@ -12,14 +12,9 @@ const Panel = () => {
         name: 'FI Deposit',
         balance: 100,
         savings_goal: 9999.90,
-        account_type: 'OTHER',
+        account_type: 'SAVINGS',
         id: 1
     }
-
-    // const { isPending, data: accounts, error } = useQuery({
-    //     queryKey: ['account'],
-    //     queryFn: getAccountById('1'),
-    // })
 
     return (
         <div className='bg-white flex flex-col px-2 rounded-lg shadow-lg p-2'>

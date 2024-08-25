@@ -1,16 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
 import AccountListItem from "./AccountListItem";
-import { getAccounts } from "../../services/apiAccounts";
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import MoniBanner from "../banners/MoniBanner";
+import { useFetchAccounts } from "../../hooks/account/useFetchAccounts";
 
 const AccountList = () => {
 
-    const { isPending, data: accounts, error } = useQuery({
-        queryKey: ['accounts'],
-        queryFn: getAccounts,
-    })
+    const { isPending, accounts, error } = useFetchAccounts();
 
     if (isPending) {
         return (
