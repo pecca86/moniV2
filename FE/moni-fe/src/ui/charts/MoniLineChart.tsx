@@ -1,4 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import MoniToolTip from '../cta/MoniToolTip';
+import LightbulbIcon from '@mui/icons-material/Lightbulb'; 
 
 const MoniLineChart = () => {
     const data: any[] = [
@@ -76,7 +78,8 @@ const MoniLineChart = () => {
                 <label htmlFor="with-balance">With balance</label>
                 <input type="checkbox" name="with-balance" id="" />
             </p>
-            <ResponsiveContainer width={340} height={300}>
+            {/* <ResponsiveContainer width={340} height={300}> */}
+            <ResponsiveContainer width="100%" height={300}>
                 <LineChart width={500} height={300} data={data}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
@@ -96,6 +99,7 @@ const MoniLineChart = () => {
                     />
                 </LineChart>
             </ResponsiveContainer>
+            <MoniToolTip text='Set phone in landscape mode to see all the months!' icon={<LightbulbIcon />} />
         </div>
     );
 }

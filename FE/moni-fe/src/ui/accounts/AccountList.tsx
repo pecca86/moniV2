@@ -36,11 +36,9 @@ const AccountList = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr className="bg-white border-b ">
-                            {accounts?.map((acc) => (
-                                <AccountListItem key={acc.id} acc={acc} />
-                            ))}
-                        </tr>
+                        {accounts?.map((acc) => (
+                            <AccountListItem key={acc.id} acc={acc} />
+                        ))}
                         <tr className="bg-purple-400">
                             <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap text-white">
                                 Total
