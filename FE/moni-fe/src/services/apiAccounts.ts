@@ -19,6 +19,24 @@ export async function getAccounts() {
     }
 }
 
+export async function getAccountById(id: string) {
+    try {
+        const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjQ1ODA3MjYsImV4cCI6MTcyNTE4NTUyNn0.vxmg8pZCekePIQ7P1MvrgtNDp8ElnoThKyIXb3GS6oA`
+            }
+        });
+
+        const data: Account = await response.json();
+
+        return data;
+    } catch (error) {
+        toast.error('Error fetching account');
+    }
+}
+
 export async function addAccount(accountData: AccountFormData) {
     try {
         accountData.account_type = accountData.account_type.toUpperCase();

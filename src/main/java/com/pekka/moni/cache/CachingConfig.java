@@ -18,6 +18,7 @@ public class CachingConfig {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(List.of(
                 new ConcurrentMapCache("accounts"),
+                new ConcurrentMapCache("account"),
                 new ConcurrentMapCache("transactionCategories"),
                 new ConcurrentMapCache("dateSpans"),
                 new ConcurrentMapCache("transactions")));
