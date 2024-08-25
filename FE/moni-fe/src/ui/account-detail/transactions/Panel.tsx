@@ -10,15 +10,6 @@ import MoniBanner from "../../banners/MoniBanner";
 
 const Panel = () => {
 
-    const data: Account = {
-        iban: 'FI 2030230203',
-        name: 'FI Deposit',
-        balance: 100,
-        savings_goal: 9999.90,
-        account_type: 'SAVINGS',
-        id: 1
-    }
-
     // accountId is specified in App.tsx as a route parameter
     const {accountId} = useParams<{accountId: string}>();
 
@@ -57,6 +48,8 @@ const Panel = () => {
                     <Divider />
                     <p className="pt-1">Name</p>
                     <Divider />
+                    <p className="pt-1">Type</p>
+                    <Divider />
                     <p className="pt-1">Savings goal</p>
                 </div>
                 <div className="col-2">
@@ -65,6 +58,8 @@ const Panel = () => {
                     <p className="pt-1">{account?.iban}</p>
                     <Divider />
                     <p className="pt-1">{account?.name}</p>
+                    <Divider />
+                    <p className="pt-1">{account?.account_type.toLowerCase()}</p>
                     <Divider />
                     <p className="pt-1">{account?.savings_goal} €</p>
                 </div>

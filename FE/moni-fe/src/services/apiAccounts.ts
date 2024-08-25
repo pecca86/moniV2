@@ -72,13 +72,28 @@ export async function updateAccount(accountData: AccountFormData) {
         });
 
         const data: AccountDataResponse = await response.json();
-        console.log("Account: ", data.account);
-        console.log("Status: ", data.status);
-        console.log("Message: ", data.message);
-
+    
         return data;
 
     } catch (error) {
         toast.error('Error updating account');
+    }
+}
+
+export async function deleteAccount(id: string) { 
+    try {
+        const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data: AccountDataResponse = await response.json();
+        return data;
+
+    } catch (error) {
+        toast.error('Error deleting account');
     }
 }

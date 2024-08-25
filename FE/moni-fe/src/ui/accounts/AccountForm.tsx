@@ -5,7 +5,16 @@ import { useUpdateAccount } from "../../hooks/account/useUpdateAccount";
 const AccountForm = ({ handleClose, update = false, accountData }: { handleClose: any, update: boolean, accountData: Account | undefined }) => {
 
     // get the query client so we can invalidate the cache
-    const { register, handleSubmit, reset } = useForm();
+    const { register, handleSubmit, reset } = useForm({
+        defaultValues: {
+            iban: accountData?.iban,
+            name: accountData?.name,
+            balance: accountData?.balance,
+            savings_goal: accountData?.savings_goal,
+            account_type: accountData?.account_type,
+            id: accountData?.id
+        }
+    });
 
     const { isAdding, addAccountMutation } = useAddAccount();
     const { isUpdating, updateAccountMutation } = useUpdateAccount();
@@ -44,19 +53,19 @@ const AccountForm = ({ handleClose, update = false, accountData }: { handleClose
             <div className="flex flex-col gap-2">
 
                 <label htmlFor="iban">IBAN</label>
-                <input value={accountData && accountData?.iban} className={inputStyle} type="text" id="iban" {...register('iban')} />
+                <input className={inputStyle} type="text" id="iban" {...register('iban')} />
 
                 <label htmlFor="name">Name</label>
-                <input value={accountData && accountData?.name} className={inputStyle} type="text" id="name" {...register('name')} />
+                <input className={inputStyle} type="text" id="name" {...register('name')} />
 
                 <label htmlFor="balance">Balance</label>
-                <input value={accountData && accountData?.balance} className={inputStyle} type="number" step="0.01" id="balance" {...register('balance')} />
+                <input className={inputStyle} type="number" step="0.01" id="balance" {...register('balance')} />
 
                 <label htmlFor="savings_goal">Savings goal</label>
-                <input value={accountData && accountData?.savings_goal} className={inputStyle} type="number" step="0.01" id="savings_goal" {...register('savings_goal')} />
+                <input className={inputStyle} type="number" step="0.01" id="savings_goal" {...register('savings_goal')} />
 
                 <label htmlFor="account_type">Account type</label>
-                <select value={accountData && accountData?.account_type} className={inputStyle} {...register('account_type')}>
+                <select className={inputStyle} {...register('account_type')}>
                     <option value="DEPOSIT">Deposit</option>
                     <option value="SAVINGS">Savings</option>
                     <option value="CREDIT">Credit</option>

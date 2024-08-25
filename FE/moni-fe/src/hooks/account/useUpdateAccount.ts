@@ -9,6 +9,8 @@ export function useUpdateAccount() {
         mutationFn: updateAccount,
         onSuccess: () => {
             toast.success('Account updated successfully');
+            // queryClient.invalidateQueries({ queryKey: ['account'] });
+            queryClient.refetchQueries({ queryKey: ['account'] });
             queryClient.invalidateQueries({ queryKey: ['accounts'] });
         },
         onError: () => {
