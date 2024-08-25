@@ -11,6 +11,8 @@ import com.pekka.moni.exception.transaction.TransactionNotFoundException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -30,6 +32,32 @@ public class ApiExceptionHandler {
         );
         LOGGER.error("ApiRequestException: ", e);
         return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {HttpMessageNotReadableException.class})
+    public ResponseEntity<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST,
+                ZonedDateTime.now()
+        );
+        // capture all text that is inside the first pair of brackets
+        int a  = exception.message().indexOf("[");
+        int b = exception.message().indexOf("]");
+        String parsedMessage = "Allowed account types are: " + exception.message().substring(a + 1, b);
+        LOGGER.error("ApiRequestException: ", e);
+        return new ResponseEntity<>(parsedMessage, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {UsernameNotFoundException.class})
+    public ResponseEntity<Object> handleUsernameNotFoundException(UsernameNotFoundException e) {
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                HttpStatus.NOT_FOUND,
+                ZonedDateTime.now()
+        );
+        LOGGER.error("ApiRequestException: ", e);
+        return new ResponseEntity<>(exception, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(value = {MethodArgumentTypeMismatchException.class})

@@ -7,13 +7,11 @@ export async function getAccounts() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjQzNjMyNTksImV4cCI6MTcyNDk2ODA1OX0.W_LR4Z9Fsa-gvshadGAPPVr9_2GXgoyhr5V8n0WEi5A`
+                'Authorization': `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjQ1ODA3MjYsImV4cCI6MTcyNTE4NTUyNn0.vxmg8pZCekePIQ7P1MvrgtNDp8ElnoThKyIXb3GS6oA`
             }
         });
 
         const data: Array<Account> = await response.json();
-
-        console.log("Data: ", data);
 
         return data;
     } catch (error) {

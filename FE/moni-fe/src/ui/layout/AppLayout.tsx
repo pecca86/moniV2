@@ -4,9 +4,9 @@ import { Outlet } from "react-router-dom";
 
 const AppLayout = () => {
     return (
-        <div className="grid h-screen bg-red-700 grid-rows-[auto_1fr_auto]">
+        <div className="grid h-screen grid-rows-[auto_1fr_auto]">
             <TopNav />
-            <main className="bg-green-200 overflow-scroll">
+            <main className="bg-gray-50 overflow-scroll">
                 <Outlet />
             </main>
             <Footer />

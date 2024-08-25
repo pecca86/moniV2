@@ -71,7 +71,7 @@ const MoniLineChart = () => {
     ];
 
     return (
-        <div className='bg-gray-50'>
+        <div className='bg-white rounded-lg p-1 shadow-md'>
             <p>
                 <label htmlFor="with-balance">With balance</label>
                 <input type="checkbox" name="with-balance" id="" />

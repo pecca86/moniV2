@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { Backdrop } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 const AddModal = ({ ctaText, heading, paragraph, form }: { ctaText: string, heading: string, paragraph: string, form: any }) => {
 
@@ -31,27 +31,27 @@ const AddModal = ({ ctaText, heading, paragraph, form }: { ctaText: string, head
 
     return (
         <>
-            <button className='bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded' onClick={handleOpen}>
-                {ctaText}
+            <button className='bg-violet-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded' onClick={handleOpen}>
+                <span><AddIcon /></span>{ctaText}
             </button>
-                <Modal
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                    className='mb-4'
-                >
-                    <Box sx={style}>
-                        <Typography id="modal-modal-title" variant="h6" component="h2" className='pb-2'>
-                            {heading}
-                        </Typography>
-                        <Typography id="modal-modal-description" sx={{ mt: 2 }} className='pb-10'>
-                            {paragraph}
-                        </Typography>
-                        {clonedForm}
-                        <Button onClick={handleClose}>Close</Button>
-                    </Box>
-                </Modal>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+                className='mb-4'
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2" className='pb-2'>
+                        {heading}
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }} className='pb-10'>
+                        {paragraph}
+                    </Typography>
+                    {clonedForm}
+                    <Button onClick={handleClose}>Close</Button>
+                </Box>
+            </Modal>
         </>
     );
 }
