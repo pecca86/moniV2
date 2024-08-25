@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import AccountListItem from "./AccountListItem";
 import { getAccounts } from "../../services/apiAccounts";
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
+import MoniBanner from "../banners/MoniBanner";
+import { Divider } from "@mui/material";
 
 const AccountList = () => {
 
@@ -10,18 +14,22 @@ const AccountList = () => {
     })
 
     if (isPending) {
-        return <div>Loading...</div>
+        return (
+            <Stack spacing={1}>
+                <Skeleton variant="rectangular" width={350} height={137} />
+            </Stack>
+        )
     }
 
     if (!isPending && error) {
-        return <div>Error: {error.message}</div>
+        return <MoniBanner style="warning">There was a problem fetching the account data, please try again later!</MoniBanner>
     }
 
     const totalBalance = accounts?.reduce((acc, curr) => acc + curr.balance, 0);
 
     return (
         <div className="my-2">
-            {accounts?.length === 0 && <div><p>Click the 'add account' button on top, to create a new account!</p></div>}
+            {accounts?.length === 0 && <MoniBanner style="info">Click the 'add account' button on top, to create a new account!</MoniBanner>}
 
             <div className="relative overflow-x-auto shadow-lg rounded-lg">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-900">
