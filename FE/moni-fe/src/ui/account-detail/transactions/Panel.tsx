@@ -15,7 +15,7 @@ const Panel = () => {
     // accountId is specified in App.tsx as a route parameter
     const { accountId } = useParams<{ accountId: string }>();
 
-    const { isPending, account, error } = useFetchAccount(accountId);
+    const { isPending, account, error } = useFetchAccount(accountId as string);
 
     if (isPending) {
         return (
@@ -29,15 +29,13 @@ const Panel = () => {
         return <MoniBanner style="warning">There was a problem fetching the account data, please try again later!</MoniBanner>
     }
 
-    if (account.status === "NOT_FOUND") {
+    if (account?.status === "NOT_FOUND") {
         return (
             <div className="my-2">
                 <MoniBanner style="warning">Account not found!</MoniBanner>
             </div>
         )
     }
-
-    console.log("ACCCCCCCCCC", account);
 
     return (
         <div className='bg-white flex flex-col px-2 rounded-lg shadow-lg p-2'>
@@ -63,6 +61,8 @@ const Panel = () => {
                 <div className="col-1">
                     <p className="text-lg mb-1 font-bold">Balance</p>
                     <Divider />
+                    <p className="pt-1">With transactions</p>
+                    <Divider />
                     <p className="pt-1">IBAN</p>
                     <Divider />
                     <p className="pt-1">Name</p>
@@ -73,6 +73,8 @@ const Panel = () => {
                 </div>
                 <div className="col-2">
                     <p className="text-lg mb-1 font-bold">{account?.balance} €</p>
+                    <Divider />
+                    <p className="pt-1">{account?.balance_with_transactions} €</p>
                     <Divider />
                     <p className="pt-1">{account?.iban}</p>
                     <Divider />

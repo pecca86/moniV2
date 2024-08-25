@@ -5,6 +5,8 @@ type Account = {
     name: string;
     savings_goal: number;
     account_type: string;
+    balance_with_transactions: number;
+    status?: string;
 };
 
 type AccountsResponse = {
