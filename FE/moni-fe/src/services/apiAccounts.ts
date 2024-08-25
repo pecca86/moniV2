@@ -12,7 +12,9 @@ export async function getAccounts() {
             }
         });
 
-        const data: Array<Account> = await response.json();
+        const data: AccountsResponse = await response.json();
+
+        console.log(data);
 
         return data;
     } catch (error) {

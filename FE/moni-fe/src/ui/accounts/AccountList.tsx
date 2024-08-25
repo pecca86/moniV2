@@ -6,7 +6,7 @@ import { useFetchAccounts } from "../../hooks/account/useFetchAccounts";
 
 const AccountList = () => {
 
-    const { isPending, accounts, error } = useFetchAccounts();
+    const { isPending, accountsData, error } = useFetchAccounts();
 
     if (isPending) {
         return (
@@ -20,11 +20,9 @@ const AccountList = () => {
         return <MoniBanner style="warning">There was a problem fetching the account data, please try again later!</MoniBanner>
     }
 
-    const totalBalance = accounts?.reduce((acc, curr) => acc + curr.balance, 0); // TOOD: Make this a BE responsibility
-
     return (
         <div className="my-2">
-            {accounts?.length === 0 && <MoniBanner style="info">Click the 'add account' button on top, to create a new account!</MoniBanner>}
+            {accountsData?.accounts?.length === 0 && <MoniBanner style="info">Click the 'add account' button on top, to create a new account!</MoniBanner>}
 
             <div className="relative overflow-x-auto shadow-lg rounded-lg">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-900">
@@ -40,12 +38,12 @@ const AccountList = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {accounts?.map((acc) => (
+                        {accountsData?.accounts?.map((acc) => (
                             <AccountListItem key={acc.id} acc={acc} />
                         ))}
                         <tr className="bg-purple-400 text-white">
                             <th scope="col" className="px-6 py-3">Total:</th>
-                            <th scope="col" className="px-6 py-3">{totalBalance}</th>
+                            <th scope="col" className="px-6 py-3">{accountsData?.totalBalance}</th>
                             <th scope="col" className="px-6 py-3">€</th>
                         </tr>
                     </tbody>

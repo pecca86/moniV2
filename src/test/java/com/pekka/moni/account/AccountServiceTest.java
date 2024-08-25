@@ -57,11 +57,13 @@ class AccountServiceTest {
         //given
         Account account = new Account();
         account.setId(1L);
+        account.setBalance(BigDecimal.valueOf(100.0));
+        account.setSavingsGoal(BigDecimal.valueOf(1000.0));
         Customer customer = new Customer();
         customer.setAccounts(List.of(account));
         given(loggedInCustomerServiceMock.getLoggedInCustomer(any())).willReturn(customer);
         //when
-        List<Account> results = underTest.getCustomerAccounts(null);
+        List<Account> results = underTest.getCustomerAccounts(null).getBody().accounts();
         //then
         assertThat(results).hasSize(1);
         assertThat(results).extracting(Account::getId)

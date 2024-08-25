@@ -1,5 +1,6 @@
 package com.pekka.moni.account;
 
+import com.pekka.moni.account.dto.AllAccountsResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,8 +25,8 @@ public class AccountController {
 
     @GetMapping
     @Cacheable(value = "accounts", key = "#authentication.name")
-    public ResponseEntity<List<Account>> getCustomerAccounts(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
-        return ResponseEntity.ok(accountService.getCustomerAccounts(authentication));
+    public ResponseEntity<AllAccountsResponse> getCustomerAccounts(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
+        return (accountService.getCustomerAccounts(authentication));
     }
 
     @GetMapping("/{accountId}")

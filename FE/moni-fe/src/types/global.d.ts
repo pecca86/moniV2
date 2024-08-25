@@ -7,6 +7,11 @@ type Account = {
     account_type: string;
 };
 
+type AccountsResponse = {
+    accounts: Array<Account>;
+    totalBalance: number;
+};
+
 type AccountFormData = {
     iban: string;
     name: string;

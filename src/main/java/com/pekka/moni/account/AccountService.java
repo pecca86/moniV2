@@ -1,5 +1,6 @@
 package com.pekka.moni.account;
 
+import com.pekka.moni.account.dto.AllAccountsResponse;
 import com.pekka.moni.auth.LoggedInCustomerService;
 import com.pekka.moni.customer.Customer;
 import com.pekka.moni.customer.CustomerRepository;
@@ -11,6 +12,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,9 +33,15 @@ public class AccountService {
         this.loggedInCustomerService = loggedInCustomerService;
     }
 
-    public List<Account> getCustomerAccounts(Authentication authentication) {
+    public ResponseEntity<AllAccountsResponse> getCustomerAccounts(Authentication authentication) {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
-        return loggedInCustomer.getAccounts();
+        List<Account> accounts = loggedInCustomer.getAccounts();
+        BigDecimal totalBalance = accounts.stream()
+                                          .map(Account::getBalance)
+                                          .reduce(BigDecimal.ZERO, BigDecimal::add);
+        totalBalance = totalBalance.setScale(2, RoundingMode.HALF_EVEN);
+        return ResponseEntity.ok(new AllAccountsResponse(accounts, totalBalance));
+
     }
 
     public Account getAccount(@NonNull Authentication authentication, @NonNull Long accountId) throws AccountNotFoundException {

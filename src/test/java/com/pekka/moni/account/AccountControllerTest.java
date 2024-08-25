@@ -1,5 +1,6 @@
 package com.pekka.moni.account;
 
+import com.pekka.moni.account.dto.AllAccountsResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,12 +43,13 @@ class AccountControllerTest {
         account1.setId(1L);
         Account account2 = new Account();
         account2.setId(2L);
-        given(accountServiceMock.getCustomerAccounts(any())).willReturn(List.of(account1, account2));
+        ResponseEntity<AllAccountsResponse> expectedResponse = ResponseEntity.ok(new AllAccountsResponse(List.of(account1, account2), null));
+        given(accountServiceMock.getCustomerAccounts(any())).willReturn(expectedResponse);
         //when
-        ResponseEntity<List<Account>> response = underTest.getCustomerAccounts(any());
+        ResponseEntity<AllAccountsResponse> response = underTest.getCustomerAccounts(any());
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).containsAll(List.of(account1, account2));
+        assertThat(response.getBody().accounts()).containsAll(List.of(account1, account2));
     }
 
     @Test
