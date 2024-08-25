@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import MoniBanner from "../../banners/MoniBanner";
-import { Add, Delete } from "@mui/icons-material";
+import { Delete } from "@mui/icons-material";
 import AccountDeleteForm from "../../accounts/AccountDeleteForm";
 
 const Panel = () => {
@@ -29,7 +29,15 @@ const Panel = () => {
         return <MoniBanner style="warning">There was a problem fetching the account data, please try again later!</MoniBanner>
     }
 
-    console.log(account);
+    if (account.status === "NOT_FOUND") {
+        return (
+            <div className="my-2">
+                <MoniBanner style="warning">Account not found!</MoniBanner>
+            </div>
+        )
+    }
+
+    console.log("ACCCCCCCCCC", account);
 
     return (
         <div className='bg-white flex flex-col px-2 rounded-lg shadow-lg p-2'>
@@ -70,7 +78,7 @@ const Panel = () => {
                     <Divider />
                     <p className="pt-1">{account?.name}</p>
                     <Divider />
-                    <p className="pt-1">{account?.account_type.toLowerCase()}</p>
+                    <p className="pt-1">{account?.account_type?.toLowerCase()}</p>
                     <Divider />
                     <p className="pt-1">{account?.savings_goal} €</p>
                 </div>

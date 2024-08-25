@@ -29,28 +29,28 @@ function HamburgerMenu() {
             {/* Hamburger Button */}
             <button
                 onClick={toggleMenu}
-                className="block md:hidden p-2 focus:outline-none"
+                className="block md:hidden p-2 focus:outline-none absolute z-50"
             >
-                <div className="w-6 h-6 relative">
+                <div className="w-6 h-6 relative bg-violet-200 rounded-full p-5 shadow-lg">
                     {/* Top Line */}
                     <span
-                        className={`block absolute left-0 h-0.5 w-6 bg-current transform transition duration-300 ease-in-out ${isOpen ? "rotate-45 top-2.5" : "top-1"
+                        className={`bg-purple-600 block absolute left-2 h-0.5 w-6 bg-current transform transition duration-300 ease-in-out ${isOpen ? "rotate-45 top-4.5" : "top-2.5"
                             }`}
                     ></span>
                     {/* Middle Line */}
                     <span
-                        className={`block absolute left-0 h-0.5 w-6 bg-current transform transition duration-300 ease-in-out ${isOpen ? "opacity-0" : "top-2.5"
+                        className={`block absolute left-2 h-0.5 w-6 bg-current transform transition duration-300 ease-in-out ${isOpen ? "opacity-0" : "top-[18px]"
                             }`}
                     ></span>
                     {/* Bottom Line */}
                     <span
-                        className={`block absolute left-0 h-0.5 w-6 bg-current transform transition duration-300 ease-in-out ${isOpen ? "-rotate-45 top-2.5" : "top-4"
+                        className={`block absolute left-2 h-0.5 w-6 bg-current transform transition duration-300 ease-in-out ${isOpen ? "-rotate-45 top-4.5" : "top-[26px]"
                             }`}
                     ></span>
                 </div>
             </button>
             <aside className={`${isOpen ? "block" : "hidden"} row-span-3`}>
-                <div className="relative">
+                <div className="absolute top-[4rem] z-30">
                     {/* Menu Items */}
                     <nav className={`${isOpen ? "block" : "hidden"} md:flex flex-col md:flex-row  md:relative top-12 md:top-0 left-0 w-full z-50 md:w-auto`} >
                         <div className="bg-gray-400 absolute z-50" >

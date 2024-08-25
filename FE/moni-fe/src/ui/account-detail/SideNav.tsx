@@ -2,7 +2,9 @@ import HamburgerMenu from "./HamburgerMenu";
 
 const SideNav = () => {
     return (
-        <HamburgerMenu />
+        <div className="absolute">
+            <HamburgerMenu />
+        </div>
     );
 }
 

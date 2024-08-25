@@ -5,9 +5,9 @@ const AccountDetail = () => {
     return (
         <>
             {/* <section className="grid grid-rows-3 grid-flow-col gap-0 h-screen"> */}
-            <section className="flex h-screen">
-                <SideNav />
-                <div className="w-full mr-2">
+            <SideNav />
+            <section className="flex mt-10">
+                <div className="h-svh w-full mx-2 overflow-scroll">
                     <Outlet />
                 </div>
             </section>
