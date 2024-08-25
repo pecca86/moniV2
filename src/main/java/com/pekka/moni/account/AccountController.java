@@ -50,7 +50,8 @@ public class AccountController {
     }
 
     @PutMapping("/{accountId}")
-    @CacheEvict(value = "accounts", key = "#authentication.name")
+//    @CacheEvict(value = {"account", "accounts"}, key = "#accountId")
+    @CacheEvict(value = {"account", "accounts"}, allEntries = true)
     public ResponseEntity<AccountResponseDto> updateAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                               @RequestBody @Valid Account account,
                               @PathVariable Long accountId) {
