@@ -33,7 +33,7 @@ const AccountList = () => {
 
             <div className="relative overflow-x-auto shadow-lg rounded-lg">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-900">
-                    <thead className="text-xs text-gray-900 uppercase bg-white">
+                    <thead className="text-xs text-gray-900 uppercase bg-gray-100">
                         <tr>
                             <th scope="col" className="px-6 py-3">
                                 Account name
@@ -41,19 +41,17 @@ const AccountList = () => {
                             <th scope="col" className="px-6 py-3">
                                 Balance
                             </th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         {accounts?.map((acc) => (
                             <AccountListItem key={acc.id} acc={acc} />
                         ))}
-                        <tr className="bg-purple-400">
-                            <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap text-white">
-                                Total
-                            </th>
-                            <td className="px-6 py-4 text-white">
-                                {totalBalance} €
-                            </td>
+                        <tr className="bg-purple-400 text-white">
+                            <th scope="col" className="px-6 py-3">Total:</th>
+                            <th scope="col" className="px-6 py-3">{totalBalance}</th>
+                            <th scope="col" className="px-6 py-3">€</th>
                         </tr>
                     </tbody>
                 </table>
