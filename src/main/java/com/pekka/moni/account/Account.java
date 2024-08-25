@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +78,7 @@ public class Account {
             columnDefinition = "DECIMAL"
     )
     @JsonProperty("savings_goal")
-    private Double savingsGoal;
+    private BigDecimal savingsGoal;
 
     @NotNull(message = "Transaction category is required")
     @Column(
@@ -94,11 +96,11 @@ public class Account {
             nullable = false,
             columnDefinition = "DECIMAL"
     )
-    private Double balance;
+    private BigDecimal balance;
 
     @Transient
     @JsonProperty("balance_with_transactions")
-    private Double balanceWithTransactions;
+    private BigDecimal balanceWithTransactions;
 
     @JsonIgnore
     @ManyToOne
@@ -128,13 +130,13 @@ public class Account {
     )
     private List<DateSpan> dateSpans;
 
-    public Account(Customer customer, String iban, String name, Double savingsGoal, AccountType accountType, Double balance) {
+    public Account(Customer customer, String iban, String name, BigDecimal savingsGoal, AccountType accountType, BigDecimal balance) {
         this.customer = customer;
         this.iban = iban;
         this.name = name;
-        this.savingsGoal = savingsGoal;
+        this.savingsGoal = savingsGoal.setScale(2, RoundingMode.HALF_EVEN);
         this.accountType = accountType;
-        this.balance = balance;
+        this.balance = balance.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     public void addTransaction(Transaction transaction) {
@@ -153,7 +155,7 @@ public class Account {
         }
 
         if (balance == null) {
-            balance = 0.0;
+            balance = BigDecimal.valueOf(0.0);
         }
         transactions.addAll(createdTransactions);
         this.balance = calculateBalance();
@@ -165,17 +167,17 @@ public class Account {
         }
 
         if (balance == null) {
-            balance = 0.0;
+            balance = BigDecimal.valueOf(0.0);
         }
 
         if (balanceWithTransactions == null) {
-            balanceWithTransactions = 0.0;
+            balanceWithTransactions = BigDecimal.valueOf(0.0);
         }
 
         if (transactions.contains(transaction)) {
             this.transactions.remove(transaction);
             transaction.setAccount(null);
-            this.balanceWithTransactions -= transaction.getSum();
+            this.balanceWithTransactions = balanceWithTransactions.subtract(BigDecimal.valueOf(transaction.getSum()));
         }
     }
 
@@ -197,27 +199,47 @@ public class Account {
         }
     }
 
-    public Double getBalanceWithTransactions() {
+    public BigDecimal getBalanceWithTransactions() {
         if (transactions == null) {
             return this.balance;
         }
 
         if (balance == null) {
-            balance = 0.0;
+            balance = BigDecimal.valueOf(0.0);
         }
 
         double transactionsSum = transactions.stream()
                                              .mapToDouble(Transaction::getSum)
                                              .sum();
-        return this.balance + transactionsSum;
+        return this.balance.add(BigDecimal.valueOf(transactionsSum));
     }
 
-    private Double calculateBalance() {
+    private BigDecimal calculateBalance() {
         var today = LocalDate.now();
-        return transactions.stream()
-                           .filter(transaction -> transaction.getTransactionDate().isAfter(today.minusDays(1)))
-                           .mapToDouble(Transaction::getSum)
-                           .sum();
+        double sum = transactions.stream()
+                                 .filter(transaction -> transaction.getTransactionDate().isAfter(today.minusDays(1)))
+                                 .mapToDouble(Transaction::getSum)
+                                 .sum();
+        return BigDecimal.valueOf(sum);
     }
 
+    public @NotNull(message = "Balance is required") BigDecimal getBalance() {
+        return balance.setScale(2, RoundingMode.HALF_EVEN);
+    }
+
+    public void setBalance(@NotNull(message = "Balance is required") BigDecimal balance) {
+        this.balance = balance.setScale(2, RoundingMode.HALF_EVEN);
+    }
+
+    public void setBalanceWithTransactions(BigDecimal balanceWithTransactions) {
+        this.balanceWithTransactions = balanceWithTransactions.setScale(2, RoundingMode.HALF_EVEN);
+    }
+
+    public BigDecimal getSavingsGoal() {
+        return savingsGoal.setScale(2, RoundingMode.HALF_EVEN);
+    }
+
+    public void setSavingsGoal(BigDecimal savingsGoal) {
+        this.savingsGoal = savingsGoal.setScale(2, RoundingMode.HALF_EVEN);
+    }
 }

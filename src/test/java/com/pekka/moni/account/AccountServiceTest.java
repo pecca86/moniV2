@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +83,7 @@ class AccountServiceTest {
         //then
         assertThat(customer.getAccounts()).hasSize(1);
         assertThat(customer.getAccounts()).extracting(Account::getId)
-                                           .containsExactly(1L);
+                                          .containsExactly(1L);
     }
 
     @Test
@@ -91,9 +92,13 @@ class AccountServiceTest {
         //given
         Account account = new Account();
         account.setId(1L);
+        account.setBalance(BigDecimal.valueOf(100.0));
+        account.setSavingsGoal(BigDecimal.valueOf(1000.0));
         account.setIban("FI1234567890123456");
         Account updated = new Account();
         updated.setIban("FI1234567890123500");
+        updated.setBalance(BigDecimal.valueOf(200.0));
+        updated.setSavingsGoal(BigDecimal.valueOf(2000.0));
         Customer customer = new Customer();
         customer.setAccounts(List.of(account));
         account.setCustomer(customer);
@@ -103,7 +108,7 @@ class AccountServiceTest {
         //then
         assertThat(customer.getAccounts()).hasSize(1);
         assertThat(customer.getAccounts()).extracting(Account::getId, Account::getIban)
-                                           .containsExactly(Tuple.tuple(1L, "FI1234567890123500"));
+                                          .containsExactly(Tuple.tuple(1L, "FI1234567890123500"));
     }
 
     @Test
@@ -127,7 +132,7 @@ class AccountServiceTest {
         assertThat(customer.getAccounts()).isNotNull();
         assertThat(customer.getAccounts()).hasSize(1);
         assertThat(customer.getAccounts()).extracting(Account::getId)
-                                           .containsExactly(2L);
+                                          .containsExactly(2L);
     }
 
     @Test

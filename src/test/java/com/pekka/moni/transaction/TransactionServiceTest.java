@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -162,9 +163,9 @@ class TransactionServiceTest {
         assertThat(account.getTransactions()).isNotNull();
         assertThat(account.getTransactions()).hasSize(2);
         if (transactionType == Transaction.TransactionType.WITHDRAWAL) {
-            assertThat(account.getBalanceWithTransactions()).isEqualTo(-300.0);
+            assertThat(account.getBalanceWithTransactions()).isEqualTo(BigDecimal.valueOf(-300.0));
         } else {
-            assertThat(account.getBalanceWithTransactions()).isEqualTo(300.0);
+            assertThat(account.getBalanceWithTransactions()).isEqualTo(BigDecimal.valueOf(300.0));
         }
     }
 
@@ -195,9 +196,9 @@ class TransactionServiceTest {
         assertThat(account.getTransactions()).isNotNull();
         assertThat(account.getTransactions()).hasSize(3);
         if (transactionType == Transaction.TransactionType.WITHDRAWAL) {
-            assertThat(account.getBalanceWithTransactions()).isEqualTo(-300.0);
+            assertThat(account.getBalanceWithTransactions()).isEqualTo(BigDecimal.valueOf( -300.0));
         } else {
-            assertThat(account.getBalanceWithTransactions()).isEqualTo(300.0);
+            assertThat(account.getBalanceWithTransactions()).isEqualTo(BigDecimal.valueOf(300.0));
         }
     }
 
