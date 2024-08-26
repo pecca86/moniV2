@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -40,16 +41,14 @@ public class AccountService {
         List<Account> accounts = loggedInCustomer.getAccounts();
 
         // Sort accounts by account name
-
-        accounts.sort(Comparator.comparing(Account::getName));
-
-
+        List<Account> resultList = new ArrayList<>(accounts);
+        resultList.sort(Comparator.comparing(Account::getName));
 
         BigDecimal totalBalance = accounts.stream()
                                           .map(Account::getBalance)
                                           .reduce(BigDecimal.ZERO, BigDecimal::add);
         totalBalance = totalBalance.setScale(2, RoundingMode.HALF_EVEN);
-        return ResponseEntity.ok(new AllAccountsResponse(accounts, totalBalance));
+        return ResponseEntity.ok(new AllAccountsResponse(resultList, totalBalance));
 
     }
 
