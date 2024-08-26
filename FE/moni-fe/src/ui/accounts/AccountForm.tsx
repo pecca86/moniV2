@@ -48,7 +48,7 @@ const AccountForm = ({ handleClose = null, update = false, accountData }: { hand
     }
 
     const onError = (errors: any) => {
-        console.log(errors);
+        // log errors
     }
 
 

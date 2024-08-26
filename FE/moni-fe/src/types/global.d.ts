@@ -1,3 +1,5 @@
+import TransactionForm from "../ui/account-detail/transactions/TransactionForm";
+
 type Account = {
     id: number;
     balance: number;
@@ -31,6 +33,15 @@ type AccountDataResponse = {
 
 type Transaction = {
     id: number;
+    sum: number;
+    description: string;
+    transaction_type: string;
+    transaction_category: string;
+    transaction_date: string;
+};
+
+type TransactionFormData = {
+    accountId: string;
     sum: number;
     description: string;
     transaction_type: string;
