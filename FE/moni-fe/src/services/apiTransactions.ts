@@ -71,3 +71,22 @@ export async function addMonthlyTransaction(data: MonthlyTransactionFormData) {
         // log error
     }
 }
+
+export async function deleteSelectedTransactions(data: DeleteSelectedTransactionsFormData) {
+    console.log(data);
+    try {
+        await fetch(`http://localhost:8080/api/v1/transactions/${data.accountId}/delete-all`, {
+            method: 'DELETE',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return "Success";
+
+    } catch (error) {
+        // log error
+    }
+}

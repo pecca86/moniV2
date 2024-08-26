@@ -13,7 +13,6 @@ const AccountDeleteForm = ({ handleClose }: any) => {
     const navigate = useNavigate();
 
     const onSubmit = (data: any) => {
-        console.log("DELETE DATA: ", data);
         deleteAccountMutation(
             { ...data },
             {

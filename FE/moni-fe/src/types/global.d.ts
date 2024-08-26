@@ -56,3 +56,8 @@ type MonthlyTransactionFormData = {
     months: number;
 }
 
+type DeleteSelectedTransactionsFormData = {
+    transactions: Number[];
+    accountId: number;
+}
+

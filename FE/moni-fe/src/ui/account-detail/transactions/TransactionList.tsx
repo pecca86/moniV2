@@ -4,10 +4,12 @@ import TransactionForm from "./TransactionForm";
 import Add from "@mui/icons-material/Add";
 import TransactionOperations from "./TransactionOperations";
 import { useSearchParams } from "react-router-dom";
-import { Button, Divider } from "@mui/material";
+import { Divider } from "@mui/material";
 import { useFetchTransactions } from "../../../hooks/transaction/useFetchTransactions";
 import CircularProgress from '@mui/material/CircularProgress';
 import MoniBanner from "../../banners/MoniBanner";
+import DeleteSelectedTransactionsForm from "./DeleteSelectedTransactionsForm";
+import { useState } from "react";
 
 const TransactionList = () => {
 
@@ -18,6 +20,7 @@ const TransactionList = () => {
     const filterValue = searchParams.get('filter') || 'all';
     const sortValue = searchParams.get('sort') || 'date';
     const searchValue = searchParams.get('search') || '';
+    const [selectedValues, setSelectedValues] = useState<Set<number>>(new Set());
 
     if (isPending) {
         return <div><CircularProgress /></div>
@@ -68,34 +71,48 @@ const TransactionList = () => {
         filteredTransactions = filteredTransactions?.filter(tr => tr.description.toLowerCase().includes(searchValue.toLowerCase()));
     }
 
-    const selectedTransaction = new Set<number>();
     function handleTransactionItemSelected(id: number) {
-        if (selectedTransaction.has(id)) {
-            selectedTransaction.delete(id);
-            console.log('transaction item deselected: ',id);
-            console.log('selected transactions: ',selectedTransaction);
+        if (selectedValues.has(id)) {
+            setSelectedValues(() => {
+                const newSet = new Set(selectedValues);
+                newSet.delete(id);
+                return newSet;
+            });
         } else {
-            selectedTransaction.add(id);
-            console.log('transaction item selected: ',id);
-            console.log('selected transactions: ',selectedTransaction);
+            setSelectedValues(() => {
+                const newSet = new Set(selectedValues);
+                newSet.add(id);
+                return newSet;
+            });
         }
+    }
 
-
+    function handleEmptyIdSet() {
+        setSelectedValues(new Set());
     }
 
     const tableHeaderStyle = "px-2 py-1";
 
     return (
         <div className=''>
-
-            <AddModal
-                ctaText="Add Transaction"
-                heading='Add a new transaction'
-                paragraph='Fill in the form below to add a new transaction'
-                form={<TransactionForm />}
-                buttonIcon={<Add />}
-            />
-            { transactions?.length === 0 && <MoniBanner style="info">Click the 'add transaction' button above, to create a new transaction!</MoniBanner>}
+            <div className="flex justify-between">
+                <AddModal
+                    ctaText="Add Transaction"
+                    heading='Add a new transaction'
+                    paragraph='Fill in the form below to add a new transaction'
+                    form={<TransactionForm />}
+                    buttonIcon={<Add />}
+                />
+                <AddModal
+                    ctaText="Delete Selected"
+                    heading='Are you sure you want to delete the selected transactions?'
+                    paragraph='This operation cannot be undone!'
+                    form={<DeleteSelectedTransactionsForm ids={selectedValues} onHandleEmptyIdSet={handleEmptyIdSet} />}
+                    buttonIcon={<Add />}
+                    ctaStyle={`${selectedValues.size > 0 ? 'bg-red-400' : 'hidden'} `}
+                />
+            </div>
+            {transactions?.length === 0 && <MoniBanner style="info">Click the 'add transaction' button above, to create a new transaction!</MoniBanner>}
             <TransactionOperations />
             <Divider />
 
