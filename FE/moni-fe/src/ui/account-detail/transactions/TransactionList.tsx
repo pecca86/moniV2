@@ -85,7 +85,7 @@ const TransactionList = () => {
             <Divider />
 
             <div className="relative overflow-x-auto shadow-lg rounded-lg h-full max-h-[450px] overflow-scroll">
-                <table className="w-full text-sm text-left rtl:text-right text-gray-900">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-900 table-fixed">
                     <thead className="text-xs text-gray-900 uppercase bg-gray-100">
                         <tr>
                             <th scope="col" className={tableHeaderStyle}>
