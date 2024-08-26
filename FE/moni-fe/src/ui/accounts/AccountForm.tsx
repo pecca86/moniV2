@@ -62,9 +62,9 @@ const AccountForm = ({ handleClose = null, update = false, accountData }: { hand
                 <label htmlFor="iban">IBAN</label>
                 <input className={inputStyle} type="text" id="iban" {...register('iban', {
                     required: 'IBAN is required',
-                    minLength: {
-                        value: 4,
-                        message: 'IBAN must be at least characters'
+                    maxLength: {
+                        value: 24,
+                        message: 'IBAN can be max 24 characters long'
                     },
                 })} />
 

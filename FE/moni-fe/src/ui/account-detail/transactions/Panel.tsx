@@ -57,19 +57,19 @@ const Panel = () => {
                     />
                 </div>
             </div>
-            <div className="grid grid-cols-2">
+            <div className="grid grid-cols-[auto_1fr] gap-2">
                 <div className="col-1">
                     <p className="text-lg mb-1 font-bold">Balance</p>
                     <Divider />
-                    <p className="pt-1">With transactions</p>
+                    <p className="pt-1 font-semibold">With transactions</p>
                     <Divider />
-                    <p className="pt-1">IBAN</p>
+                    <p className="pt-1 font-semibold">IBAN</p>
                     <Divider />
-                    <p className="pt-1">Name</p>
+                    <p className="pt-1 font-semibold">Name</p>
                     <Divider />
-                    <p className="pt-1">Type</p>
+                    <p className="pt-1 font-semibold">Type</p>
                     <Divider />
-                    <p className="pt-1">Savings goal</p>
+                    <p className="pt-1 font-semibold">Savings goal</p>
                 </div>
                 <div className="col-2">
                     <p className="text-lg mb-1 font-bold">{account?.balance} €</p>
