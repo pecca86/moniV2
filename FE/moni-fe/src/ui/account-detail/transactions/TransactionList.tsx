@@ -32,6 +32,102 @@ const TransactionList = () => {
             transaction_type: 'withdrawal',
             transaction_category: 'car',
             transaction_date: '2024-10-10'
+        },
+        {
+            id: 4,
+            sum: 200,
+            description: 'Gift',
+            transaction_type: 'deposit',
+            transaction_category: 'other',
+            transaction_date: '2024-09-10'
+        },
+        {
+            id: 5,
+            sum: -10,
+            description: 'Lunch',
+            transaction_type: 'withdrawal',
+            transaction_category: 'food',
+            transaction_date: '2024-08-10'
+        },
+        {
+            id: 6,
+            sum: 500,
+            description: 'Bonus',
+            transaction_type: 'deposit',
+            transaction_category: 'income',
+            transaction_date: '2024-07-10'
+        },
+        {
+            id: 7,
+            sum: -100,
+            description: 'Rent',
+            transaction_type: 'withdrawal',
+            transaction_category: 'home',
+            transaction_date: '2024-06-10'
+        },
+        {
+            id: 8,
+            sum: 300,
+            description: 'Refund',
+            transaction_type: 'deposit',
+            transaction_category: 'other',
+            transaction_date: '2024-05-10'
+        },
+        {
+            id: 9,
+            sum: -50,
+            description: 'Dinner',
+            transaction_type: 'withdrawal',
+            transaction_category: 'food',
+            transaction_date: '2024-04-10'
+        },
+        {
+            id: 10,
+            sum: 400,
+            description: 'Bonus',
+            transaction_type: 'deposit',
+            transaction_category: 'income',
+            transaction_date: '2024-03-10'
+        },
+        {
+            id: 11,
+            sum: -70,
+            description: 'Electricity',
+            transaction_type: 'withdrawal',
+            transaction_category: 'home',
+            transaction_date: '2024-02-10'
+        },
+        {
+            id: 12,
+            sum: 600,
+            description: 'Refund',
+            transaction_type: 'deposit',
+            transaction_category: 'other',
+            transaction_date: '2024-01-10'
+        },
+        {
+            id: 13,
+            sum: -80,
+            description: 'Lunch',
+            transaction_type: 'withdrawal',
+            transaction_category: 'food',
+            transaction_date: '2023-12-10'
+        },
+        {
+            id: 14,
+            sum: 700,
+            description: 'Bonus',
+            transaction_type: 'deposit',
+            transaction_category: 'income',
+            transaction_date: '2023-11-10'
+        },
+        {
+            id: 15,
+            sum: -90,
+            description: 'Gas',
+            transaction_type: 'withdrawal',
+            transaction_category: 'car',
+            transaction_date: '2023-10-10'
         }
     ]
 
@@ -98,7 +194,7 @@ const TransactionList = () => {
             <TransactionOperations />
             <Divider />
 
-            <div className="relative overflow-x-auto shadow-lg rounded-lg">
+            <div className="relative overflow-x-auto shadow-lg rounded-lg h-full max-h-[450px] overflow-scroll">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-900">
                     <thead className="text-xs text-gray-900 uppercase bg-gray-100">
                         <tr>
