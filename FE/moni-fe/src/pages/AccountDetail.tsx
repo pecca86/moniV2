@@ -6,7 +6,7 @@ const AccountDetail = () => {
         <>
             {/* <section className="grid grid-rows-3 grid-flow-col gap-0 h-screen"> */}
             <SideNav />
-            <section className="flex mt-10">
+            <section className="flex mt-[55px]">
                 <div className="h-svh w-full mx-2 overflow-scroll">
                     <Outlet />
                 </div>
