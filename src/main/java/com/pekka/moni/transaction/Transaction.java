@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pekka.moni.account.Account;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -75,7 +76,7 @@ public class Transaction {
     )
     private String description;
 
-    @Past(message = "Transaction date must be in the past")
+    @FutureOrPresent(message = "Transaction date must be in the past")
     @Column(
             name = "transaction_date",
             nullable = false,
