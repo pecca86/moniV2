@@ -1,5 +1,5 @@
 import Panel from "./Panel";
-import TransactionList from "../TransactionList";
+import TransactionList from "./TransactionList";
 import { Divider } from "@mui/material";
 
 const DetailMain = () => {

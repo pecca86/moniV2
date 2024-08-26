@@ -4,7 +4,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Button from '@mui/material/Button';
-import TransactionList from '../TransactionList';
+import TransactionList from '../transactions/TransactionList';
 import AddModal from '../../cta/AddModal';
 import TimeSpanForm from './TimeSpanForm';
 

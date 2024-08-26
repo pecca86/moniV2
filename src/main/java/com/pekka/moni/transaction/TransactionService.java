@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -83,7 +84,7 @@ public class TransactionService {
                                .toList();
     }
 
-    public void addAccountTransaction(Authentication authentication, Transaction transaction, Long accountId) {
+    public ResponseEntity<Transaction> addAccountTransaction(Authentication authentication, Transaction transaction, Long accountId) {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         Account account = loggedInCustomer.getAccounts()
@@ -101,6 +102,7 @@ public class TransactionService {
         }
         account.addTransaction(transaction);
         accountRepository.save(account);
+        return ResponseEntity.status(201).body(transaction);
     }
 
     public void addMonthlyTransactionsForAccount(Authentication authentication, MonthlyTransaction monthlyTransaction, Long accountId) {

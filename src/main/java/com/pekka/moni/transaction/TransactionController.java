@@ -58,11 +58,10 @@ public class TransactionController {
 
     @PostMapping("/{accountId}")
     @CacheEvict(value = "transactions", key = "#authentication.name")
-    public ResponseEntity<String> addNewTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public ResponseEntity<Transaction> addNewTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                   @RequestBody @Valid Transaction transaction,
                                   @PathVariable Long accountId) {
-        transactionService.addAccountTransaction(authentication, transaction, accountId);
-        return ResponseEntity.status(201).body("Transaction created");
+        return transactionService.addAccountTransaction(authentication, transaction, accountId);
     }
 
     @PostMapping("/{accountId}/create-monthly")

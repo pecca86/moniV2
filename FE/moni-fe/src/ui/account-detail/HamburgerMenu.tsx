@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Divider } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
 
 function HamburgerMenu() {
     const navigate = useNavigate();
     const menuRef = useRef<HTMLDivElement | null>(null);
     const [isOpen, setIsOpen] = useState(false);
+    const { accountId } = useParams<{ accountId: string }>();
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -57,9 +57,9 @@ function HamburgerMenu() {
                     {/* Menu Items */}
                     <nav className={`${isOpen ? "block" : "hidden"} md:flex flex-col md:flex-row  md:relative top-12 md:top-0 left-0 w-full z-50 md:w-auto `} >
                         <div className="ml-1 flex flex-col gap-4 absolute z-50 backdrop-blur-lg rounded-xl" >
-                            <span className={navigationBtnStyle} onClick={() => navigate('1/main')}>Transactions</span>
-                            <span className={navigationBtnStyle} onClick={() => navigate('1/timespans')}>Timespans</span>
-                            <span className={navigationBtnStyle} onClick={() => navigate('1/charts')}>Charts</span>
+                            <span className={navigationBtnStyle} onClick={() => navigate(`${accountId}/main`)}>Transactions</span>
+                            <span className={navigationBtnStyle} onClick={() => navigate(`${accountId}/timespans`)}>Timespans</span>
+                            <span className={navigationBtnStyle} onClick={() => navigate(`${accountId}/charts`)}>Charts</span>
                         </div>
                     </nav>
                 </div>

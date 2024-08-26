@@ -113,11 +113,13 @@ class TransactionControllerTest {
         //given
         Transaction transaction = new Transaction();
         transaction.setId(1L);
+        ResponseEntity<Transaction> expectedResponse = ResponseEntity.status(201).body(transaction);
+        given(transactionServiceMock.addAccountTransaction(null, transaction, 1L)).willReturn(expectedResponse);
         //when
-        ResponseEntity<String> response = underTest.addNewTransaction(null, transaction, 1L);
+        ResponseEntity<Transaction> response = underTest.addNewTransaction(null, transaction, 1L);
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(201);
-        assertThat(response.getBody()).isEqualTo("Transaction created");
+        assertThat(response).isEqualTo(expectedResponse);
     }
 
     @Test

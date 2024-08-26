@@ -4,7 +4,6 @@ import AddModal from '../ui/cta/AddModal';
 import AccountForm from '../ui/accounts/AccountForm';
 import Divider from '@mui/material/Divider';
 import AddIcon from '@mui/icons-material/Add';
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Accounts = () => {
 
