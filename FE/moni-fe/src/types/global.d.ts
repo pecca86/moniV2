@@ -47,4 +47,12 @@ type TransactionFormData = {
     transaction_type: string;
     transaction_category: string;
     transaction_date: string;
+    data? : Transaction;
+    months?: number;
 };
+
+type MonthlyTransactionFormData = {
+    transactionData: TransactionFormData;
+    months: number;
+}
+

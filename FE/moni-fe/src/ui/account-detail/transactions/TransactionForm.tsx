@@ -1,27 +1,46 @@
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useAddTransaction } from "../../../hooks/transaction/useAddTransaction";
+import { useAddMonthlyTransaction } from "../../../hooks/transaction/useAddMonthlyTransaction";
 import { useParams } from "react-router-dom";
+import { useState } from "react";
+import Slider from '@mui/material/Slider';
+import Checkbox from '@mui/material/Checkbox';
 
 const TransactionForm = ({ handleClose }: any) => {
     const { accountId } = useParams<{ accountId: string }>();
-    
+    const [hidden, toggleHidden] = useState(true);
+    const [months, setMonths] = useState(1);
+
     const { register, handleSubmit, formState } = useForm();
 
     const { errors } = formState;
 
     const { isAdding, addTransactionMutation } = useAddTransaction();
+    const { isAddingMonthly, addMonthlyTransactionMutation } = useAddMonthlyTransaction();
 
     const onSubmit = (data: any) => {
-        addTransactionMutation(
-            { ...data },
-            {
-                onSuccess: () => {
-                    toast.success('Transaction added successfully');
-                    handleClose();
+        if (hidden) {
+            addTransactionMutation(
+                { ...data },
+                {
+                    onSuccess: () => {
+                        toast.success('Transaction added successfully');
+                        handleClose();
+                    }
                 }
-            }
-        );
+            );
+        } else {
+            addMonthlyTransactionMutation(
+                { transactionData: {...data}, months: months },
+                {
+                    onSuccess: () => {
+                        toast.success(`${months} transactions added successfully`);
+                        handleClose();
+                    }
+                }
+            );
+        }
     }
 
     const onError = (errors: any) => {
@@ -33,9 +52,17 @@ const TransactionForm = ({ handleClose }: any) => {
         const today = new Date();
         // Set the time of today's date to 00:00:00 to compare only the date part
         today.setHours(0, 0, 0, 0);
-    
+
         return selectedDate >= today || "Selected date cannot be in the past";
-      };
+    };
+
+    const onToggleMonths = (e) => {
+        toggleHidden(!e.target.checked);
+    }
+
+    const onMonthsChange = (months: number) => {
+        setMonths(months);
+    }
 
     const inputStyle = "block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
     const submitBtnStyle = "mt-5 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
@@ -104,9 +131,28 @@ const TransactionForm = ({ handleClose }: any) => {
                 })} />
                 <span className="text-red-500 ita">{errors?.transaction_date?.message}</span>
 
+                {/* MONTHS */}
+                <div>
+                    <label htmlFor="toggleMonth">Create for time period (months)</label>
+                    {/* <input onClick={(e) => onToggleMonths(e)} type="checkbox" name="toggleMonth" id="toggleMonth" /> */}
+                    <Checkbox onClick={(e) => onToggleMonths(e)} />
+                </div>
+
+                <Slider
+                    sx={{ display: hidden ? 'none' : 'block' }}
+                    aria-label="Temperature"
+                    defaultValue={1}
+                    valueLabelDisplay="auto"
+                    step={1}
+                    marks
+                    min={1}
+                    max={12}
+                    onChange={(e, value) => onMonthsChange(value)}
+                />
+                {/* ACCOUNT ID */}
                 <input value={accountId} type="hidden" {...register('accountId')} />
 
-                <input className={submitBtnStyle} disabled={isAdding || isAdding} type="submit" value="submit" />
+                <input className={submitBtnStyle} disabled={isAdding || isAddingMonthly} type="submit" value="submit" />
             </div>
         </form>
     );

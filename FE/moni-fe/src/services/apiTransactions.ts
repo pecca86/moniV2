@@ -41,3 +41,33 @@ export async function addTransaction(transactionData: TransactionFormData) {
         toast.error('Error adding transaction');
     }
 }
+
+export async function addMonthlyTransaction(data: MonthlyTransactionFormData) {
+    const { transactionData, months } = data;
+    transactionData.transaction_type = transactionData.transaction_type.toUpperCase();
+    transactionData.transaction_category = transactionData.transaction_category.toUpperCase();
+
+    const requestBody = {
+        data: {
+            ...transactionData
+        },
+        months: months
+    }
+
+    try {
+        await fetch(`http://localhost:8080/api/v1/transactions/${transactionData.accountId}/create-monthly`, {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        // const data: Transaction = await response.json();
+        return "Success";
+
+    } catch (error) {
+        // log error
+    }
+}
