@@ -68,6 +68,21 @@ const TransactionList = () => {
         filteredTransactions = filteredTransactions?.filter(tr => tr.description.toLowerCase().includes(searchValue.toLowerCase()));
     }
 
+    const selectedTransaction = new Set<number>();
+    function handleTransactionItemSelected(id: number) {
+        if (selectedTransaction.has(id)) {
+            selectedTransaction.delete(id);
+            console.log('transaction item deselected: ',id);
+            console.log('selected transactions: ',selectedTransaction);
+        } else {
+            selectedTransaction.add(id);
+            console.log('transaction item selected: ',id);
+            console.log('selected transactions: ',selectedTransaction);
+        }
+
+
+    }
+
     const tableHeaderStyle = "px-2 py-1";
 
     return (
@@ -104,7 +119,7 @@ const TransactionList = () => {
                     </thead>
                     <tbody>
                         {filteredTransactions?.map((transaction) => (
-                            <TransactionListItem key={transaction.id} tr={transaction} />))}
+                            <TransactionListItem key={transaction.id} tr={transaction} onSelect={handleTransactionItemSelected} />))}
                     </tbody>
                 </table>
             </div>

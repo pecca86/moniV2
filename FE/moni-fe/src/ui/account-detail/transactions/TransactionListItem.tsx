@@ -1,13 +1,21 @@
-import React from 'react';
+import { Transaction } from '../../../types/global';
+import { useState } from 'react';
 
-const TransactionListItem = ({tr}: {tr: Transaction}) => {
+const TransactionListItem = ({ tr, onSelect }: { tr: Transaction, onSelect: any }) => {
+
+    const [selected, setSelected] = useState(false);
 
     const tableHeaderStyle = "px-1 py-2";
     const withdrawalStyle = "text-red-500";
     const depositStyle = "text-green-500";
 
+    const handleClicked = () => {
+        setSelected(!selected);
+        onSelect(tr.id);
+    }
+
     return (
-        <tr className="bg-white border-b text-xs font-light sm:hover:cursor-pointer sm:hover:bg-purple-300 sm:hover:text-white">
+        <tr onClick={handleClicked} className={`${selected ? 'bg-violet-400': 'bg-white'} border-b text-xs font-light sm:hover:cursor-pointer sm:hover:bg-purple-300 sm:hover:text-white `}id={`${tr.id}`}>
             <th scope="col" className={tableHeaderStyle}>{tr.transaction_date}</th>
             <th scope="col" className={tableHeaderStyle}>{tr.description}</th>
             <th scope="col" className={tableHeaderStyle}>{tr.transaction_category}</th>
