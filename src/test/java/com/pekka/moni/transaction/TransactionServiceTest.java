@@ -80,10 +80,10 @@ class TransactionServiceTest {
         account.setId(1L);
         Transaction transaction = new Transaction();
         transaction.setId(1L);
-        transaction.setSum(100.0);
+        transaction.setSum(BigDecimal.valueOf(100.0));
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
-        transaction2.setSum(100.0);
+        transaction2.setSum(BigDecimal.valueOf(100.0));
         account.setTransactions(List.of(transaction, transaction2));
         customer.setAccounts(List.of(account));
 
@@ -101,7 +101,7 @@ class TransactionServiceTest {
         //then
         assertThat(result).isNotNull();
         assertThat(result.transactions()).hasSize(2);
-        assertThat(result.sum()).isEqualTo(200.0);
+        assertThat(result.sum()).isEqualTo(BigDecimal.valueOf(200.0));
     }
 
     @Test
@@ -114,10 +114,10 @@ class TransactionServiceTest {
         account.setId(1L);
         Transaction transaction = new Transaction();
         transaction.setId(1L);
-        transaction.setSum(100.0);
+        transaction.setSum(BigDecimal.valueOf(100.0));
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
-        transaction2.setSum(100.0);
+        transaction2.setSum(BigDecimal.valueOf(100.0));
         account.setTransactions(List.of(transaction, transaction2));
         customer.setAccounts(List.of(account));
 
@@ -146,12 +146,12 @@ class TransactionServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId(1L);
         transaction.setTransactionType(transactionType);
-        transaction.setSum(100.0);
+        transaction.setSum(BigDecimal.valueOf(100.0));
         transaction.setTransactionDate(LocalDate.of(2021, 1, 1));
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
         transaction2.setTransactionType(transactionType);
-        transaction2.setSum(200.0);
+        transaction2.setSum(BigDecimal.valueOf(200.0));
         transaction2.setTransactionDate(LocalDate.of(2021, 1, 2));
         List<Account> accounts = new ArrayList<>(List.of(account));
         customer.setAccounts(accounts);
@@ -184,7 +184,7 @@ class TransactionServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId(1L);
         transaction.setTransactionType(transactionType);
-        transaction.setSum(100.0);
+        transaction.setSum(BigDecimal.valueOf(100.0));
         transaction.setTransactionDate(LocalDate.of(2021, 1, 1));
         customer.setAccounts(List.of(account));
         given(loggedInCustomerServiceMock.getLoggedInCustomer(any())).willReturn(customer);
@@ -212,16 +212,16 @@ class TransactionServiceTest {
         account.setId(1L);
         Transaction transaction = new Transaction();
         transaction.setId(1L);
-        transaction.setSum(100.0);
+        transaction.setSum(BigDecimal.valueOf(100.0));
         Transaction newData = new Transaction();
-        newData.setSum(120.0);
+        newData.setSum(BigDecimal.valueOf(120.0));
         account.setTransactions(List.of(transaction));
         customer.setAccounts(List.of(account));
         given(loggedInCustomerServiceMock.getLoggedInCustomer(any())).willReturn(customer);
         //when
         underTest.updateTransaction(null, newData, transaction.getId());
         //then
-        assertThat(transaction.getSum()).isEqualTo(120.0);
+        assertThat(transaction.getSum()).isEqualTo(BigDecimal.valueOf(120.0));
     }
 
     @Test
@@ -234,12 +234,12 @@ class TransactionServiceTest {
         account.setId(1L);
         Transaction transaction = new Transaction();
         transaction.setId(1L);
-        transaction.setSum(100.0);
+        transaction.setSum(BigDecimal.valueOf(100.0));
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
-        transaction2.setSum(100.0);
+        transaction2.setSum(BigDecimal.valueOf(100.0));
         Transaction newData = new Transaction();
-        newData.setSum(999.99);
+        newData.setSum(BigDecimal.valueOf(999.99));
         newData.setTransactionCategory(TransactionCategory.FOOD);
         newData.setDescription("description");
         newData.setTransactionType(Transaction.TransactionType.WITHDRAWAL);
@@ -259,8 +259,8 @@ class TransactionServiceTest {
                                                      Transaction::getDescription,
                                                      Transaction::getTransactionType)
                                              .containsExactly(
-                                                     Tuple.tuple(999.99, 1L, TransactionCategory.FOOD, "description", Transaction.TransactionType.WITHDRAWAL),
-                                                     Tuple.tuple(999.99, 2L, TransactionCategory.FOOD, "description", Transaction.TransactionType.WITHDRAWAL)
+                                                     Tuple.tuple(BigDecimal.valueOf(999.99), 1L, TransactionCategory.FOOD, "description", Transaction.TransactionType.WITHDRAWAL),
+                                                     Tuple.tuple(BigDecimal.valueOf(999.99), 2L, TransactionCategory.FOOD, "description", Transaction.TransactionType.WITHDRAWAL)
                                              );
     }
 
@@ -274,7 +274,7 @@ class TransactionServiceTest {
         account.setId(1L);
         Transaction transaction = new Transaction();
         transaction.setId(1L);
-        transaction.setSum(100.0);
+        transaction.setSum(BigDecimal.valueOf(100.0));
         transaction.setAccount(account);
         List<Transaction> transactions = new ArrayList<>(List.of(transaction));
         account.setTransactions(transactions);
@@ -298,15 +298,15 @@ class TransactionServiceTest {
         account.setId(1L);
         Transaction transaction = new Transaction();
         transaction.setId(1L);
-        transaction.setSum(100.0);
+        transaction.setSum(BigDecimal.valueOf(100.0));
         transaction.setAccount(account);
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
-        transaction2.setSum(100.0);
+        transaction2.setSum(BigDecimal.valueOf(100.0));
         transaction2.setAccount(account);
         Transaction transaction3 = new Transaction();
         transaction3.setId(3L);
-        transaction3.setSum(999.0);
+        transaction3.setSum(BigDecimal.valueOf(999.99));
         transaction3.setAccount(account);
         List<Transaction> transactions = new ArrayList<>(List.of(transaction, transaction2, transaction3));
         account.setTransactions(transactions);
@@ -335,15 +335,15 @@ class TransactionServiceTest {
         account.setId(1L);
         Transaction transaction = new Transaction();
         transaction.setId(1L);
-        transaction.setSum(100.0);
+        transaction.setSum(BigDecimal.valueOf(100.0));
         transaction.setTransactionDate(LocalDate.of(2021, 1, 1));
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
-        transaction2.setSum(100.0);
+        transaction2.setSum(BigDecimal.valueOf(100.0));
         transaction2.setTransactionDate(LocalDate.of(2021, 1, 2));
         Transaction transaction3 = new Transaction();
         transaction3.setId(3L);
-        transaction3.setSum(999.0);
+        transaction3.setSum(BigDecimal.valueOf(999.0));
         transaction3.setTransactionDate(LocalDate.of(2021, 1, 3));
         List<Transaction> transactions = new ArrayList<>(List.of(transaction, transaction2, transaction3));
         account.setTransactions(transactions);
@@ -359,7 +359,7 @@ class TransactionServiceTest {
         //then
         assertThat(result).isNotNull();
         assertThat(result.transactions()).hasSize(2);
-        assertThat(result.sum()).isEqualTo(200.0);
+        assertThat(result.sum()).isEqualTo(BigDecimal.valueOf(200.0));
     }
 
     @Test

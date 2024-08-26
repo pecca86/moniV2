@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,16 +60,16 @@ public class TransactionService {
         return switch (Sort.Direction.fromString(sortDirection)) {
             case ASC -> {
                 Page<Transaction> targetTransactions = transactionRepository.findAllByAccountId(accountId, pageRequest.withSort(Sort.by(sortBy).ascending()));
-                Double sum = targetTransactions.stream()
-                                               .mapToDouble(Transaction::getSum)
-                                               .sum();
+                BigDecimal sum = targetTransactions.stream()
+                                                   .map(Transaction::getSum)
+                                                   .reduce(BigDecimal.ZERO, BigDecimal::add);
                 yield new TransactionResponse(targetTransactions, sum);
             }
             case DESC -> {
                 Page<Transaction> targetTransactions = transactionRepository.findAllByAccountId(accountId, pageRequest.withSort(Sort.by(sortBy).descending()));
-                Double sum = targetTransactions.stream()
-                                               .mapToDouble(Transaction::getSum)
-                                               .sum();
+                BigDecimal sum = targetTransactions.stream()
+                                                   .map(Transaction::getSum)
+                                                   .reduce(BigDecimal.ZERO, BigDecimal::add);
                 yield new TransactionResponse(targetTransactions, sum);
             }
         };
@@ -92,7 +93,11 @@ public class TransactionService {
                                           .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()));
 
         if (transaction.getTransactionType().equals(Transaction.TransactionType.WITHDRAWAL)) {
-            transaction.setSum(transaction.getSum() * -1);
+            // Make value of sum negative if transaction type is withdrawal
+            transaction.setSum(
+                    transaction.getSum()
+                               .multiply(BigDecimal.valueOf(-1))
+            );
         }
         account.addTransaction(transaction);
         accountRepository.save(account);
@@ -113,7 +118,7 @@ public class TransactionService {
             Transaction transaction = new Transaction(
                     monthlyTransaction.data().getTransactionType().equals(Transaction.TransactionType.DEPOSIT)
                             ? monthlyTransaction.data().getSum()
-                            : monthlyTransaction.data().getSum() * -1,
+                            : monthlyTransaction.data().getSum().multiply(BigDecimal.valueOf(-1)),
                     monthlyTransaction.data().getTransactionType(),
                     monthlyTransaction.data().getDescription(),
                     date,
@@ -221,9 +226,9 @@ public class TransactionService {
         LocalDate to = transactionDateSpan.to();
 
         List<Transaction> targetTransactions = transactionRepository.findTransactionsByAccountIdAndTransactionDateBetween(accountId, from, to);
-        Double sum = targetTransactions.stream()
-                                       .mapToDouble(Transaction::getSum)
-                                       .sum();
+        BigDecimal sum = targetTransactions.stream()
+                                           .map(Transaction::getSum)
+                                           .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new TransactionDateSpanResponse(targetTransactions, sum);
     }

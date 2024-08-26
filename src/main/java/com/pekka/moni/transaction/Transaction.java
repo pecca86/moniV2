@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity(name = "Transaction")
@@ -44,7 +45,7 @@ public class Transaction {
             nullable = false,
             columnDefinition = "DECIMAL"
     )
-    private Double sum;
+    private BigDecimal sum;
 
     @NotNull(message = "Transaction type is required")
     @Column(
@@ -94,7 +95,7 @@ public class Transaction {
     )
     private Account account;
 
-    public Transaction(Double sum, TransactionType transactionType, String description, LocalDate transactionDate, Account account, TransactionCategory transactionCategory) {
+    public Transaction(BigDecimal sum, TransactionType transactionType, String description, LocalDate transactionDate, Account account, TransactionCategory transactionCategory) {
         this.sum = sum;
         this.transactionType = transactionType;
         this.description = description;

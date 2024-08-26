@@ -15,6 +15,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -60,7 +61,7 @@ class TransactionControllerTest {
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
         Page<Transaction> transactionPage = new PageImpl<>(List.of(transaction1, transaction2));
-        TransactionResponse transactionResponse = new TransactionResponse(transactionPage, 100.0);
+        TransactionResponse transactionResponse = new TransactionResponse(transactionPage, BigDecimal.valueOf(100.0));
         given(transactionServiceMock.getAccountTransactions(null, 1L, "firstName", "ASC", 0, 10)).willReturn(transactionResponse);
         //when
         ResponseEntity<TransactionResponse> response = underTest.getAccountTransactions(null, 1L, "firstName", "ASC", 0, 10);
@@ -81,7 +82,7 @@ class TransactionControllerTest {
         LocalDate to = LocalDate.of(2020, 12, 31);
         TransactionDateSpan transactionDateSpan = new TransactionDateSpan(from, to);
 
-        TransactionDateSpanResponse transactionDateSpanResponse = new TransactionDateSpanResponse(List.of(transaction1, transaction2), 100.0);
+        TransactionDateSpanResponse transactionDateSpanResponse = new TransactionDateSpanResponse(List.of(transaction1, transaction2), BigDecimal.valueOf(100.0));
         given(transactionServiceMock.getTransactionsByDateSpan(null, 1L, transactionDateSpan)).willReturn(transactionDateSpanResponse);
         //when
         ResponseEntity<TransactionDateSpanResponse> response = underTest.getTransactionsByDateSpan(null, 1L, transactionDateSpan);

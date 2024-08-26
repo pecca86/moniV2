@@ -177,7 +177,7 @@ public class Account {
         if (transactions.contains(transaction)) {
             this.transactions.remove(transaction);
             transaction.setAccount(null);
-            this.balanceWithTransactions = balanceWithTransactions.subtract(BigDecimal.valueOf(transaction.getSum()));
+            this.balanceWithTransactions = balanceWithTransactions.subtract(transaction.getSum());
         }
     }
 
@@ -208,19 +208,19 @@ public class Account {
             balance = BigDecimal.valueOf(0.0);
         }
 
-        double transactionsSum = transactions.stream()
-                                             .mapToDouble(Transaction::getSum)
-                                             .sum();
-        return this.balance.add(BigDecimal.valueOf(transactionsSum));
+        BigDecimal transactionsSum = transactions.stream()
+                                                 .map(Transaction::getSum)
+                                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return this.balance.add(transactionsSum);
     }
 
     private BigDecimal calculateBalance() {
         var today = LocalDate.now();
-        double sum = transactions.stream()
-                                 .filter(transaction -> transaction.getTransactionDate().isAfter(today.minusDays(1)))
-                                 .mapToDouble(Transaction::getSum)
-                                 .sum();
-        return BigDecimal.valueOf(sum);
+
+        return transactions.stream()
+                           .filter(transaction -> transaction.getTransactionDate().isAfter(today.minusDays(1)))
+                           .map(Transaction::getSum)
+                           .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public @NotNull(message = "Balance is required") BigDecimal getBalance() {
