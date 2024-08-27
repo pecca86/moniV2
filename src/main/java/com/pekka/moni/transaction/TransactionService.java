@@ -93,13 +93,7 @@ public class TransactionService {
                                           .findFirst()
                                           .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()));
 
-        if (transaction.getTransactionType().equals(Transaction.TransactionType.WITHDRAWAL)) {
-            // Make value of sum negative if transaction type is withdrawal
-            transaction.setSum(
-                    transaction.getSum()
-                               .multiply(BigDecimal.valueOf(-1))
-            );
-        }
+        transaction.setSum(validateSumAccordingToTransactionType(transaction));
         account.addTransaction(transaction);
         accountRepository.save(account);
         return ResponseEntity.status(201).body(transaction);
@@ -117,10 +111,9 @@ public class TransactionService {
                                            .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found"));
 
         for (int i = 0; i < monthlyTransaction.months(); i++) {
+            monthlyTransaction.data().setSum(validateSumAccordingToTransactionType(monthlyTransaction.data()));
             Transaction transaction = new Transaction(
-                    monthlyTransaction.data().getTransactionType().equals(Transaction.TransactionType.DEPOSIT)
-                            ? monthlyTransaction.data().getSum()
-                            : monthlyTransaction.data().getSum().multiply(BigDecimal.valueOf(-1)),
+                    monthlyTransaction.data().getSum(),
                     monthlyTransaction.data().getTransactionType(),
                     monthlyTransaction.data().getDescription(),
                     date,
@@ -146,6 +139,7 @@ public class TransactionService {
                                                           .findFirst()
                                                           .orElseThrow(() -> new AccountNotFoundException("Transaction with id " + transactionId + " not found for customer with id " + loggedInCustomer.getId()));
 
+        newData.setSum(validateSumAccordingToTransactionType(newData));
         transactionToUpdate.setSum(newData.getSum());
         transactionToUpdate.setTransactionType(newData.getTransactionType());
         transactionToUpdate.setDescription(newData.getDescription());
@@ -165,6 +159,7 @@ public class TransactionService {
                     t.setSum(updatableTransactions.data().getSum() != null
                             ? updatableTransactions.data().getSum()
                             : t.getSum());
+                    t.setSum(validateSumAccordingToTransactionType(t));
                     t.setTransactionType(updatableTransactions.data().getTransactionType() != null
                             ? updatableTransactions.data().getTransactionType()
                             : t.getTransactionType());
@@ -237,6 +232,16 @@ public class TransactionService {
 
     public List<TransactionCategory> getTransactionCategories() {
         return List.of(TransactionCategory.values());
+    }
+
+    private BigDecimal validateSumAccordingToTransactionType(Transaction transaction) {
+        if (transaction.getTransactionType().equals(Transaction.TransactionType.WITHDRAWAL) && transaction.getSum().compareTo(BigDecimal.ZERO) > 0) {
+            return transaction.getSum().multiply(BigDecimal.valueOf(-1));
+        }
+        if (transaction.getTransactionType().equals(Transaction.TransactionType.DEPOSIT) && transaction.getSum().compareTo(BigDecimal.ZERO) < 0) {
+            return transaction.getSum().multiply(BigDecimal.valueOf(-1));
+        }
+        return transaction.getSum();
     }
 
     private static void isLoggedInUsersAccount(Long accountId, Customer loggedInCustomer) {

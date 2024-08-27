@@ -15,9 +15,16 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
     const [hidden, toggleHidden] = useState(true);
     const [months, setMonths] = useState(1);
 
+    let validatedSum: number | undefined;
+    if (transactionData) {
+        validatedSum = transactionData?.sum < 0 ? validatedSum = transactionData?.sum * -1 : validatedSum = transactionData?.sum;
+    } else {
+        validatedSum = undefined;
+    }
+
     const { register, handleSubmit, formState } = useForm({
         defaultValues: {
-            sum: transactionData?.sum || '',
+            sum: validatedSum || '',
             description: transactionData?.description || '',
             transaction_category: transactionData?.transaction_category || '',
             transaction_type: transactionData?.transaction_type || '',
@@ -113,6 +120,10 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
         return selectedDate >= today || "Selected date cannot be in the past";
     };
 
+    const validateSum = (value) => {
+        return value > 0 || "Sum should be greater than 0";
+    }
+
     const onToggleMonths = (e) => {
         toggleHidden(!e.target.checked);
     }
@@ -132,7 +143,7 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
                 <label htmlFor="sum">Sum</label>
                 <input className={inputStyle} type="number" id="sum" step="0.01" {...register('sum', {
                     required: 'Sum is required',
-                    min: 0
+                    validate: (value) => validateSum(value)
                 })} />
 
                 <span className="text-red-500 ita">{errors?.sum?.message}</span>
