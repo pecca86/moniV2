@@ -23,7 +23,10 @@ const TransactionList = () => {
     const filterValue = searchParams.get('filter') || 'all';
     const sortValue = searchParams.get('sort') || 'date';
     const searchValue = searchParams.get('search') || '';
+    // Table selection related state
     const [selectedValues, setSelectedValues] = useState<Set<number>>(new Set());
+    const [deselect, setDeselect] = useState(false);
+
 
     if (isPending) {
         return <div><CircularProgress /></div>
@@ -33,7 +36,7 @@ const TransactionList = () => {
         return <MoniBanner style="warning">There was a problem fetching the transaction data, please try again later!</MoniBanner>
     }
 
-
+    // FILTERING, SORTING AND SEARCHING
     let filteredTransactions = transactions;
 
     switch (filterValue) {
@@ -74,6 +77,7 @@ const TransactionList = () => {
         filteredTransactions = filteredTransactions?.filter(tr => tr.description.toLowerCase().includes(searchValue.toLowerCase()));
     }
 
+    // TABLE SELECTION
     function handleTransactionItemSelected(id: number) {
         if (selectedValues.has(id)) {
             setSelectedValues(() => {
@@ -90,8 +94,16 @@ const TransactionList = () => {
         }
     }
 
+    function resetDeselect() {
+        if (deselect) {
+            setDeselect(false);
+        }
+    }
+
+    // IDs PASSED TO OUR DELETE REQUEST
     function handleEmptyIdSet() {
         setSelectedValues(new Set());
+        setDeselect(true);
     }
 
     const tableHeaderStyle = "px-2 py-1";
@@ -155,7 +167,7 @@ const TransactionList = () => {
                     </thead>
                     <tbody>
                         {filteredTransactions?.map((transaction) => (
-                            <TransactionListItem key={transaction.id} tr={transaction} onSelect={handleTransactionItemSelected} />))}
+                            <TransactionListItem key={transaction.id} tr={transaction} onSelect={handleTransactionItemSelected} deselect={deselect} onRender={resetDeselect} />))}
                     </tbody>
                 </table>
             </div>

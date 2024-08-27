@@ -1,7 +1,7 @@
 import { Transaction } from '../../../types/global';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const TransactionListItem = ({ tr, onSelect }: { tr: Transaction, onSelect: any }) => {
+const TransactionListItem = ({ tr, onSelect, deselect, onRender }: { tr: Transaction, onSelect: any, deselect: boolean, onRender: any }) => {
 
     const [selected, setSelected] = useState(false);
 
@@ -13,6 +13,13 @@ const TransactionListItem = ({ tr, onSelect }: { tr: Transaction, onSelect: any 
         setSelected(!selected);
         onSelect(tr.id);
     }
+
+    useEffect(() => {
+        if (deselect) {
+            setSelected(false);
+        }
+        onRender(); // so we can do this operation more than once
+    }, [deselect, onRender]);
 
     return (
         <tr onClick={handleClicked} className={`${selected ? 'bg-violet-400': 'bg-white'} border-b text-xs font-light sm:hover:cursor-pointer sm:hover:bg-purple-300 sm:hover:text-white `}id={`${tr.id}`}>
