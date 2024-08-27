@@ -2,6 +2,8 @@ import AddModal from "../../cta/AddModal";
 import TransactionListItem from "./TransactionListItem";
 import TransactionForm from "./TransactionForm";
 import Add from "@mui/icons-material/Add";
+import { Delete } from "@mui/icons-material";
+import Edit from "@mui/icons-material/Edit";
 import TransactionOperations from "./TransactionOperations";
 import { useSearchParams } from "react-router-dom";
 import { Divider } from "@mui/material";
@@ -9,6 +11,7 @@ import { useFetchTransactions } from "../../../hooks/transaction/useFetchTransac
 import CircularProgress from '@mui/material/CircularProgress';
 import MoniBanner from "../../banners/MoniBanner";
 import DeleteSelectedTransactionsForm from "./DeleteSelectedTransactionsForm";
+import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import { useState } from "react";
 
 const TransactionList = () => {
@@ -96,21 +99,37 @@ const TransactionList = () => {
     return (
         <div className=''>
             <div className="flex justify-between">
+                {selectedValues.size >= 1 ? (
+                    <button onClick={handleEmptyIdSet} className="hover:bg-blue-600 bg-violet-500 text-white font-bold py-2 px-4 rounded"><RemoveDoneIcon /> Deselect</button>
+                ) : (
+
+                    <AddModal
+                        ctaText="Add"
+                        heading='Add a new transaction'
+                        paragraph='Fill in the form below to add a new transaction'
+                        form={<TransactionForm />}
+                        buttonIcon={<Add />}
+                    />
+                )}
+                {(selectedValues.size > 0 && selectedValues.size < 2) && (
+                    <AddModal
+                        ctaText="Update"
+                        heading='Update the selected transaction'
+                        paragraph=''
+                        form={<TransactionForm ids={selectedValues} onHandleEmptyIdSet={handleEmptyIdSet} />}
+                        buttonIcon={<Edit />}
+                        ctaStyle={`bg-yellow-400`}
+                    />
+                )}
                 <AddModal
-                    ctaText="Add Transaction"
-                    heading='Add a new transaction'
-                    paragraph='Fill in the form below to add a new transaction'
-                    form={<TransactionForm />}
-                    buttonIcon={<Add />}
-                />
-                <AddModal
-                    ctaText="Delete Selected"
+                    ctaText="Delete"
                     heading='Are you sure you want to delete the selected transactions?'
                     paragraph='This operation cannot be undone!'
                     form={<DeleteSelectedTransactionsForm ids={selectedValues} onHandleEmptyIdSet={handleEmptyIdSet} />}
-                    buttonIcon={<Add />}
+                    buttonIcon={<Delete />}
                     ctaStyle={`${selectedValues.size > 0 ? 'bg-red-400' : 'hidden'} `}
                 />
+
             </div>
             {transactions?.length === 0 && <MoniBanner style="info">Click the 'add transaction' button above, to create a new transaction!</MoniBanner>}
             <TransactionOperations />
