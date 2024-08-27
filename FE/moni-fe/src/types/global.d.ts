@@ -38,6 +38,7 @@ type Transaction = {
     transaction_type: string;
     transaction_category: string;
     transaction_date: string;
+    accountId?: number;
 };
 
 type TransactionFormData = {
@@ -47,7 +48,7 @@ type TransactionFormData = {
     transaction_type: string;
     transaction_category: string;
     transaction_date: string;
-    data? : Transaction;
+    data?: Transaction;
     months?: number;
 };
 
@@ -63,5 +64,13 @@ type DeleteSelectedTransactionsFormData = {
 
 type UpdateSelectedTransactionFormData = {
     transactionIds: Number[];
-    data: Transaction
+
+    accountId: number;
+    sum: number;
+    description: string;
+    transaction_type: string;
+    transaction_category: string;
+    transaction_date: string;
+
+
 }

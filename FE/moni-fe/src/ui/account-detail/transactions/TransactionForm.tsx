@@ -2,13 +2,15 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useAddTransaction } from "../../../hooks/transaction/useAddTransaction";
 import { useAddMonthlyTransaction } from "../../../hooks/transaction/useAddMonthlyTransaction";
+import { useUpdateSingleTransaction } from "../../../hooks/transaction/useUpdateSingleTransaction";
+import { useUpdateSelectedTransactions } from "../../../hooks/transaction/useUpdateSelectedTransactions";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import Slider from '@mui/material/Slider';
 import Checkbox from '@mui/material/Checkbox';
 import { Transaction } from "../../../types/global";
 
-const TransactionForm = ({ handleClose, ids, transactionData = undefined}: { handleClose: any, ids?: Array<number>, transactionData?: Transaction | undefined }) => {
+const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode = 'none' }: { handleClose: any, ids?: Array<number>, transactionData?: Transaction | undefined, mode: string }) => {
     const { accountId } = useParams<{ accountId: string }>();
     const [hidden, toggleHidden] = useState(true);
     const [months, setMonths] = useState(1);
@@ -28,8 +30,10 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined}: { han
 
     const { isAdding, addTransactionMutation } = useAddTransaction();
     const { isAddingMonthly, addMonthlyTransactionMutation } = useAddMonthlyTransaction();
+    const { isUpdating, updateTransactionMutation } = useUpdateSingleTransaction();
+    const { isUpdatingTransactions, updateSelectedTransactionMutation } = useUpdateSelectedTransactions();
 
-    const onSubmit = (data: any) => {
+    function handleAddTransaction(data: any) {
         if (hidden) {
             addTransactionMutation(
                 { ...data },
@@ -50,6 +54,49 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined}: { han
                     }
                 }
             );
+        }
+    }
+
+    function handleUpdateSingleTransaction(data: any) {
+        updateTransactionMutation(
+            { ...data, id: transactionData?.id },
+            {
+                onSuccess: () => {
+                    toast.success('Transaction updated successfully');
+                    handleClose();
+                }
+            }
+        );
+
+    }
+
+    function handleUpdateSelectedTransactions(data: any) {
+        updateSelectedTransactionMutation(
+            // make ids from set to array
+            { ...data, transactionIds: Array.from(ids) },
+            {
+                onSuccess: () => {
+                    toast.success('Transactions updated successfully');
+                    handleClose();
+                }
+            }
+        )
+    }
+
+    const onSubmit = (data: any) => {
+        switch (mode) {
+            case 'add':
+                handleAddTransaction(data);
+                break;
+            case 'edit':
+                handleUpdateSingleTransaction(data);
+                break;
+            case 'edit-many':
+                handleUpdateSelectedTransactions(data);
+                break;
+            default:
+                toast.error('Error in form submission, please try again later!');
+                break;
         }
     }
 
@@ -142,27 +189,29 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined}: { han
                 <span className="text-red-500 ita">{errors?.transaction_date?.message}</span>
 
                 {/* MONTHS */}
-                <div>
-                    <label htmlFor="toggleMonth">Create for time period (months)</label>
-                    {/* <input onClick={(e) => onToggleMonths(e)} type="checkbox" name="toggleMonth" id="toggleMonth" /> */}
-                    <Checkbox onClick={(e) => onToggleMonths(e)} />
-                </div>
-
-                <Slider
-                    sx={{ display: hidden ? 'none' : 'block' }}
-                    aria-label="Temperature"
-                    defaultValue={1}
-                    valueLabelDisplay="auto"
-                    step={1}
-                    marks
-                    min={1}
-                    max={12}
-                    onChange={(e, value) => onMonthsChange(value)}
-                />
+                {mode === 'edit-many' ? '' : (
+                    <>
+                        <div>
+                            <label htmlFor="toggleMonth">Create for time period (months)</label>
+                            <Checkbox onClick={(e) => onToggleMonths(e)} />
+                        </div>
+                        <Slider
+                            sx={{ display: hidden ? 'none' : 'block' }}
+                            aria-label="Temperature"
+                            defaultValue={1}
+                            valueLabelDisplay="auto"
+                            step={1}
+                            marks
+                            min={1}
+                            max={12}
+                            onChange={(e, value) => onMonthsChange(value)}
+                        />
+                    </>
+                )}
                 {/* ACCOUNT ID */}
                 <input value={accountId} type="hidden" {...register('accountId')} />
 
-                <input className={submitBtnStyle} disabled={isAdding || isAddingMonthly} type="submit" value="submit" />
+                <input className={submitBtnStyle} disabled={isAdding || isAddingMonthly || isUpdating || isUpdatingTransactions} type="submit" value="submit" />
             </div>
         </form>
     );

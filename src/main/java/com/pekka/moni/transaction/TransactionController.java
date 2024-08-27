@@ -100,6 +100,7 @@ public class TransactionController {
     }
 
     @PutMapping("/{accountId}/update-all")
+    @CacheEvict(value = "transactions", key = "#authentication.name")
     public ResponseEntity<String> updateAllSelectedTransactionsForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                         @RequestBody @Valid UpdatableTransactions transactions,
                                                         @PathVariable Long accountId) {

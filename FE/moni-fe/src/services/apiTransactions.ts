@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { Transaction, TransactionFormData } from "../types/global";
+import { DeleteSelectedTransactionsFormData, MonthlyTransactionFormData, Transaction, TransactionFormData, UpdateSelectedTransactionFormData } from "../types/global";
 
 const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjQ1OTk4MDAsImV4cCI6MTcyNTIwNDYwMH0.xWDEjtLAcrR9PLunRa1b5xvexj3jVvxTXxWjhQJT3hs";
 
@@ -90,11 +90,11 @@ export async function deleteSelectedTransactions(data: DeleteSelectedTransaction
     }
 }
 
-export async function updateTransaction(transactionData: Transaction, transactionId: number) {
+export async function updateTransaction(transactionData: Transaction) {
     try {
         transactionData.transaction_type = transactionData.transaction_type.toUpperCase();
         transactionData.transaction_category = transactionData.transaction_category.toUpperCase();
-        const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${transactionId}`, {
+        const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${transactionData.id}`, {
             method: 'PUT',
             body: JSON.stringify(transactionData),
             headers: {
@@ -107,25 +107,34 @@ export async function updateTransaction(transactionData: Transaction, transactio
         return data;
 
     } catch (error) {
-        toast.error('Error adding transaction');
+        // log error
     }
 }
 
-export async function updateSelectedTransactions(data: UpdateSelectedTransactionFormData, accountId: number) {
+export async function updateSelectedTransactions(data: UpdateSelectedTransactionFormData) {
     try {
         data.transaction_type = data.transaction_type.toUpperCase();
         data.transaction_category = data.transaction_category.toUpperCase();
-
-        const response: Response = await fetch(`localhost:8080/api/v1/transactions/${accountId}/update-all`, {
+        const payload = {
+            transactionIds: data.transactionIds,
+            data: {
+                sum: Number(data.sum),
+                description: data.description,
+                transaction_type: data.transaction_type,
+                transaction_category: data.transaction_category,
+                transaction_date: data.transaction_date
+            }
+        }
+        const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${data.accountId}/update-all`, {
             method: 'PUT',
-            body: JSON.stringify(data),
+            body: JSON.stringify(payload),
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             }
         });
 
-        const responseData: Transaction = await response.json();
+        const responseData: any = await response.json();
         return responseData;
     } catch (error) {
         // log error

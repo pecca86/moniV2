@@ -119,7 +119,7 @@ const TransactionList = () => {
                         ctaText="Add"
                         heading='Add a new transaction'
                         paragraph='Fill in the form below to add a new transaction'
-                        form={<TransactionForm />}
+                        form={<TransactionForm mode='add' />}
                         buttonIcon={<Add />}
                     />
                 )}
@@ -131,6 +131,7 @@ const TransactionList = () => {
                         form={
                             <TransactionForm
                                 ids={selectedValues}
+                                mode='edit'
                                 onHandleEmptyIdSet={handleEmptyIdSet}
                                 transactionData={
                                     selectedValues.size === 1 && transactions?.find(tr => tr.id === Array.from(selectedValues)[0])
@@ -150,6 +151,7 @@ const TransactionList = () => {
                             <TransactionForm
                                 ids={selectedValues}
                                 onHandleEmptyIdSet={handleEmptyIdSet}
+                                mode='edit-many'
                             />
                         }
                         buttonIcon={<Edit />}

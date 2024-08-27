@@ -8,7 +8,6 @@ export function useAddTransaction() {
     const { isPending: isAdding, mutate: addTransactionMutation } = useMutation({
         mutationFn: addTransaction,
         onSuccess: () => {
-            toast.success('Transaction added successfully');
             queryClient.refetchQueries({ queryKey: ['transactions'] });
         },
         onError: () => {
