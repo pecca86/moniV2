@@ -110,3 +110,25 @@ export async function updateTransaction(transactionData: Transaction, transactio
         toast.error('Error adding transaction');
     }
 }
+
+export async function updateSelectedTransactions(data: UpdateSelectedTransactionFormData, accountId: number) {
+    try {
+        data.transaction_type = data.transaction_type.toUpperCase();
+        data.transaction_category = data.transaction_category.toUpperCase();
+
+        const response: Response = await fetch(`localhost:8080/api/v1/transactions/${accountId}/update-all`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const responseData: Transaction = await response.json();
+        return responseData;
+    } catch (error) {
+        // log error
+    }
+
+}

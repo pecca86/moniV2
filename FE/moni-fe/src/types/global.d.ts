@@ -61,3 +61,7 @@ type DeleteSelectedTransactionsFormData = {
     accountId: number;
 }
 
+type UpdateSelectedTransactionFormData = {
+    transactionIds: Number[];
+    data: Transaction
+}
