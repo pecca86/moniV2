@@ -213,7 +213,9 @@ class TransactionServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId(1L);
         transaction.setSum(BigDecimal.valueOf(100.0));
+        transaction.setTransactionType(Transaction.TransactionType.DEPOSIT);
         Transaction newData = new Transaction();
+        newData.setTransactionType(Transaction.TransactionType.DEPOSIT);
         newData.setSum(BigDecimal.valueOf(120.0));
         account.setTransactions(List.of(transaction));
         customer.setAccounts(List.of(account));
@@ -235,9 +237,11 @@ class TransactionServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId(1L);
         transaction.setSum(BigDecimal.valueOf(100.0));
+        transaction.setTransactionType(Transaction.TransactionType.DEPOSIT);;
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
         transaction2.setSum(BigDecimal.valueOf(100.0));
+        transaction2.setTransactionType(Transaction.TransactionType.DEPOSIT);
         Transaction newData = new Transaction();
         newData.setSum(BigDecimal.valueOf(999.99));
         newData.setTransactionCategory(TransactionCategory.FOOD);
