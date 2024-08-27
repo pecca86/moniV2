@@ -73,7 +73,6 @@ export async function addMonthlyTransaction(data: MonthlyTransactionFormData) {
 }
 
 export async function deleteSelectedTransactions(data: DeleteSelectedTransactionsFormData) {
-    console.log(data);
     try {
         await fetch(`http://localhost:8080/api/v1/transactions/${data.accountId}/delete-all`, {
             method: 'DELETE',
@@ -88,5 +87,26 @@ export async function deleteSelectedTransactions(data: DeleteSelectedTransaction
 
     } catch (error) {
         // log error
+    }
+}
+
+export async function updateTransaction(transactionData: Transaction, transactionId: number) {
+    try {
+        transactionData.transaction_type = transactionData.transaction_type.toUpperCase();
+        transactionData.transaction_category = transactionData.transaction_category.toUpperCase();
+        const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${transactionId}`, {
+            method: 'PUT',
+            body: JSON.stringify(transactionData),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data: Transaction = await response.json();
+        return data;
+
+    } catch (error) {
+        toast.error('Error adding transaction');
     }
 }

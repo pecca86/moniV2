@@ -123,12 +123,35 @@ const TransactionList = () => {
                         buttonIcon={<Add />}
                     />
                 )}
-                {(selectedValues.size > 0 && selectedValues.size < 2) && (
+                {(selectedValues.size === 1) && (
                     <AddModal
                         ctaText="Update"
                         heading='Update the selected transaction'
                         paragraph=''
-                        form={<TransactionForm ids={selectedValues} onHandleEmptyIdSet={handleEmptyIdSet} />}
+                        form={
+                            <TransactionForm
+                                ids={selectedValues}
+                                onHandleEmptyIdSet={handleEmptyIdSet}
+                                transactionData={
+                                    selectedValues.size === 1 && transactions?.find(tr => tr.id === Array.from(selectedValues)[0])
+                                }
+                            />
+                        }
+                        buttonIcon={<Edit />}
+                        ctaStyle={`bg-yellow-400`}
+                    />
+                )}
+                {(selectedValues.size > 1) && (
+                    <AddModal
+                        ctaText="Update"
+                        heading='Update the selected transactions'
+                        paragraph={`${selectedValues.size} transactions selected`}
+                        form={
+                            <TransactionForm
+                                ids={selectedValues}
+                                onHandleEmptyIdSet={handleEmptyIdSet}
+                            />
+                        }
                         buttonIcon={<Edit />}
                         ctaStyle={`bg-yellow-400`}
                     />
@@ -136,7 +159,7 @@ const TransactionList = () => {
                 <AddModal
                     ctaText="Delete"
                     heading='Are you sure you want to delete the selected transactions?'
-                    paragraph='This operation cannot be undone!'
+                    paragraph={`${selectedValues.size} transaction/s selected`}
                     form={<DeleteSelectedTransactionsForm ids={selectedValues} onHandleEmptyIdSet={handleEmptyIdSet} />}
                     buttonIcon={<Delete />}
                     ctaStyle={`${selectedValues.size > 0 ? 'bg-red-400' : 'hidden'} `}

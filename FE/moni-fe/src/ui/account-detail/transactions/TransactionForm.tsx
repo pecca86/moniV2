@@ -6,13 +6,23 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import Slider from '@mui/material/Slider';
 import Checkbox from '@mui/material/Checkbox';
+import { Transaction } from "../../../types/global";
 
-const TransactionForm = ({ handleClose }: any) => {
+const TransactionForm = ({ handleClose, ids, transactionData = undefined}: { handleClose: any, ids?: Array<number>, transactionData?: Transaction | undefined }) => {
     const { accountId } = useParams<{ accountId: string }>();
     const [hidden, toggleHidden] = useState(true);
     const [months, setMonths] = useState(1);
 
-    const { register, handleSubmit, formState } = useForm();
+    const { register, handleSubmit, formState } = useForm({
+        defaultValues: {
+            sum: transactionData?.sum || '',
+            description: transactionData?.description || '',
+            transaction_category: transactionData?.transaction_category || '',
+            transaction_type: transactionData?.transaction_type || '',
+            transaction_date: transactionData?.transaction_date || new Date().toISOString().split('T')[0],
+            accountId: accountId
+        }
+    });
 
     const { errors } = formState;
 
@@ -32,7 +42,7 @@ const TransactionForm = ({ handleClose }: any) => {
             );
         } else {
             addMonthlyTransactionMutation(
-                { transactionData: {...data}, months: months },
+                { transactionData: { ...data }, months: months },
                 {
                     onSuccess: () => {
                         toast.success(`${months} transactions added successfully`);
