@@ -9,6 +9,7 @@ export function useUpdateSelectedTransactions() {
         mutationFn: updateSelectedTransactions,
         onSuccess: () => {
             queryClient.refetchQueries({ queryKey: ['transactions'] });
+            queryClient.refetchQueries({ queryKey: ['account'] });
         },
         onError: (e) => {
             console.log("HOOK ERROR", e);

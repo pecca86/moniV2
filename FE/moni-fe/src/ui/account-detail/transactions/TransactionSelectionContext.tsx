@@ -9,13 +9,11 @@ const initialState = {
 function reducer(state, action) {
     switch (action.type) {
         case "ADD":
-            console.log("ADDED SELECTION: ", state.selections);
             return {
                 ...state,
                 selections: state.selections.concat(action.payload),
             };
         case "REMOVE":
-            console.log("REMOVED SELECTION: ", state.selections);
             return {
                 ...state,
                 selections: state.selections.filter((id: number) => id !== action.payload),

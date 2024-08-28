@@ -9,6 +9,7 @@ export function useAddTransaction() {
         mutationFn: addTransaction,
         onSuccess: () => {
             queryClient.refetchQueries({ queryKey: ['transactions'] });
+            queryClient.refetchQueries({ queryKey: ['account'] });
         },
         onError: () => {
             toast.error('Error adding transaction');

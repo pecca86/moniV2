@@ -154,11 +154,12 @@ public class Account {
             transactions = new ArrayList<>();
         }
 
-        if (balance == null) {
-            balance = BigDecimal.valueOf(0.0);
+        if (balanceWithTransactions == null) {
+            balanceWithTransactions = BigDecimal.valueOf(0.0);
         }
+
         transactions.addAll(createdTransactions);
-        this.balance = calculateBalance();
+        this.balanceWithTransactions = calculateBalance();
     }
 
     public void removeTransaction(Transaction transaction) {
@@ -200,7 +201,7 @@ public class Account {
     }
 
     public BigDecimal getBalanceWithTransactions() {
-        if (transactions == null) {
+        if (transactions == null || transactions.isEmpty()) {
             return this.balance;
         }
 
@@ -208,10 +209,19 @@ public class Account {
             balance = BigDecimal.valueOf(0.0);
         }
 
+        if (balanceWithTransactions == null) {
+            balanceWithTransactions = BigDecimal.valueOf(0.0);
+        }
+
         BigDecimal transactionsSum = transactions.stream()
                                                  .map(Transaction::getSum)
                                                  .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return this.balance.add(transactionsSum);
+
+        System.out.println("Balance: " + this.balance);
+        System.out.println("Transactions sum: " + transactionsSum);
+        System.out.println("Balance with transactions: " + this.balance + transactionsSum);
+        return this.balanceWithTransactions.add(transactionsSum)
+                                           .add(this.balance);
     }
 
     private BigDecimal calculateBalance() {

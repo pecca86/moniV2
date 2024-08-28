@@ -9,6 +9,7 @@ export function useAddMonthlyTransaction() {
       mutationFn: addMonthlyTransaction,
       onSuccess: () => {
         queryClient.refetchQueries({ queryKey: ["transactions"] });
+        queryClient.refetchQueries({ queryKey: ["account"] });
       },
       onError: (err) => toast.error(err.message),
     });

@@ -30,7 +30,7 @@ public class AccountController {
     }
 
     @GetMapping("/{accountId}")
-    @Cacheable(value = "account", key = "#accountId")
+    @Cacheable(value = "account", key = "#authentication.name")
     public ResponseEntity<Account> getAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                               @PathVariable Long accountId) {
         return ResponseEntity.ok(accountService.getAccount(authentication, accountId));

@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -57,7 +58,11 @@ public class TransactionController {
     }
 
     @PostMapping("/{accountId}")
-    @CacheEvict(value = "transactions", key = "#authentication.name")
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key="#authentication.name"),
+            @CacheEvict(value = "account", key="#authentication.name")
+    })
+    @CacheEvict(value = {"account", "transactions"}, key = "#authentication.name")
     public ResponseEntity<Transaction> addNewTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                   @RequestBody @Valid Transaction transaction,
                                   @PathVariable Long accountId) {
@@ -65,7 +70,10 @@ public class TransactionController {
     }
 
     @PostMapping("/{accountId}/create-monthly")
-    @CacheEvict(value = "transactions", key = "#authentication.name")
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key="#authentication.name"),
+            @CacheEvict(value = "account", key="#authentication.name")
+    })
     public ResponseEntity<String> addMonthlyTransactionsForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                  @RequestBody @Valid MonthlyTransaction monthlyTransaction,
                                                  @PathVariable Long accountId) {
@@ -74,7 +82,10 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{transactionId}")
-    @CacheEvict(value = "transactions", key = "#authentication.name")
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key="#authentication.name"),
+            @CacheEvict(value = "account", key="#authentication.name")
+    })
     public ResponseEntity<String> deleteTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                   @PathVariable Long transactionId) {
         transactionService.deleteTransaction(authentication, transactionId);
@@ -82,7 +93,10 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{accountId}/delete-all")
-    @CacheEvict(value = "transactions", key = "#authentication.name")
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key="#authentication.name"),
+            @CacheEvict(value = "account", key="#authentication.name")
+    })
     public ResponseEntity<String> deleteAllSelectedTransactionsForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                         @RequestBody @Valid DeletableTransactions transactions,
                                                         @PathVariable Long accountId) {
@@ -91,7 +105,10 @@ public class TransactionController {
     }
 
     @PutMapping("/{transactionId}")
-    @CacheEvict(value = "transactions", key = "#authentication.name")
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key="#authentication.name"),
+            @CacheEvict(value = "account", key="#authentication.name")
+    })
     public ResponseEntity<String> updateTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                   @RequestBody @Valid Transaction transaction,
                                   @PathVariable Long transactionId) {
@@ -100,7 +117,10 @@ public class TransactionController {
     }
 
     @PutMapping("/{accountId}/update-all")
-    @CacheEvict(value = "transactions", key = "#authentication.name")
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key="#authentication.name"),
+            @CacheEvict(value = "account", key="#authentication.name")
+    })
     public ResponseEntity<String> updateAllSelectedTransactionsForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                         @RequestBody @Valid UpdatableTransactions transactions,
                                                         @PathVariable Long accountId) {
