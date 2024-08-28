@@ -34,7 +34,7 @@ function HamburgerMenu() {
                 onClick={toggleMenu}
                 className="block md:hidden p-2 focus:outline-none absolute z-50"
             >
-                <div className="w-6 h-6 relative bg-violet-200 rounded-full p-5 border-2 border-violet-400">
+                <div className="w-6 h-6 relative bg-violet-200 rounded-full p-5 border-2 border-violet-200">
                     {/* Top Line */}
                     <span
                         className={`bg-purple-600 block absolute left-2 h-0.5 w-6 bg-current transform transition duration-300 ease-in-out ${isOpen ? "rotate-45 top-4.5" : "top-[12px]"
