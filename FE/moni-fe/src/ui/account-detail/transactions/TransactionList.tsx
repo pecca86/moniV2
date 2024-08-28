@@ -13,6 +13,8 @@ import MoniBanner from "../../banners/MoniBanner";
 import DeleteSelectedTransactionsForm from "./DeleteSelectedTransactionsForm";
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import { useState } from "react";
+import { TransactionSelectionProvider } from "./TransactionSelectionContext";
+import { useSelection } from "./TransactionSelectionContext";
 
 const TransactionList = () => {
 
@@ -24,12 +26,10 @@ const TransactionList = () => {
     const sortValue = searchParams.get('sort') || 'date';
     const searchValue = searchParams.get('search') || '';
     // Table selection related state
-    const [selectedValues, setSelectedValues] = useState<Set<number>>(new Set());
-    const [deselect, setDeselect] = useState(false);
-
+    const { dispatch, selections }: {dispatch: any, selections: number[]} = useSelection();
 
     if (isPending) {
-        return <div><CircularProgress /></div>
+        return <div className="flex items-center justify-center"><CircularProgress /></div>
     }
 
     if (!isPending && error) {
@@ -77,33 +77,8 @@ const TransactionList = () => {
         filteredTransactions = filteredTransactions?.filter(tr => tr.description.toLowerCase().includes(searchValue.toLowerCase()));
     }
 
-    // TABLE SELECTION
-    function handleTransactionItemSelected(id: number) {
-        if (selectedValues.has(id)) {
-            setSelectedValues(() => {
-                const newSet = new Set(selectedValues);
-                newSet.delete(id);
-                return newSet;
-            });
-        } else {
-            setSelectedValues(() => {
-                const newSet = new Set(selectedValues);
-                newSet.add(id);
-                return newSet;
-            });
-        }
-    }
-
-    function resetDeselect() {
-        if (deselect) {
-            setDeselect(false);
-        }
-    }
-
-    // IDs PASSED TO OUR DELETE REQUEST
     function handleEmptyIdSet() {
-        setSelectedValues(new Set());
-        setDeselect(true);
+        dispatch({ type: 'RESET' });
     }
 
     const tableHeaderStyle = "px-2 py-1";
@@ -111,7 +86,7 @@ const TransactionList = () => {
     return (
         <div className=''>
             <div className="flex justify-between">
-                {selectedValues.size >= 1 ? (
+                {selections.length >= 1 ? (
                     <button onClick={handleEmptyIdSet} className="hover:bg-blue-600 bg-violet-500 text-white font-bold py-2 px-4 rounded"><RemoveDoneIcon /> Deselect</button>
                 ) : (
 
@@ -123,18 +98,18 @@ const TransactionList = () => {
                         buttonIcon={<Add />}
                     />
                 )}
-                {(selectedValues.size === 1) && (
+                {(selections.length === 1) && (
                     <AddModal
                         ctaText="Update"
                         heading='Update the selected transaction'
                         paragraph=''
                         form={
                             <TransactionForm
-                                ids={selectedValues}
+                                ids={selections}
                                 mode='edit'
                                 onHandleEmptyIdSet={handleEmptyIdSet}
                                 transactionData={
-                                    selectedValues.size === 1 && transactions?.find(tr => tr.id === Array.from(selectedValues)[0])
+                                    selections.length === 1 && transactions?.find(tr => tr.id === selections[0])
                                 }
                             />
                         }
@@ -142,14 +117,14 @@ const TransactionList = () => {
                         ctaStyle={`bg-yellow-400`}
                     />
                 )}
-                {(selectedValues.size > 1) && (
+                {(selections.length > 1) && (
                     <AddModal
                         ctaText="Update"
                         heading='Update the selected transactions'
-                        paragraph={`${selectedValues.size} transactions selected`}
+                        paragraph={`${selections.length} transactions selected`}
                         form={
                             <TransactionForm
-                                ids={selectedValues}
+                                ids={selections}
                                 onHandleEmptyIdSet={handleEmptyIdSet}
                                 mode='edit-many'
                             />
@@ -161,41 +136,40 @@ const TransactionList = () => {
                 <AddModal
                     ctaText="Delete"
                     heading='Are you sure you want to delete the selected transactions?'
-                    paragraph={`${selectedValues.size} transaction/s selected`}
-                    form={<DeleteSelectedTransactionsForm ids={selectedValues} onHandleEmptyIdSet={handleEmptyIdSet} />}
+                    paragraph={`${selections.length} transaction/s selected`}
+                    form={<DeleteSelectedTransactionsForm ids={selections} onHandleEmptyIdSet={handleEmptyIdSet} />}
                     buttonIcon={<Delete />}
-                    ctaStyle={`${selectedValues.size > 0 ? 'bg-red-400' : 'hidden'} `}
+                    ctaStyle={`${selections.length > 0 ? 'bg-red-400' : 'hidden'} `}
                 />
 
             </div>
             {transactions?.length === 0 && <MoniBanner style="info">Click the 'add transaction' button above, to create a new transaction!</MoniBanner>}
             <TransactionOperations />
             <Divider />
-
-            <div className="relative overflow-x-auto shadow-lg rounded-lg h-full max-h-[450px] overflow-scroll">
-                <table className="w-full text-sm text-left rtl:text-right text-gray-900 table-fixed">
-                    <thead className="text-xs text-gray-900 uppercase bg-gray-100">
-                        <tr>
-                            <th scope="col" className={tableHeaderStyle}>
-                                Date
-                            </th>
-                            <th scope="col" className={tableHeaderStyle}>
-                                Description
-                            </th>
-                            <th scope="col" className={tableHeaderStyle}>
-                                Category
-                            </th>
-                            <th scope="col" className={tableHeaderStyle}>
-                                Sum
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredTransactions?.map((transaction) => (
-                            <TransactionListItem key={transaction.id} tr={transaction} onSelect={handleTransactionItemSelected} deselect={deselect} onRender={resetDeselect} />))}
-                    </tbody>
-                </table>
-            </div>
+                <div className="relative overflow-x-auto shadow-lg rounded-lg h-full max-h-[450px] overflow-scroll">
+                    <table className="w-full text-sm text-left rtl:text-right text-gray-900 table-fixed">
+                        <thead className="text-xs text-gray-900 uppercase bg-gray-100">
+                            <tr>
+                                <th scope="col" className={tableHeaderStyle}>
+                                    Date
+                                </th>
+                                <th scope="col" className={tableHeaderStyle}>
+                                    Description
+                                </th>
+                                <th scope="col" className={tableHeaderStyle}>
+                                    Category
+                                </th>
+                                <th scope="col" className={tableHeaderStyle}>
+                                    Sum
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredTransactions?.map((transaction) => (
+                                <TransactionListItem key={transaction.id} tr={transaction} />))}
+                        </tbody>
+                    </table>
+                </div>
         </div>
     );
 }
