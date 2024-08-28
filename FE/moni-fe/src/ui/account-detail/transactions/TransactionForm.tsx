@@ -111,7 +111,7 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
         // log errors
     }
 
-    const validateDate = (value) => {
+    const validateDate = (value: any) => {
         const selectedDate = new Date(value);
         const today = new Date();
         // Set the time of today's date to 00:00:00 to compare only the date part
@@ -120,7 +120,7 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
         return selectedDate >= today || "Selected date cannot be in the past";
     };
 
-    const validateSum = (value) => {
+    const validateSum = (value: any) => {
         return value > 0 || "Sum should be greater than 0";
     }
 
@@ -128,7 +128,7 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
         toggleHidden(!e.target.checked);
     }
 
-    const onMonthsChange = (months: number) => {
+    const onMonthsChange = (months: any) => {
         setMonths(months);
     }
 
