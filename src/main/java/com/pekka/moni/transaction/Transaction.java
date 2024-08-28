@@ -82,7 +82,7 @@ public class Transaction {
     @JsonProperty("transaction_date")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate transactionDate;
-    
+
     @ManyToOne
     @JoinColumn(
             name = "account_id",
@@ -93,6 +93,21 @@ public class Transaction {
     )
     private Account account;
 
+    // Switch the sum according to the transaction type
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    private void postLoad() {
+        // Post-load or post-persist logic here
+        this.sum = validateSumAccordingToTransactionType();
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void prePersistUpdate() {
+        this.sum = validateSumAccordingToTransactionType();
+    }
+
     public Transaction(BigDecimal sum, TransactionType transactionType, String description, LocalDate transactionDate, Account account, TransactionCategory transactionCategory) {
         this.sum = sum;
         this.transactionType = transactionType;
@@ -100,6 +115,16 @@ public class Transaction {
         this.transactionDate = transactionDate;
         this.account = account;
         this.transactionCategory = transactionCategory;
+    }
+
+    private BigDecimal validateSumAccordingToTransactionType() {
+        if (this.transactionType.equals(Transaction.TransactionType.WITHDRAWAL) && this.sum.compareTo(BigDecimal.ZERO) > 0) {
+            return this.sum.multiply(BigDecimal.valueOf(-1));
+        }
+        if (this.transactionType.equals(Transaction.TransactionType.DEPOSIT) && this.sum.compareTo(BigDecimal.ZERO) < 0) {
+            return this.sum.multiply(BigDecimal.valueOf(-1));
+        }
+        return this.sum;
     }
 
 }

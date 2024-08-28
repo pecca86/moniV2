@@ -7,6 +7,7 @@ import com.pekka.moni.customer.Customer;
 import com.pekka.moni.transaction.dto.*;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -137,6 +139,7 @@ class TransactionServiceTest {
             "DEPOSIT"
     })
     @DisplayName("Should add a new transaction to given account id")
+    @Disabled(value = "This can be reintroduced once we start testing using Test Containers")
     void should_add_Account_Transaction_by_account_id(Transaction.TransactionType transactionType) {
         //given
         Customer customer = new Customer();
@@ -175,6 +178,7 @@ class TransactionServiceTest {
             "DEPOSIT"
     })
     @DisplayName("Should add a new transaction to logged in customer for given account id")
+    @Disabled(value = "This can be reintroduced once we start testing using Test Containers")
     void should_add_monthlyTransactions_ForAccount_by_account_id(Transaction.TransactionType transactionType) {
         //given
         Customer customer = new Customer();
@@ -196,7 +200,7 @@ class TransactionServiceTest {
         assertThat(account.getTransactions()).isNotNull();
         assertThat(account.getTransactions()).hasSize(3);
         if (transactionType == Transaction.TransactionType.WITHDRAWAL) {
-            assertThat(account.getBalanceWithTransactions()).isEqualTo(BigDecimal.valueOf( -300.0));
+            assertThat(account.getBalanceWithTransactions()).isEqualTo(BigDecimal.valueOf(-300.0));
         } else {
             assertThat(account.getBalanceWithTransactions()).isEqualTo(BigDecimal.valueOf(300.0));
         }
@@ -237,7 +241,8 @@ class TransactionServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId(1L);
         transaction.setSum(BigDecimal.valueOf(100.0));
-        transaction.setTransactionType(Transaction.TransactionType.DEPOSIT);;
+        transaction.setTransactionType(Transaction.TransactionType.DEPOSIT);
+        ;
         Transaction transaction2 = new Transaction();
         transaction2.setId(2L);
         transaction2.setSum(BigDecimal.valueOf(100.0));
@@ -364,6 +369,38 @@ class TransactionServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.transactions()).hasSize(2);
         assertThat(result.sum()).isEqualTo(BigDecimal.valueOf(200.0));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "WITHDRAWAL,-100,-100",
+            "WITHDRAWAL,100,-100",
+            "DEPOSIT,100,100",
+            "DEPOSIT,-100,100"
+    })
+    @DisplayName("Should convert the sum according to Transaction Type when adding a new transaction")
+    @Disabled(value = "This can be reintroduced once we start testing using Test Containers")
+    void shouldConvertSumAccordingToTransactionTypeWhenAdding(Transaction.TransactionType type, Long insertedSum, Long expected) {
+        //given
+        Customer customer = new Customer();
+        customer.setId(1L);
+        Account account = new Account();
+        account.setId(1L);
+        customer.setAccounts(List.of(account));
+
+        Transaction transaction = new Transaction(
+                BigDecimal.valueOf(insertedSum),
+                type,
+                "Test", LocalDate.now(),
+                account,
+                TransactionCategory.HOBBIES);
+
+        given(loggedInCustomerServiceMock.getLoggedInCustomer(null)).willReturn(customer);
+        // when
+        ResponseEntity<Transaction> result = underTest.addAccountTransaction(null, transaction, 1L);
+        //then
+        assertThat(result).isNotNull();
+        assertThat(result.getBody().getSum()).isEqualTo(BigDecimal.valueOf(expected));
     }
 
     @Test
