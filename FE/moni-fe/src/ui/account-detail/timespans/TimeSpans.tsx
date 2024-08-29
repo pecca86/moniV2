@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import TransactionList from '../transactions/TransactionList';
 import AddModal from '../../cta/AddModal';
 import TimeSpanForm from './TimeSpanForm';
+import { TransactionSelectionProvider } from '../transactions/TransactionSelectionContext';
 
 const TimeSpans = () => {
     return (
@@ -17,6 +18,8 @@ const TimeSpans = () => {
                 paragraph='Fill in the form below to add a new time span'
                 form={<TimeSpanForm />}
             />
+
+            {/* ACCORDION 1 */}
             <Accordion>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
@@ -34,54 +37,10 @@ const TimeSpans = () => {
                         <span>Spendings: -100€</span>
                         <span>With current balance: 300€</span>
                     </div>
-                    <TransactionList />
+                    <TransactionSelectionProvider>
+                        <TransactionList />
+                    </TransactionSelectionProvider>
                 </AccordionDetails>
-            </Accordion>
-
-            <Accordion>
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel2-content"
-                    id="panel2-header"
-                >
-                    <div className='flex gap-2'>
-                        <span>12.8.2023 - 12.8.2024</span> <span>1430 €</span>
-                    </div>
-                </AccordionSummary>
-                <AccordionDetails>
-                    {/* TODO: Make a info panel component here that hold Delete / Edit buttons*/}
-                    <div className='flex flex-col gap-1 mb-1'>
-                        <span>Incomes: 400€</span>
-                        <span>Spendings: -100€</span>
-                        <span>With current balance: 300€</span>
-                    </div>
-                    <TransactionList />
-                </AccordionDetails>
-            </Accordion>
-
-            <Accordion>
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel3-content"
-                    id="panel3-header"
-                >
-                    <div className='flex gap-2'>
-                        <span>12.8.2023 - 12.8.2024</span> <span>1240 €</span>
-                    </div>
-                </AccordionSummary>
-                <AccordionDetails>
-                    {/* TODO: Make a info panel component here */}
-                    <div className='flex flex-col gap-1 mb-1'>
-                        <span>Incomes: 400€</span>
-                        <span>Spendings: -100€</span>
-                        <span>With current balance: 300€</span>
-                    </div>
-                    <TransactionList />
-                </AccordionDetails>
-                <AccordionActions>
-                    <Button>Cancel</Button>
-                    <Button>Agree</Button>
-                </AccordionActions>
             </Accordion>
         </div>
     );
