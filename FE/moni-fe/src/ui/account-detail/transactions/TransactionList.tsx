@@ -12,8 +12,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import MoniBanner from "../../banners/MoniBanner";
 import DeleteSelectedTransactionsForm from "./DeleteSelectedTransactionsForm";
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
-import { useState } from "react";
-import { TransactionSelectionProvider } from "./TransactionSelectionContext";
 import { useSelection } from "./TransactionSelectionContext";
 
 const TransactionList = () => {
