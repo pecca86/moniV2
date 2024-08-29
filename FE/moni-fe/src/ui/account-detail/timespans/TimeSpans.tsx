@@ -9,6 +9,16 @@ import AddModal from '../../cta/AddModal';
 import TimeSpanForm from './TimeSpanForm';
 import { TransactionSelectionProvider } from '../transactions/TransactionSelectionContext';
 
+const fakeData = [
+    {
+        id: 1,
+        transaction_type: 'DEPOSIT',
+        sum: 99,
+        transaction_date: '2023-08-12',
+        transaction_category: 'SAVINGS',
+        description: "FROM THE TIMESPAN!"
+    }
+]
 const TimeSpans = () => {
     return (
         <div className='pt-2 pr-2'>
@@ -38,7 +48,7 @@ const TimeSpans = () => {
                         <span>With current balance: 300€</span>
                     </div>
                     <TransactionSelectionProvider>
-                        <TransactionList />
+                        <TransactionList timeSpanTransactions={fakeData}/>
                     </TransactionSelectionProvider>
                 </AccordionDetails>
             </Accordion>
