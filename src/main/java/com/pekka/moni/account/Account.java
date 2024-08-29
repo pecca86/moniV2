@@ -217,9 +217,6 @@ public class Account {
                                                  .map(Transaction::getSum)
                                                  .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        System.out.println("Balance: " + this.balance);
-        System.out.println("Transactions sum: " + transactionsSum);
-        System.out.println("Balance with transactions: " + this.balance + transactionsSum);
         return this.balanceWithTransactions.add(transactionsSum)
                                            .add(this.balance);
     }
