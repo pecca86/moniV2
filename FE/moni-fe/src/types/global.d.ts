@@ -71,6 +71,9 @@ type UpdateSelectedTransactionFormData = {
     transaction_type: string;
     transaction_category: string;
     transaction_date: string;
+}
 
-
+type TimeSpan = {
+    from: string;
+    to: string;
 }
