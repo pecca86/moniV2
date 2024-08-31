@@ -5,37 +5,42 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TransactionList from '../transactions/TransactionList';
 import AddModal from '../../cta/AddModal';
 import TimeSpanForm from './TimeSpanForm';
-import { TransactionSelectionProvider } from '../transactions/TransactionSelectionContext';
-import { useFetchTransactions } from '../../../hooks/transaction/useFetchTransactions';
+import {TransactionSelectionProvider} from '../transactions/TransactionSelectionContext';
+import {useFetchTransactions} from '../../../hooks/transaction/useFetchTransactions';
+import {useFetchTimeSpansForAccount} from '../../../hooks/timespan/useFetchTimeSpansForAccount';
 import MoniBanner from '../../banners/MoniBanner';
-import { CircularProgress } from '@mui/material';
-import { Transaction } from '../../../types/global';
+import {CircularProgress} from '@mui/material';
+import {TimeSpan, Transaction} from '../../../types/global';
+import {useParams} from 'react-router-dom';
+import Add from '@mui/icons-material/Add';
 
-const fakeData = [
-    {
-        id: 1,
-        transaction_type: 'DEPOSIT',
-        sum: 99,
-        transaction_date: '2023-08-12',
-        transaction_category: 'SAVINGS',
-        description: "FROM THE TIMESPAN!"
-    }
-]
 const TimeSpans = () => {
 
-    const { isPending, transactions, error } = useFetchTransactions();
+    const {accountId} = useParams<{ accountId: string }>();
+    const {isPending, transactions, error} = useFetchTransactions(accountId);
+    const {isPending: isFetchingTimeSpans, timeSpans, error: timeSpanError} = useFetchTimeSpansForAccount(accountId);
 
-    if (isPending) {
+    if (isPending || isFetchingTimeSpans) {
         return (
             <div className="flex items-center justify-center">
                 <MoniBanner style='info'>Fetching transactions...</MoniBanner>
-                <CircularProgress />
+                <CircularProgress/>
             </div>
         )
     }
 
-    if (!isPending && error) {
-        return <MoniBanner style="warning">There was a problem fetching the transaction data, please try again later!</MoniBanner>
+    if (timeSpans?.status === 'BAD_REQUEST') {
+        return (
+            <div className='flex justify-center items-center'>
+                <MoniBanner style='warning'>Failed to fetch time spans</MoniBanner>
+            </div>
+        )
+    }
+
+
+    if ((!isPending || isFetchingTimeSpans) && (error || timeSpanError) && (timeSpans?.status === 'BAD_REQUEST')) {
+        return <MoniBanner style="warning">There was a problem fetching the transaction data, please try again
+            later!</MoniBanner>
     }
 
     function isBewteenDates(fromDate: string, toDate: string, transactionDate: string): boolean {
@@ -46,11 +51,8 @@ const TimeSpans = () => {
         return targetDate >= from && targetDate <= to;
     }
 
-    function filterTransactionsByDateSpan(): Transaction[] | undefined {
-        console.log("ORIGINAL LIST: ", transactions);
-        let filteredTransactions = transactions?.filter(tr => isBewteenDates('2024-08-12', '2025-08-12', tr.transaction_date));
-        console.log("FILTERED LIST: ", filteredTransactions);
-        return filteredTransactions;
+    function filterTransactionsByDateSpan(timespan: TimeSpan): Transaction[] | undefined {
+        return transactions.transactions.content?.filter(tr => isBewteenDates(timespan.from, timespan.to, tr.transaction_date));
     }
 
     return (
@@ -59,32 +61,61 @@ const TimeSpans = () => {
                 ctaText='Add Time Span'
                 heading='Add a new time span'
                 paragraph='Fill in the form below to add a new time span'
-                form={<TimeSpanForm />}
+                form={<TimeSpanForm/>}
+                buttonIcon={<Add/>}
             />
 
-            {/* ACCORDION 1 */}
-            <Accordion>
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1-content"
-                    id="panel1-header"
-                >
-                    <div className='flex gap-2'>
-                        <span>12.8.2023 - 12.8.2024</span> <span>140 €</span>
-                    </div>
-                </AccordionSummary>
-                <AccordionDetails>
-                    {/* TODO: Make a info panel component here */}
-                    <div className='flex flex-col gap-1 mb-1'>
-                        <span>Incomes: 400€</span>
-                        <span>Spendings: -100€</span>
-                        <span>With current balance: 300€</span>
-                    </div>
-                    <TransactionSelectionProvider>
-                        <TransactionList timeSpanTransactions={filterTransactionsByDateSpan()} />
-                    </TransactionSelectionProvider>
-                </AccordionDetails>
-            </Accordion>
+            {timeSpans && timeSpans?.length <= 0 ? (
+                <div><MoniBanner style='info'>Please add a new time span from the button above!</MoniBanner></div>
+            ) : (
+                <div>
+                    {timeSpans?.map(t => {
+                        let filteredTransactions = filterTransactionsByDateSpan(t);
+                        let dateSpanSum = filteredTransactions?.reduce((acc, curr) => acc + curr.sum, 0);
+                        let income = filteredTransactions?.filter(tr => tr.transaction_type === 'DEPOSIT').reduce((acc, curr) => acc + curr.sum, 0);
+                        let spendings = filteredTransactions?.filter(tr => tr.transaction_type === 'WITHDRAWAL').reduce((acc, curr) => acc + curr.sum, 0);
+                        return (
+                            <div key={t.id}>
+                                {/* ACCORDION 1 */}
+                                <Accordion key={t.id}>
+                                    <AccordionSummary
+                                        expandIcon={<ExpandMoreIcon/>}
+                                        aria-controls="panel1-content"
+                                        id="panel1-header"
+                                    >
+                                        <div className='flex gap-5'>
+                                            <span>{t.from} - {t.to}</span> <span
+                                            className={`${dateSpanSum && dateSpanSum >= 0 ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}`}>{dateSpanSum} €</span>
+                                        </div>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        {transactions.transactions.content.length > 0 ? (
+                                            <div>
+                                                {/* TODO: Make a info panel component here */}
+                                                <div className='flex flex-col gap-1 mb-2'>
+                                                    <span className='text-green-600'><span
+                                                        className='font-medium'>Incomes:</span> {income} €</span>
+                                                    <span className='text-red-500'><span
+                                                        className='font-medium'>Spendings:</span> {spendings} €</span>
+                                                </div>
+                                                <TransactionSelectionProvider>
+                                                    <TransactionList timeSpanTransactions={filteredTransactions}/>
+                                                </TransactionSelectionProvider>
+                                            </div>
+
+                                        ) : (
+                                            <MoniBanner style='info'>No transactions in this time span</MoniBanner>
+                                        )}
+                                    </AccordionDetails>
+                                </Accordion>
+                            </div>
+                        )
+                    })}
+                </div>
+
+            )}
+
+
         </div>
     );
 }

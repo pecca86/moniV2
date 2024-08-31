@@ -3,7 +3,7 @@ import { DeleteSelectedTransactionsFormData, MonthlyTransactionFormData, Transac
 
 const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjUwOTIyOTQsImV4cCI6MTcyNTY5NzA5NH0.g1Sbqke24LwyJDZot5xFW_sPCop8kZ6-DYXkRAyWl18";
 
-export async function getAccountTransactions(accountId: string) {
+export async function getAccountTransactions(accountId: string | undefined) {
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${accountId}`, {
             method: 'GET',
@@ -134,8 +134,7 @@ export async function updateSelectedTransactions(data: UpdateSelectedTransaction
             }
         });
 
-        const responseData: any = await response.json();
-        return responseData;
+        return await response.json();
     } catch (error) {
         // log error
     }

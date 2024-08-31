@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAccountTransactions } from "../../services/apiTransactions";
 
-export function useFetchTransactions(accountId: string) {
+export function useFetchTransactions(accountId: string | undefined) {
     const {
         isPending,
         data: transactions,

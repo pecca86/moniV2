@@ -44,7 +44,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{accountId}/span")
-    @Cacheable(value = "transactions", key = "#accountId") //TODO: Double check this
+    @Cacheable(value = "transactions", key = "#authentication.name")
     public ResponseEntity<TransactionDateSpanResponse> getTransactionsByDateSpan(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                                                  @PathVariable Long accountId,
                                                                                  @RequestBody TransactionDateSpan transactionDateSpan) {
@@ -62,7 +62,6 @@ public class TransactionController {
             @CacheEvict(value = "transactions", key = "#authentication.name"),
             @CacheEvict(value = "account", key = "#authentication.name")
     })
-    @CacheEvict(value = {"account", "transactions"}, key = "#authentication.name")
     public ResponseEntity<Transaction> addNewTransaction(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                                          @RequestBody @Valid Transaction transaction,
                                                          @PathVariable Long accountId) {
