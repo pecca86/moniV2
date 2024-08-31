@@ -119,7 +119,7 @@ const AccountForm = ({ handleClose = null, update = false, accountData }: { hand
                 </select>
                 <span className="text-red-500 ita">{errors?.account_type?.message}</span>
 
-                {update && <input value={'dd'} type="hidden" {...register('id')} />}
+                {update && <input value={'id'} type="hidden" {...register('id')} />}
 
                 <input className={submitBtnStyle} disabled={isAdding || isUpdating} type="submit" value="submit" />
             </div>
