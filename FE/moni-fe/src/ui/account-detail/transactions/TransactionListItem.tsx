@@ -1,5 +1,6 @@
 import { Transaction } from '../../../types/global';
 import { useSelection } from './TransactionSelectionContext';
+import { formatToStandardEuDate } from '../../../utils/date-utils';
 
 const TransactionListItem = ({ tr }: { tr: Transaction }) => {
     const { dispatch, selections } = useSelection();
@@ -20,7 +21,7 @@ const TransactionListItem = ({ tr }: { tr: Transaction }) => {
 
     return (
         <tr onClick={handleClicked} className={`${isSelected ? 'bg-violet-400' : 'bg-white'} border-b text-xs font-light sm:hover:cursor-pointer sm:hover:bg-purple-300 sm:hover:text-white `} id={`${tr.id}`}>
-            <th scope="col" className={tableHeaderStyle}>{tr.transaction_date}</th>
+            <th scope="col" className={tableHeaderStyle}>{formatToStandardEuDate(tr.transaction_date)}</th>
             <th scope="col" className={tableHeaderStyle}>{tr.description}</th>
             <th scope="col" className={tableHeaderStyle}>{tr.transaction_category}</th>
             <th className={`${tableHeaderStyle} ${tr.transaction_type.toLowerCase() === 'withdrawal' ? withdrawalStyle : depositStyle}`}>{tr.sum} €</th>

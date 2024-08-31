@@ -16,6 +16,7 @@ import Add from '@mui/icons-material/Add';
 import { Delete } from '@mui/icons-material';
 import TimeSpanDeleteForm from './TimeSpanDeleteForm';
 import { Divider } from "@mui/material";
+import { formatToStandardEuDate } from '../../../utils/date-utils';
 
 const TimeSpans = () => {
 
@@ -58,6 +59,8 @@ const TimeSpans = () => {
         return transactions.transactions.content?.filter(tr => isBewteenDates(timespan.from, timespan.to, tr.transaction_date));
     }
 
+    
+
     return (
         <div className='pt-2 pr-2'>
             <AddModal
@@ -87,7 +90,7 @@ const TimeSpans = () => {
                                         id="panel1-header"
                                     >
                                         <div className='flex gap-5'>
-                                            <span>{t.from} - {t.to}</span> <span
+                                            <span>{formatToStandardEuDate(t.from)} - {formatToStandardEuDate(t.to)}</span> <span
                                                 className={`${dateSpanSum && dateSpanSum >= 0 ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}`}>{dateSpanSum} €</span>
                                         </div>
                                     </AccordionSummary>
