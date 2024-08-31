@@ -59,17 +59,19 @@ const TimeSpans = () => {
         return transactions.transactions.content?.filter(tr => isBewteenDates(timespan.from, timespan.to, tr.transaction_date));
     }
 
-    
+
 
     return (
         <div className='pt-2 pr-2'>
-            <AddModal
-                ctaText='Add Time Span'
-                heading='Add a new time span'
-                paragraph='Fill in the form below to add a new time span'
-                form={<TimeSpanForm />}
-                buttonIcon={<Add />}
-            />
+            <div className='mb-2'>
+                <AddModal
+                    ctaText='Add Time Span'
+                    heading='Add a new time span'
+                    paragraph='Fill in the form below to add a new time span'
+                    form={<TimeSpanForm />}
+                    buttonIcon={<Add />}
+                />
+            </div>
 
             {timeSpans && timeSpans?.length <= 0 ? (
                 <div><MoniBanner style='info'>Please add a new time span from the button above!</MoniBanner></div>
