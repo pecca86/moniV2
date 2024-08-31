@@ -90,6 +90,22 @@ export async function deleteSelectedTransactions(data: DeleteSelectedTransaction
     }
 }
 
+export async function deleteAllOldTransactions(accountId: string | undefined): Promise<void> {
+
+    try {
+        await fetch(`http://localhost:8080/api/v1/transactions/${accountId}/delete-old`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+    } catch (error) {
+        // log error
+    }
+}
+
 export async function updateTransaction(transactionData: Transaction) {
     try {
         transactionData.transaction_type = transactionData.transaction_type.toUpperCase();

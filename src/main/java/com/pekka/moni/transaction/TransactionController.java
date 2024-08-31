@@ -39,7 +39,7 @@ public class TransactionController {
                                                                       @RequestParam(name = "sortBy", required = false, defaultValue = "transactionDate") String sortBy,
                                                                       @RequestParam(name = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
                                                                       @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-                                                                      @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
+                                                                      @RequestParam(name = "pageSize", required = false, defaultValue = "9999") int pageSize) {
         return ResponseEntity.ok(transactionService.getAccountTransactions(authentication, accountId, sortBy, sortDirection, page, pageSize));
     }
 
@@ -101,6 +101,16 @@ public class TransactionController {
                                                                           @PathVariable Long accountId) {
         transactionService.deleteAllSelectedTransactionsForAccount(authentication, accountId, transactions);
         return ResponseEntity.ok("Transactions deleted");
+    }
+
+    @DeleteMapping("/{accountId}/delete-old")
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key = "#authentication.name"),
+            @CacheEvict(value = "account", key = "#authentication.name")
+    })
+    public ResponseEntity<String> deleteOldTransactionsForAccount(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                                                                  @PathVariable Long accountId) {
+        return transactionService.deleteAllTransactionsOlderThanTodaysDate(authentication, accountId);
     }
 
     @PutMapping("/{transactionId}")

@@ -13,6 +13,8 @@ import MoniBanner from "../../banners/MoniBanner";
 import DeleteSelectedTransactionsForm from "./DeleteSelectedTransactionsForm";
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import { useSelection } from "./TransactionSelectionContext";
+import { formatToStandardEuDate } from "../../../utils/date-utils";
+import DeleteOldTransactionsForm from "./DeleteOldTransactionsForm";
 
 type Props = {
     timeSpanTransactions: Transaction[] | undefined;
@@ -97,18 +99,30 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
 
     return (
         <div className=''>
-            <div className="flex justify-between">
+            <div className="flex gap-5">
                 {selections.length >= 1 ? (
                     <button onClick={handleEmptyIdSet} className="hover:bg-blue-600 bg-violet-500 text-white font-bold py-2 px-4 rounded"><RemoveDoneIcon /> Deselect</button>
                 ) : (
+                    <div className="flex justify-between">
+                        <AddModal
+                            ctaText="Add transaction"
+                            heading='Add a new transaction'
+                            paragraph='Fill in the form below to add a new transaction'
+                            form={<TransactionForm mode='add' />}
+                            buttonIcon={<Add />}
+                            ctaStyle='bg-violet-500 mx-2'
+                        />
+                    
+                        <AddModal
+                            ctaText="Delete all old transaction"
+                            heading='Delete old transactions'
+                            paragraph={`This will delete all transaction with a date older than ${formatToStandardEuDate(new Date().toISOString())}`}
+                            form={<DeleteOldTransactionsForm />}
+                            buttonIcon={<Delete />}
+                            ctaStyle="bg-red-400 mx-2"
+                        />
 
-                    <AddModal
-                        ctaText="Add transaction"
-                        heading='Add a new transaction'
-                        paragraph='Fill in the form below to add a new transaction'
-                        form={<TransactionForm mode='add' />}
-                        buttonIcon={<Add />}
-                    />
+                    </div>
                 )}
                 {(selections.length === 1) && (
                     <AddModal

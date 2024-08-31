@@ -40,15 +40,15 @@ public class TransactionService {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         return loggedInCustomer.getAccounts()
-                               .stream()
-                               .filter(account -> account.getId().equals(accountId))
-                               .findFirst()
-                               .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()))
-                               .getTransactions()
-                               .stream()
-                               .filter(transaction -> transaction.getId().equals(transactionId))
-                               .findFirst()
-                               .orElseThrow(() -> new AccountNotFoundException("Transaction with id " + transactionId + " not found for account with id " + accountId));
+                .stream()
+                .filter(account -> account.getId().equals(accountId))
+                .findFirst()
+                .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()))
+                .getTransactions()
+                .stream()
+                .filter(transaction -> transaction.getId().equals(transactionId))
+                .findFirst()
+                .orElseThrow(() -> new AccountNotFoundException("Transaction with id " + transactionId + " not found for account with id " + accountId));
     }
 
     public TransactionResponse getAccountTransactions(Authentication authentication, Long accountId, String sortBy, String sortDirection, int page, int pageSize) {
@@ -62,15 +62,15 @@ public class TransactionService {
             case ASC -> {
                 Page<Transaction> targetTransactions = transactionRepository.findAllByAccountId(accountId, pageRequest.withSort(Sort.by(sortBy).ascending()));
                 BigDecimal sum = targetTransactions.stream()
-                                                   .map(Transaction::getSum)
-                                                   .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        .map(Transaction::getSum)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
                 yield new TransactionResponse(targetTransactions, sum);
             }
             case DESC -> {
                 Page<Transaction> targetTransactions = transactionRepository.findAllByAccountId(accountId, pageRequest.withSort(Sort.by(sortBy).descending()));
                 BigDecimal sum = targetTransactions.stream()
-                                                   .map(Transaction::getSum)
-                                                   .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        .map(Transaction::getSum)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
                 yield new TransactionResponse(targetTransactions, sum);
             }
         };
@@ -80,18 +80,18 @@ public class TransactionService {
     public List<Transaction> getCustomerTransactions(Authentication authentication) {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
         return loggedInCustomer.getAccounts().stream()
-                               .flatMap(account -> account.getTransactions().stream())
-                               .toList();
+                .flatMap(account -> account.getTransactions().stream())
+                .toList();
     }
 
     public ResponseEntity<Transaction> addAccountTransaction(Authentication authentication, Transaction transaction, Long accountId) {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         Account account = loggedInCustomer.getAccounts()
-                                          .stream()
-                                          .filter(a -> a.getId().equals(accountId))
-                                          .findFirst()
-                                          .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()));
+                .stream()
+                .filter(a -> a.getId().equals(accountId))
+                .findFirst()
+                .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId()));
 
         account.addTransaction(transaction);
         accountRepository.save(account);
@@ -107,7 +107,7 @@ public class TransactionService {
 
         LocalDate date = monthlyTransaction.data().getTransactionDate();
         Account account = accountRepository.findById(accountId)
-                                           .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found"));
 
         for (int i = 0; i < monthlyTransaction.months(); i++) {
             Transaction transaction = new Transaction(
@@ -131,11 +131,11 @@ public class TransactionService {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         Transaction transactionToUpdate = loggedInCustomer.getAccounts()
-                                                          .stream()
-                                                          .flatMap(account -> account.getTransactions().stream())
-                                                          .filter(transaction -> transaction.getId().equals(transactionId))
-                                                          .findFirst()
-                                                          .orElseThrow(() -> new AccountNotFoundException("Transaction with id " + transactionId + " not found for customer with id " + loggedInCustomer.getId()));
+                .stream()
+                .flatMap(account -> account.getTransactions().stream())
+                .filter(transaction -> transaction.getId().equals(transactionId))
+                .findFirst()
+                .orElseThrow(() -> new AccountNotFoundException("Transaction with id " + transactionId + " not found for customer with id " + loggedInCustomer.getId()));
 
         transactionToUpdate.setSum(newData.getSum());
         transactionToUpdate.setTransactionType(newData.getTransactionType());
@@ -177,14 +177,14 @@ public class TransactionService {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         Transaction transactionToDelete = loggedInCustomer.getAccounts()
-                                                          .stream()
-                                                          .flatMap(account -> account.getTransactions().stream())
-                                                          .filter(transaction -> transaction.getId().equals(transactionId))
-                                                          .findFirst()
-                                                          .orElseThrow(() -> new AccountNotFoundException("Transaction with id " + transactionId + " not found for customer with id " + loggedInCustomer.getId()));
+                .stream()
+                .flatMap(account -> account.getTransactions().stream())
+                .filter(transaction -> transaction.getId().equals(transactionId))
+                .findFirst()
+                .orElseThrow(() -> new AccountNotFoundException("Transaction with id " + transactionId + " not found for customer with id " + loggedInCustomer.getId()));
 
         Account account = accountRepository.findById(transactionToDelete.getAccount().getId())
-                                           .orElseThrow(() -> new AccountNotFoundException("Account with id " + transactionToDelete.getAccount().getId() + " not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Account with id " + transactionToDelete.getAccount().getId() + " not found"));
         account.removeTransaction(transactionToDelete);
         transactionRepository.deleteById(transactionToDelete.getId());
     }
@@ -194,10 +194,11 @@ public class TransactionService {
 
         isLoggedInUsersAccount(accountId, loggedInCustomer);
 
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found"));
+
         List<Transaction> transactionsToDelete = transactionRepository.findAllById(deletableTransactions.transactions());
 
-        Account account = accountRepository.findById(accountId)
-                                           .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found"));
 
         transactionsToDelete.forEach(transaction -> {
             if (!transaction.getAccount().getId().equals(accountId)) {
@@ -207,6 +208,27 @@ public class TransactionService {
 
         account.getTransactions().removeAll(transactionsToDelete);
         transactionRepository.deleteAll(transactionsToDelete);
+    }
+
+    public ResponseEntity<String> deleteAllTransactionsOlderThanTodaysDate(Authentication authentication, Long accountId) {
+        Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
+
+        isLoggedInUsersAccount(accountId, loggedInCustomer);
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found"));
+
+        var today = LocalDate.now();
+
+        List<Transaction> transactionsToDelete = loggedInCustomer.getAccounts().stream()
+                .flatMap(a -> a.getTransactions().stream()
+                        .filter(t -> t.getTransactionDate().isBefore(today)))
+                .toList();
+
+        account.getTransactions().removeAll(transactionsToDelete);
+        transactionRepository.deleteAll(transactionsToDelete);
+
+        return ResponseEntity.ok("Deleted all transaction older than " + today + " : (" + transactionsToDelete.size() + ")");
+
     }
 
     public TransactionDateSpanResponse getTransactionsByDateSpan(Authentication authentication, Long accountId, TransactionDateSpan transactionDateSpan) {
@@ -220,8 +242,8 @@ public class TransactionService {
 
         List<Transaction> targetTransactions = transactionRepository.findTransactionsByAccountIdAndTransactionDateBetween(accountId, from, to);
         BigDecimal sum = targetTransactions.stream()
-                                           .map(Transaction::getSum)
-                                           .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(Transaction::getSum)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new TransactionDateSpanResponse(targetTransactions, sum);
     }
@@ -232,12 +254,11 @@ public class TransactionService {
 
     private static void isLoggedInUsersAccount(Long accountId, Customer loggedInCustomer) {
         boolean isLoggedInUsersAccount = loggedInCustomer.getAccounts()
-                                                         .stream()
-                                                         .anyMatch(account -> account.getId().equals(accountId));
+                .stream()
+                .anyMatch(account -> account.getId().equals(accountId));
 
         if (!isLoggedInUsersAccount) {
             throw new AccountAccessException("Account with id " + accountId + " not found for customer with id " + loggedInCustomer.getId());
         }
     }
-
 }
