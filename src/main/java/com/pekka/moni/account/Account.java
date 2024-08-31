@@ -214,20 +214,22 @@ public class Account {
         }
 
         BigDecimal transactionsSum = transactions.stream()
-                                                 .map(Transaction::getSum)
-                                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .filter(tr -> tr.getAccount().id.equals(this.id))
+                .map(Transaction::getSum)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return this.balanceWithTransactions.add(transactionsSum)
-                                           .add(this.balance);
+                .add(this.balance);
     }
 
     private BigDecimal calculateBalance() {
         var today = LocalDate.now();
 
         return transactions.stream()
-                           .filter(transaction -> transaction.getTransactionDate().isAfter(today.minusDays(1)))
-                           .map(Transaction::getSum)
-                           .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .filter(tr -> tr.getAccount().id.equals(this.id))
+                .filter(transaction -> transaction.getTransactionDate().isAfter(today.minusDays(1)))
+                .map(Transaction::getSum)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public @NotNull(message = "Balance is required") BigDecimal getBalance() {

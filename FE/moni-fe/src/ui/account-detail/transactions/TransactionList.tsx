@@ -5,7 +5,7 @@ import Add from "@mui/icons-material/Add";
 import { Delete } from "@mui/icons-material";
 import Edit from "@mui/icons-material/Edit";
 import TransactionOperations from "./TransactionOperations";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import { Divider } from "@mui/material";
 import { useFetchTransactions } from "../../../hooks/transaction/useFetchTransactions";
 import CircularProgress from '@mui/material/CircularProgress';
@@ -16,13 +16,13 @@ import { useSelection } from "./TransactionSelectionContext";
 
 type Props = {
     timeSpanTransactions: Transaction[] | undefined;
-  };
-  
-const TransactionList = ({timeSpanTransactions}: Props) => {
+};
+
+const TransactionList = ({ timeSpanTransactions }: Props) => {
 
     const [searchParams] = useSearchParams();
-    const { dispatch, selections }: {dispatch: any, selections: number[]} = useSelection();
-    
+    const { dispatch, selections }: { dispatch: any, selections: number[] } = useSelection();
+
     // grab the filter value from the URL that has been set by our TransactionOperations component
     const filterValue = searchParams.get('filter') || 'all';
     const sortValue = searchParams.get('sort') || 'date';
@@ -32,21 +32,22 @@ const TransactionList = ({timeSpanTransactions}: Props) => {
 
     // Table selection related state
     if (!timeSpanTransactions) {
-        const { isPending, transactions, error } = useFetchTransactions();
-    
+        const { accountId } = useParams<{ accountId: string }>();
+        const { isPending, transactions, error } = useFetchTransactions(accountId as string);
+
         if (isPending) {
             return <div className="flex items-center justify-center"><CircularProgress /></div>
         }
-    
+
         if (!isPending && error) {
             return <MoniBanner style="warning">There was a problem fetching the transaction data, please try again later!</MoniBanner>
         }
 
-        transactionsData = transactions;
+        transactionsData = transactions.transactions.content;
     } else {
         transactionsData = timeSpanTransactions;
     }
-    
+
     // FILTERING, SORTING AND SEARCHING
     let filteredTransactions = transactionsData;
 
@@ -157,30 +158,30 @@ const TransactionList = ({timeSpanTransactions}: Props) => {
             {transactionsData?.length === 0 && <MoniBanner style="info">Click the 'add transaction' button above, to create a new transaction!</MoniBanner>}
             <TransactionOperations />
             <Divider />
-                <div className="relative overflow-x-auto shadow-lg rounded-lg h-full max-h-[450px] overflow-scroll">
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-900 table-fixed">
-                        <thead className="text-xs text-gray-900 uppercase bg-gray-100">
-                            <tr>
-                                <th scope="col" className={tableHeaderStyle}>
-                                    Date
-                                </th>
-                                <th scope="col" className={tableHeaderStyle}>
-                                    Description
-                                </th>
-                                <th scope="col" className={tableHeaderStyle}>
-                                    Category
-                                </th>
-                                <th scope="col" className={tableHeaderStyle}>
-                                    Sum
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredTransactions?.map((transaction) => (
-                                <TransactionListItem key={transaction.id} tr={transaction} />))}
-                        </tbody>
-                    </table>
-                </div>
+            <div className="relative overflow-x-auto shadow-lg rounded-lg h-full max-h-[450px] overflow-scroll">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-900 table-fixed">
+                    <thead className="text-xs text-gray-900 uppercase bg-gray-100">
+                        <tr>
+                            <th scope="col" className={tableHeaderStyle}>
+                                Date
+                            </th>
+                            <th scope="col" className={tableHeaderStyle}>
+                                Description
+                            </th>
+                            <th scope="col" className={tableHeaderStyle}>
+                                Category
+                            </th>
+                            <th scope="col" className={tableHeaderStyle}>
+                                Sum
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredTransactions?.map((transaction) => (
+                            <TransactionListItem key={transaction.id} tr={transaction} />))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

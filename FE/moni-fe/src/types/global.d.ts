@@ -77,3 +77,9 @@ type TimeSpan = {
     from: string;
     to: string;
 }
+
+type TimeSpanResponse = {
+    id: number;
+    from: string;
+    to: string;
+}

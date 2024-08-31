@@ -1,11 +1,11 @@
 import toast from "react-hot-toast";
 import { DeleteSelectedTransactionsFormData, MonthlyTransactionFormData, Transaction, TransactionFormData, UpdateSelectedTransactionFormData } from "../types/global";
 
-const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjQ1OTk4MDAsImV4cCI6MTcyNTIwNDYwMH0.xWDEjtLAcrR9PLunRa1b5xvexj3jVvxTXxWjhQJT3hs";
+const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjUwOTIyOTQsImV4cCI6MTcyNTY5NzA5NH0.g1Sbqke24LwyJDZot5xFW_sPCop8kZ6-DYXkRAyWl18";
 
-export async function getTransactions() {
+export async function getAccountTransactions(accountId: string) {
     try {
-        const response: Response = await fetch('http://localhost:8080/api/v1/transactions', {
+        const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${accountId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

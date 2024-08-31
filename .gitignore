@@ -29,3 +29,4 @@ replay_pid*
 /target/*
 /logs/*
 /.mvn/*
+/FE/package-lock.json

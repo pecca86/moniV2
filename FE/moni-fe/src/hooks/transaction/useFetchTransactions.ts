@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { getTransactions } from "../../services/apiTransactions";
+import { getAccountTransactions } from "../../services/apiTransactions";
 
-export function useFetchTransactions() {
+export function useFetchTransactions(accountId: string) {
     const {
         isPending,
         data: transactions,
         error,
     } = useQuery({
         queryKey: ['transactions'],
-        queryFn: getTransactions,
+        queryFn: () => getAccountTransactions(accountId),
     });
 
     return { isPending, transactions, error };

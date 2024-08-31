@@ -1,13 +1,15 @@
 import Accordion from '@mui/material/Accordion';
-import AccordionActions from '@mui/material/AccordionActions';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Button from '@mui/material/Button';
 import TransactionList from '../transactions/TransactionList';
 import AddModal from '../../cta/AddModal';
 import TimeSpanForm from './TimeSpanForm';
 import { TransactionSelectionProvider } from '../transactions/TransactionSelectionContext';
+import { useFetchTransactions } from '../../../hooks/transaction/useFetchTransactions';
+import MoniBanner from '../../banners/MoniBanner';
+import { CircularProgress } from '@mui/material';
+import { Transaction } from '../../../types/global';
 
 const fakeData = [
     {
@@ -20,6 +22,37 @@ const fakeData = [
     }
 ]
 const TimeSpans = () => {
+
+    const { isPending, transactions, error } = useFetchTransactions();
+
+    if (isPending) {
+        return (
+            <div className="flex items-center justify-center">
+                <MoniBanner style='info'>Fetching transactions...</MoniBanner>
+                <CircularProgress />
+            </div>
+        )
+    }
+
+    if (!isPending && error) {
+        return <MoniBanner style="warning">There was a problem fetching the transaction data, please try again later!</MoniBanner>
+    }
+
+    function isBewteenDates(fromDate: string, toDate: string, transactionDate: string): boolean {
+        let from = new Date(fromDate);
+        let to = new Date(toDate);
+        let targetDate = new Date(transactionDate);
+
+        return targetDate >= from && targetDate <= to;
+    }
+
+    function filterTransactionsByDateSpan(): Transaction[] | undefined {
+        console.log("ORIGINAL LIST: ", transactions);
+        let filteredTransactions = transactions?.filter(tr => isBewteenDates('2024-08-12', '2025-08-12', tr.transaction_date));
+        console.log("FILTERED LIST: ", filteredTransactions);
+        return filteredTransactions;
+    }
+
     return (
         <div className='pt-2 pr-2'>
             <AddModal
@@ -48,7 +81,7 @@ const TimeSpans = () => {
                         <span>With current balance: 300€</span>
                     </div>
                     <TransactionSelectionProvider>
-                        <TransactionList timeSpanTransactions={fakeData}/>
+                        <TransactionList timeSpanTransactions={filterTransactionsByDateSpan()} />
                     </TransactionSelectionProvider>
                 </AccordionDetails>
             </Accordion>
