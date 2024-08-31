@@ -103,7 +103,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
                 ) : (
 
                     <AddModal
-                        ctaText="Add"
+                        ctaText="Add transaction"
                         heading='Add a new transaction'
                         paragraph='Fill in the form below to add a new transaction'
                         form={<TransactionForm mode='add' />}

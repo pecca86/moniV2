@@ -5,26 +5,29 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TransactionList from '../transactions/TransactionList';
 import AddModal from '../../cta/AddModal';
 import TimeSpanForm from './TimeSpanForm';
-import {TransactionSelectionProvider} from '../transactions/TransactionSelectionContext';
-import {useFetchTransactions} from '../../../hooks/transaction/useFetchTransactions';
-import {useFetchTimeSpansForAccount} from '../../../hooks/timespan/useFetchTimeSpansForAccount';
+import { TransactionSelectionProvider } from '../transactions/TransactionSelectionContext';
+import { useFetchTransactions } from '../../../hooks/transaction/useFetchTransactions';
+import { useFetchTimeSpansForAccount } from '../../../hooks/timespan/useFetchTimeSpansForAccount';
 import MoniBanner from '../../banners/MoniBanner';
-import {CircularProgress} from '@mui/material';
-import {TimeSpan, Transaction} from '../../../types/global';
-import {useParams} from 'react-router-dom';
+import { CircularProgress } from '@mui/material';
+import { TimeSpan, Transaction } from '../../../types/global';
+import { useParams } from 'react-router-dom';
 import Add from '@mui/icons-material/Add';
+import { Delete } from '@mui/icons-material';
+import TimeSpanDeleteForm from './TimeSpanDeleteForm';
+import { Divider } from "@mui/material";
 
 const TimeSpans = () => {
 
-    const {accountId} = useParams<{ accountId: string }>();
-    const {isPending, transactions, error} = useFetchTransactions(accountId);
-    const {isPending: isFetchingTimeSpans, timeSpans, error: timeSpanError} = useFetchTimeSpansForAccount(accountId);
+    const { accountId } = useParams<{ accountId: string }>();
+    const { isPending, transactions, error } = useFetchTransactions(accountId);
+    const { isPending: isFetchingTimeSpans, timeSpans, error: timeSpanError } = useFetchTimeSpansForAccount(accountId);
 
     if (isPending || isFetchingTimeSpans) {
         return (
             <div className="flex items-center justify-center">
                 <MoniBanner style='info'>Fetching transactions...</MoniBanner>
-                <CircularProgress/>
+                <CircularProgress />
             </div>
         )
     }
@@ -61,8 +64,8 @@ const TimeSpans = () => {
                 ctaText='Add Time Span'
                 heading='Add a new time span'
                 paragraph='Fill in the form below to add a new time span'
-                form={<TimeSpanForm/>}
-                buttonIcon={<Add/>}
+                form={<TimeSpanForm />}
+                buttonIcon={<Add />}
             />
 
             {timeSpans && timeSpans?.length <= 0 ? (
@@ -79,18 +82,26 @@ const TimeSpans = () => {
                                 {/* ACCORDION 1 */}
                                 <Accordion key={t.id}>
                                     <AccordionSummary
-                                        expandIcon={<ExpandMoreIcon/>}
+                                        expandIcon={<ExpandMoreIcon />}
                                         aria-controls="panel1-content"
                                         id="panel1-header"
                                     >
                                         <div className='flex gap-5'>
                                             <span>{t.from} - {t.to}</span> <span
-                                            className={`${dateSpanSum && dateSpanSum >= 0 ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}`}>{dateSpanSum} €</span>
+                                                className={`${dateSpanSum && dateSpanSum >= 0 ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}`}>{dateSpanSum} €</span>
                                         </div>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         {transactions.transactions.content.length > 0 ? (
                                             <div>
+                                                <AddModal
+                                                    ctaText='Delete Time Span'
+                                                    heading='Delete Time Span'
+                                                    paragraph='Delete the selected time span, this cannot be undone!'
+                                                    form={<TimeSpanDeleteForm handleClose={null} timeSpanId={t.id} />}
+                                                    buttonIcon={<Delete />}
+                                                    ctaStyle='bg-red-500 my-2'
+                                                />
                                                 {/* TODO: Make a info panel component here */}
                                                 <div className='flex flex-col gap-1 mb-2'>
                                                     <span className='text-green-600'><span
@@ -98,8 +109,9 @@ const TimeSpans = () => {
                                                     <span className='text-red-500'><span
                                                         className='font-medium'>Spendings:</span> {spendings} €</span>
                                                 </div>
+                                                <Divider sx={{ margin: '10px' }} />
                                                 <TransactionSelectionProvider>
-                                                    <TransactionList timeSpanTransactions={filteredTransactions}/>
+                                                    <TransactionList timeSpanTransactions={filteredTransactions} />
                                                 </TransactionSelectionProvider>
                                             </div>
 
