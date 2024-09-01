@@ -3,7 +3,8 @@ import { useFetchAccountsTransactionStatistics } from "../../../hooks/statistics
 import { useParams } from "react-router-dom";
 import MoniBanner from "../../banners/MoniBanner";
 import { CircularProgress } from "@mui/material";
-
+import { Divider } from "@mui/material";
+import MoniBarChart from "../../charts/MoniBarChart";
 
 const DetailCharts = () => {
     const { accountId } = useParams();
@@ -37,6 +38,8 @@ const DetailCharts = () => {
     return (
         <div className="w-full">
             <MoniLineChart accountStatisticsData={data} />
+            <Divider sx={{ 'margin': '10px' }} />
+            <MoniBarChart />
         </div>
     );
 }
