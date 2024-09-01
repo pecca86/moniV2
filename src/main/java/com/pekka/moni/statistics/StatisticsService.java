@@ -42,7 +42,7 @@ public class StatisticsService {
         for (Account account : customerAccounts) {
             List<Transaction> transactions = account.getTransactions();
             for (Transaction transaction : transactions) {
-                if (transactionIsWithinThisYearSpan(transaction, Year.from(startDate))) {
+                if (transactionIsWithinThisYearSpan(transaction, Year.from(startDate.plusYears(1)))) {
                     if (transactionBelongsToTargetMonth(transaction, Month.from(startDate))) {
                         resultForMonthMap.computeIfPresent(Month.from(startDate), (k, currentMonthSum) -> currentMonthSum.add(transaction.getSum()));
                     }
