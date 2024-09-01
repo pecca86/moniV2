@@ -38,38 +38,34 @@ public class StatisticsService {
         LocalDate startDate = LocalDate.now();
 
         for (Account account : customerAccounts) {
+            resultForMonthMap = constructMonthMap();
+            startDate = LocalDate.now();
+            System.out.println("RESETTED STARTDATE TO: " + startDate);
             List<Transaction> transactions = account.getTransactions();
             for (Transaction transaction : transactions) {
-                if (transactionIsWithinThisYearSpan(transaction, Year.from(startDate.plusYears(1)))) {
-                    if (transactionBelongsToTargetMonth(transaction, Month.from(startDate))) {
-                        resultForMonthMap.computeIfPresent(Month.from(startDate), (k, currentMonthSum) -> currentMonthSum.add(transaction.getSum()));
-                    }
+                System.out.println("TRANSACTION DATE IS: " + transaction.getTransactionDate());
+                if (transactionIsWithinThisYearSpan(transaction)) {
+                    System.out.println("CALCUTAING FOR TRANSACTION: " + transaction.getSum() + " WITH TARGET DATE: " + startDate);
+//                    if (transactionBelongsToTargetMonth(transaction, Month.from(startDate))) {
+                        resultForMonthMap.computeIfPresent(Month.from(transaction.getTransactionDate()), (k, currentMonthSum) -> currentMonthSum.add(transaction.getSum()));
+//                    }
                 }
                 startDate = startDate.plusMonths(1);
             }
             results.add(new AccountWithTransactions(account, resultForMonthMap));
-//            resultForMonthMap = constructMonthMap();
         }
 
 
 
 
-
-
-
-
-        Month month = Month.from(startDate);
-        Year year = Year.from(startDate.plusYears(1));
-
-
-
-
-
+//        System.out.println("NEW VALUES FOR MAP ARE: " + resultForMonthMap);
         return ResponseEntity.ok(new StatisticsAllAccountsResponse(results));
     }
 
-    private boolean transactionIsWithinThisYearSpan(Transaction transaction, Year year) {
-        return transaction.getTransactionDate().getYear() <= year.getValue() && transaction.getTransactionDate().getYear() >= year.getValue() - 1;
+    private boolean transactionIsWithinThisYearSpan(Transaction transaction) {
+//        return transaction.getTransactionDate().getYear() <= year.getValue() && transaction.getTransactionDate().getYear() >= year.getValue() - 1;
+        LocalDate startDate = LocalDate.now();
+        return transaction.getTransactionDate().isBefore(startDate.plusYears(1)) && transaction.getTransactionDate().isAfter(startDate.minusDays(1));
     }
 
     private boolean transactionBelongsToTargetMonth(Transaction transaction, Month month) {

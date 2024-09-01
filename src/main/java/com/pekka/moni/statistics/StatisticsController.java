@@ -21,6 +21,7 @@ public class StatisticsController {
         this.statisticsService = statisticsService;
     }
 
+    // TODO add cache
     @GetMapping("/{accountId}")
     public ResponseEntity<StatisticsAllAccountsResponse>  getAllAccountsAndAssociatedTransactions(@CurrentSecurityContext(expression = "authentication")Authentication authentication,
                                                                                                   @PathVariable Long accountId) {
