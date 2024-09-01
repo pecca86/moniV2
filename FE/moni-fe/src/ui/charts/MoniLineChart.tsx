@@ -8,67 +8,70 @@ const MoniLineChart = () => {
             name: 'Jan',
             savings: 4000,
             deposit: 2400,
+            cock: 4000,
             amt: 2400,
         },
         {
             name: 'Feb',
             savings: 3000,
             deposit: 1398,
+            cock: 4000,
             amt: 2210,
         },
         {
             name: 'Mar',
             savings: 2000,
             deposit: 9800,
+            cock: 4000,
             amt: 2290,
         },
         {
             name: 'Apr',
             savings: 2780,
             deposit: 3908,
-            amt: 2000,
+            cock: 4000,
         },
         {
             name: 'May',
             savings: 1890,
             deposit: 4800,
-            amt: 2181,
+            cock: 4000,
         },
         {
             name: 'Jun',
             savings: 2390,
             deposit: 3800,
-            amt: 2500,
+            cock: 4000,
         },
         {
             name: 'Jul',
             savings: 3490,
             deposit: 4300,
-            amt: 2100,
+            cock: 4000,
         },
         {
             name: 'Sept',
             savings: 3490,
             deposit: 4300,
-            amt: 2100,
+            cock: 4000,
         },
         {
             name: 'Oct',
             savings: 3490,
             deposit: 4300,
-            amt: 2100,
+            cock: 4000,
         },
         {
             name: 'Nov',
             savings: 3490,
             deposit: 4300,
-            amt: 2100,
+            cock: 4000,
         },
         {
             name: 'Dec',
             savings: 3490,
             deposit: 4300,
-            amt: 2100,
+            cock: 4000,
         },
     ];
 
@@ -95,6 +98,11 @@ const MoniLineChart = () => {
                     <Line
                         type="monotone"
                         dataKey="savings"
+                        stroke="#82ca9d"
+                    />
+                    <Line
+                        type="monotone"
+                        dataKey="cock"
                         stroke="#82ca9d"
                     />
                 </LineChart>
