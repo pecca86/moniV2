@@ -23,12 +23,10 @@ import java.util.*;
 public class StatisticsService {
 
     private final LoggedInCustomerService loggedInCustomerService;
-    private final AccountRepository accountRepository;
 
     @Autowired
-    public StatisticsService(LoggedInCustomerService loggedInCustomerService, AccountRepository accountRepository) {
+    public StatisticsService(LoggedInCustomerService loggedInCustomerService) {
         this.loggedInCustomerService = loggedInCustomerService;
-        this.accountRepository = accountRepository;
     }
 
     public ResponseEntity<StatisticsAllAccountsResponse> getAccountsStatistics(Authentication authentication, Long accountId) {
@@ -50,6 +48,7 @@ public class StatisticsService {
                 startDate = startDate.plusMonths(1);
             }
             results.add(new AccountWithTransactions(account, resultForMonthMap));
+//            resultForMonthMap = constructMonthMap();
         }
 
 
@@ -78,18 +77,16 @@ public class StatisticsService {
     }
 
     private Map<Month, BigDecimal> constructMonthMap() {
-        Map<Month, BigDecimal> months = new LinkedHashMap<>();
-        months.put(Month.JANUARY, BigDecimal.ZERO);
-        months.put(Month.FEBRUARY, BigDecimal.ZERO);
-        months.put(Month.MARCH, BigDecimal.ZERO);
-        months.put(Month.APRIL, BigDecimal.ZERO);
-        months.put(Month.MAY, BigDecimal.ZERO);
-        months.put(Month.JUNE, BigDecimal.ZERO);
-        months.put(Month.AUGUST, BigDecimal.ZERO);
-        months.put(Month.SEPTEMBER, BigDecimal.ZERO);
-        months.put(Month.OCTOBER, BigDecimal.ZERO);
-        months.put(Month.NOVEMBER, BigDecimal.ZERO);
-        months.put(Month.DECEMBER, BigDecimal.ZERO);
-        return months;
+        Map<Month, BigDecimal> generated = new LinkedHashMap<>();
+
+        LocalDate startDate = LocalDate.now();
+
+        // Construct the map so the month start from the current month
+        for (int i = 0; i < 12; i++) {
+            generated.put(Month.from(startDate), BigDecimal.ZERO);
+            startDate = startDate.plusMonths(1);
+        }
+
+        return generated;
     }
 }
