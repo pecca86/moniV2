@@ -3,6 +3,7 @@ import MoniToolTip from '../cta/MoniToolTip';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import { AccountsStatisticData } from '../../types/global';
 import { useState } from 'react';
+import MoniBanner from '../banners/MoniBanner';
 
 interface Props {
     accountStatisticsData: AccountsStatisticData
@@ -14,6 +15,14 @@ interface LineChartData {
 }
 
 const MoniLineChart = ({ accountStatisticsData }: Props) => {
+
+    if (!accountStatisticsData || accountStatisticsData?.data.length === 0) {
+        return (
+            <div className='flex justify-center items-center'>
+                <MoniBanner style='info'>No transaction statistics available...</MoniBanner>
+            </div>
+        )
+    }
     const newData: LineChartData[] = []
 
     // Create an initial data point, cointaing just the months in the same order we receive them from the server
