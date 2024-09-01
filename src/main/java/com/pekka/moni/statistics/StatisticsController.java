@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// TODO add cache to all routes!
 @RestController
 @RequestMapping(path = "api/v1/statistics")
 public class StatisticsController {
@@ -23,7 +24,6 @@ public class StatisticsController {
         this.statisticsService = statisticsService;
     }
 
-    // TODO add cache
     @GetMapping
     public ResponseEntity<StatisticsAllAccountsResponse>  getAllAccountsAndAssociatedTransactions(@CurrentSecurityContext(expression = "authentication")Authentication authentication) {
             return statisticsService.getAccountsStatistics(authentication);
