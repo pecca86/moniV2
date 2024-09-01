@@ -47,7 +47,6 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
     const [hiddenNameList, setHiddenNameList] = useState([]);
 
     function pippeliPushed(e) {
-        console.log(e);
         let legend: string = e.dataKey
         if (hiddenNameList.includes(legend)) {
             setHiddenNameList((hiddenNameList) => hiddenNameList.filter(item => item !== e.dataKey));
