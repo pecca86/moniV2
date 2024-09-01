@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,10 +21,9 @@ public class StatisticsController {
     }
 
     // TODO add cache
-    @GetMapping("/{accountId}")
-    public ResponseEntity<StatisticsAllAccountsResponse>  getAllAccountsAndAssociatedTransactions(@CurrentSecurityContext(expression = "authentication")Authentication authentication,
-                                                                                                  @PathVariable Long accountId) {
-            return statisticsService.getAccountsStatistics(authentication, accountId);
+    @GetMapping
+    public ResponseEntity<StatisticsAllAccountsResponse>  getAllAccountsAndAssociatedTransactions(@CurrentSecurityContext(expression = "authentication")Authentication authentication) {
+            return statisticsService.getAccountsStatistics(authentication);
     }
 
 

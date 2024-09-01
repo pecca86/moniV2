@@ -26,7 +26,7 @@ public class StatisticsService {
         this.loggedInCustomerService = loggedInCustomerService;
     }
 
-    public ResponseEntity<StatisticsAllAccountsResponse> getAccountsStatistics(Authentication authentication, Long accountId) {
+    public ResponseEntity<StatisticsAllAccountsResponse> getAccountsStatistics(Authentication authentication) {
         Customer loggedInCustomer = loggedInCustomerService.getLoggedInCustomer(authentication);
 
         List<Account> customerAccounts = loggedInCustomer.getAccounts();
