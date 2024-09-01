@@ -84,10 +84,12 @@ const fakeAccountData = {
     }
 }
 
+interface Props {
+    accountStatisticsData: any[]
+}
 
-
-const MoniLineChart = () => {
-
+const MoniLineChart = ({accountStatisticsData}: Props) => {
+    fakeManyAccountsData = accountStatisticsData // TODO: Clean this up!
     // fakeManyAccountsData = { data: [fakeAccountData] }
     const newData: any[] = []
 
@@ -107,9 +109,7 @@ const MoniLineChart = () => {
         }
     }
 
-    console.log(newData);
-
-    function stringToHash(str) {
+    function stringToHash(str: string) {
         let hash = 0;
         if (str.length == 0) return hash;
         for (let i = 0; i < str.length; i++) {
@@ -123,11 +123,6 @@ const MoniLineChart = () => {
 
     return (
         <div className='bg-white rounded-lg p-1 shadow-md'>
-            <p>
-                <label htmlFor="with-balance">With balance</label>
-                <input type="checkbox" name="with-balance" id="" />
-            </p>
-            {/* <ResponsiveContainer width={340} height={300}> */}
             <ResponsiveContainer width="100%" height={300}>
                 <LineChart width={500} height={300} data={newData}>
                     <CartesianGrid strokeDasharray="3 3" />

@@ -10,6 +10,7 @@ export function useUpdateSingleTransaction() {
         onSuccess: () => {
             queryClient.refetchQueries({ queryKey: ['transactions'] });
             queryClient.refetchQueries({ queryKey: ['account'] });
+            queryClient.invalidateQueries({ queryKey: ['statistics'] });
         },
         onError: () => {
             toast.error('Error updating transaction');

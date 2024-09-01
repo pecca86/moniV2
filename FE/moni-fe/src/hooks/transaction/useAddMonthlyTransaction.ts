@@ -10,6 +10,7 @@ export function useAddMonthlyTransaction() {
       onSuccess: () => {
         queryClient.refetchQueries({ queryKey: ["transactions"] });
         queryClient.refetchQueries({ queryKey: ["account"] });
+        queryClient.invalidateQueries({ queryKey: ['statistics'] });
       },
       onError: (err) => toast.error(err.message),
     });

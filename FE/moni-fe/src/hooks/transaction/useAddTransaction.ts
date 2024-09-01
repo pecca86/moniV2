@@ -10,6 +10,7 @@ export function useAddTransaction() {
         onSuccess: () => {
             queryClient.refetchQueries({ queryKey: ['transactions'] });
             queryClient.refetchQueries({ queryKey: ['account'] });
+            queryClient.invalidateQueries({ queryKey: ['statistics'] });
         },
         onError: () => {
             toast.error('Error adding transaction');

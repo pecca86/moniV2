@@ -10,6 +10,7 @@ export function useUpdateSelectedTransactions() {
         onSuccess: () => {
             queryClient.refetchQueries({ queryKey: ['transactions'] });
             queryClient.refetchQueries({ queryKey: ['account'] });
+            queryClient.invalidateQueries({ queryKey: ['statistics'] });
         },
         onError: (e) => {
             console.log("HOOK ERROR", e);

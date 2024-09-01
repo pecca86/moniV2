@@ -4,8 +4,13 @@ import AddModal from '../ui/cta/AddModal';
 import AccountForm from '../ui/accounts/AccountForm';
 import Divider from '@mui/material/Divider';
 import AddIcon from '@mui/icons-material/Add';
+import { useFetchAllAccountsStatistics } from '../hooks/statistics/useFetchAllAccountsStatistics';
+import { CircularProgress } from '@mui/material';
+import MoniBanner from '../ui/banners/MoniBanner';
+
 
 const Accounts = () => {
+    const { isPending, data, error } = useFetchAllAccountsStatistics();
 
     return (
         <section className='px-8 flex flex-col gap-10'>
@@ -20,7 +25,10 @@ const Accounts = () => {
                 <AccountList />
             </div>
             <Divider />
-            <MoniLineChart />
+            {isPending ? <CircularProgress /> :
+                <MoniLineChart accountStatisticsData={data} />
+            }
+            { error && <MoniBanner style='warning'>Some went wrong while fetching the statistics data!</MoniBanner>} 
         </section>
     );
 }

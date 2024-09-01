@@ -11,6 +11,7 @@ export function useDeleteOldTransactions(accountId: string | undefined) {
             toast.success('Old Transactions deleted successfully');
             queryClient.refetchQueries({ queryKey: ['transactions'] });
             queryClient.refetchQueries({ queryKey: ['account'] });
+            queryClient.invalidateQueries({ queryKey: ['statistics'] });
         },
         onError: () => {
             toast.error('Error deleting transactions');

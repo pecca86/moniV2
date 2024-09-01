@@ -11,6 +11,7 @@ export function useDeleteSelectedTransactions() {
             toast.success('Transactions deleted successfully');
             queryClient.refetchQueries({ queryKey: ['transactions'] });
             queryClient.refetchQueries({ queryKey: ['account'] });
+            queryClient.invalidateQueries({ queryKey: ['statistics'] });
         },
         onError: () => {
             toast.error('Error deleting transactions');
