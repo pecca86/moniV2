@@ -2,40 +2,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import MoniToolTip from '../cta/MoniToolTip';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
-interface Account {
-    id: number;
-    iban: string;
-    balance: number;
-    name: string;
-    savings_goal: number;
-    account_type: string;
-    balance_with_transactions: number;
-}
-
-interface SumsPerMonth {
-    SEPTEMBER: number;
-    OCTOBER: number;
-    NOVEMBER: number;
-    DECEMBER: number;
-    JANUARY: number;
-    FEBRUARY: number;
-    MARCH: number;
-    APRIL: number;
-    MAY: number;
-    JUNE: number;
-    JULY: number;
-    AUGUST: number;
-}
-
-interface AccountData {
-    account: Account;
-    sumsPerMonth: SumsPerMonth;
-}
-
-interface FakeManyAccountsData {
-    data: AccountData[];
-}
-
 let fakeManyAccountsData = {
     "data": [
         {
@@ -43,7 +9,7 @@ let fakeManyAccountsData = {
                 "id": 4,
                 "iban": "FI292332225319sreve",
                 "balance": 200.00,
-                "name": " Account 3",
+                "name": " SLAVERI",
                 "savings_goal": 100.00,
                 "account_type": "DEPOSIT",
                 "balance_with_transactions": 24200.00
@@ -122,7 +88,7 @@ const fakeAccountData = {
 
 const MoniLineChart = () => {
 
-    fakeManyAccountsData = { data: [fakeAccountData]}
+    // fakeManyAccountsData = { data: [fakeAccountData] }
     const newData: any[] = []
 
     // Create an initial data point, cointaing just the months in the same order we receive them from the server
@@ -141,6 +107,20 @@ const MoniLineChart = () => {
         }
     }
 
+    console.log(newData);
+
+    function stringToHash(str) {
+        let hash = 0;
+        if (str.length == 0) return hash;
+        for (let i = 0; i < str.length; i++) {
+            let char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        if (hash < 0) return hash * -1;
+        return hash;
+    }
+
     return (
         <div className='bg-white rounded-lg p-1 shadow-md'>
             <p>
@@ -155,19 +135,18 @@ const MoniLineChart = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line
-                        type="monotone"
-                        dataKey={fakeManyAccountsData.data[0].account.name.trim()}
-                        stroke="#8884d8"
-                        activeDot={{ r: 8 }}
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="Account 44"
-                        stroke="#8884d8"
-                        activeDot={{ r: 8 }}
-                    />
-
+                    {fakeManyAccountsData.data.map(dp => {
+                        // create a unique color for each account line
+                        const randomHexColor = Math.floor(stringToHash(dp.account.iban) * 1888438).toString(16).substring(0,6);
+                        return (
+                            <Line
+                                type="monotone"
+                                dataKey={dp.account.name.trim()}
+                                stroke={`#${randomHexColor}`}  //"#8884d8"
+                                activeDot={{ r: 8 }}
+                            />
+                        )
+                    })}
                 </LineChart>
             </ResponsiveContainer>
             <MoniToolTip text='Set phone in landscape mode to see all the months!' icon={<LightbulbIcon />} />
