@@ -36,7 +36,7 @@ interface FakeManyAccountsData {
     data: AccountData[];
 }
 
-const fakeManyAccountsData = {
+let fakeManyAccountsData = {
     "data": [
         {
             "account": {
@@ -74,18 +74,18 @@ const fakeManyAccountsData = {
                 "balance_with_transactions": 12188.00
             },
             "sumsPerMonth": {
-                "SEPTEMBER": 999,
+                "SEPTEMBER": 9299,
                 "OCTOBER": 999,
                 "NOVEMBER": 999,
-                "DECEMBER": 999,
-                "JANUARY": 999,
-                "FEBRUARY": 999,
-                "MARCH": 999,
-                "APRIL": 999,
-                "MAY": 999,
-                "JUNE": 999,
-                "JULY": 999,
-                "AUGUST": 999
+                "DECEMBER": 99,
+                "JANUARY": 19,
+                "FEBRUARY": -999,
+                "MARCH": 949,
+                "APRIL": 149,
+                "MAY": 9929,
+                "JUNE": 199,
+                "JULY": 9499,
+                "AUGUST": 199
             }
         }
     ]
@@ -102,18 +102,18 @@ const fakeAccountData = {
         "account_type": "DEPOSIT",
         "balance_with_transactions": 24200.00
     },
-    "data": {
-        "SEPTEMBER": 2000,
+    "sumsPerMonth": {
+        "SEPTEMBER": 100,
         "OCTOBER": 2000,
-        "NOVEMBER": 2000,
-        "DECEMBER": 2000,
-        "JANUARY": 2000,
+        "NOVEMBER": 200,
+        "DECEMBER": 1000,
+        "JANUARY": 1200,
         "FEBRUARY": 2000,
-        "MARCH": 2000,
-        "APRIL": 2000,
-        "MAY": 2000,
-        "JUNE": 2000,
-        "JULY": 2000,
+        "MARCH": 3000,
+        "APRIL": 4000,
+        "MAY": 200,
+        "JUNE": 24000,
+        "JULY": 200,
         "AUGUST": 2000
     }
 }
@@ -122,113 +122,24 @@ const fakeAccountData = {
 
 const MoniLineChart = () => {
 
-
-
-    const data: any[] = [
-        {
-            name: 'Jan',
-            savings: 4000,
-            deposit: 2400,
-            cock: 4000,
-            amt: 2400,
-        },
-        {
-            name: 'Feb',
-            savings: 3000,
-            deposit: 1398,
-            cock: 4000,
-            amt: 2210,
-        },
-        {
-            name: 'Mar',
-            savings: 2000,
-            deposit: 9800,
-            cock: 4000,
-            amt: 2290,
-        },
-        {
-            name: 'Apr',
-            savings: 2780,
-            deposit: 3908,
-            cock: 4000,
-        },
-        {
-            name: 'May',
-            savings: 1890,
-            deposit: 4800,
-            cock: 4000,
-        },
-        {
-            name: 'Jun',
-            savings: 2390,
-            deposit: 3800,
-            cock: 4000,
-        },
-        {
-            name: 'Jul',
-            savings: 3490,
-            deposit: 4300,
-            cock: 4000,
-        },
-        {
-            name: 'Sept',
-            savings: 3490,
-            deposit: 4300,
-            cock: 4000,
-        },
-        {
-            name: 'Oct',
-            savings: 3490,
-            deposit: 4300,
-            cock: 4000,
-        },
-        {
-            name: 'Nov',
-            savings: 3490,
-            deposit: 4300,
-            cock: 4000,
-        },
-        {
-            name: 'Dec',
-            savings: 3490,
-            deposit: 4300,
-            cock: 4000,
-        },
-    ];
-
-
+    fakeManyAccountsData = { data: [fakeAccountData]}
     const newData: any[] = []
 
-    // for (let i = 0; i < fakeManyAccountsData.data.length; i++) {
-    let dd = {}
+    // Create an initial data point, cointaing just the months in the same order we receive them from the server
+    let dataPoint = {}
     Object.keys(fakeManyAccountsData.data[0].sumsPerMonth).forEach(key => {
-        let accountName = fakeManyAccountsData.data[0].account.name.trim()
-        
-        dd = {
+        dataPoint = {
             name: key,
         }
-        dd['name'] = key;
-        dd[accountName] = fakeManyAccountsData.data[0].sumsPerMonth[key];
-        newData.push(dd)
+        newData.push(dataPoint)
     });
-    // }
-    // console.log("DD ",dd);
 
-    console.log("LEEEEEN", Object.keys(fakeManyAccountsData.data[0].sumsPerMonth).length)
-    console.log("NEW DATA", newData)
-
-
-
-    for (let i = 0; i < Object.keys(fakeManyAccountsData.data[0].sumsPerMonth).length; i++) {
-
-        let m = newData[i].name;
-        console.log("M IS ", m);
-        // console.log("LISTING ALL MONTHS ",fakeManyAccountsData.data[i].sumsPerMonth[m])
-
+    for (let i = 0; i < fakeManyAccountsData.data.length; i++) {
+        let accountName = fakeManyAccountsData.data[i].account.name.trim()
+        for (let j = 0; j < 12; j++) {
+            newData[j][accountName] = fakeManyAccountsData.data[i].sumsPerMonth[newData[j]?.name]
+        }
     }
-
-
-
 
     return (
         <div className='bg-white rounded-lg p-1 shadow-md'>
@@ -250,7 +161,13 @@ const MoniLineChart = () => {
                         stroke="#8884d8"
                         activeDot={{ r: 8 }}
                     />
-    
+                    <Line
+                        type="monotone"
+                        dataKey="Account 44"
+                        stroke="#8884d8"
+                        activeDot={{ r: 8 }}
+                    />
+
                 </LineChart>
             </ResponsiveContainer>
             <MoniToolTip text='Set phone in landscape mode to see all the months!' icon={<LightbulbIcon />} />
