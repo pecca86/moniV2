@@ -66,7 +66,7 @@ public class StatisticsService {
             startDate = startDate.plusMonths(1);
         }
 
-        return ResponseEntity.ok(new AccountWithTransactions(resultForMonthMap));
+        return ResponseEntity.ok(new AccountWithTransactions(account, resultForMonthMap));
     }
 
     public ResponseEntity<StatisticsAllAccountsResponse> getAccountsStatistics(Authentication authentication) {
