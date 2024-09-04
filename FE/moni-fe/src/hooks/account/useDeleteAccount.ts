@@ -11,11 +11,13 @@ export function useDeleteAccount(id: string | undefined) {
             toast.success('Account deleted successfully');
             queryClient.refetchQueries({ queryKey: ['accounts'] });
             queryClient.invalidateQueries({ queryKey: ['account'] });
+            queryClient.refetchQueries({ queryKey: ['statistics'] });
         },
         onError: () => {
             toast.error('Error deleting account');
         }
     });
+
 
     return { isDeleting, deleteAccountMutation };
 }
