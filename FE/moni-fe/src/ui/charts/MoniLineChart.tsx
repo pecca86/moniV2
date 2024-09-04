@@ -14,6 +14,7 @@ interface LineChartData {
     name?: string | undefined;
 }
 
+
 const MoniLineChart = ({ accountStatisticsData }: Props) => {
 
     if (!accountStatisticsData || accountStatisticsData?.data.length === 0) {
@@ -34,10 +35,13 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
         newData.push(dataPoint)
     });
 
+
     for (let i = 0; i < accountStatisticsData.data.length; i++) {
+        let accumulatingSum: number = 0;
         let accountName = accountStatisticsData.data[i].account.name.trim()
         for (let j = 0; j < 12; j++) {
-            newData[j][accountName] = accountStatisticsData.data[i].sumsPerMonth[newData[j]?.name]
+            accumulatingSum += accountStatisticsData.data[i].sumsPerMonth[newData[j]?.name]
+            newData[j][accountName] = accumulatingSum;
         }
     }
 
@@ -55,7 +59,7 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
 
     const [hiddenNameList, setHiddenNameList] = useState([]);
 
-    function pippeliPushed(e) {
+    function handleHideLine(e) {
         let legend: string = e.dataKey
         if (hiddenNameList.includes(legend)) {
             setHiddenNameList((hiddenNameList) => hiddenNameList.filter(item => item !== e.dataKey));
@@ -73,7 +77,7 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
                     <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
                     <YAxis />
                     <Tooltip />
-                    <Legend onClick={(e) => pippeliPushed(e)} />
+                    <Legend onClick={(e) => handleHideLine(e)} />
                     {accountStatisticsData.data.map(dp => {
                         // create a unique color for each account line
                         const randomHexColor = Math.floor(stringToHash(dp.account.iban) * 1888438).toString(16).substring(0, 6);
