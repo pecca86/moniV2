@@ -15,12 +15,12 @@ const TransactionListItem = ({ tr }: { tr: Transaction }) => {
         }
     }
     
-    const tableHeaderStyle = "px-1 py-2";
+    const tableHeaderStyle = "px-1 py-2 text-ellipsis overflow-hidden";
     const withdrawalStyle = "text-red-500";
     const depositStyle = "text-green-500";
 
     return (
-        <tr onClick={handleClicked} className={`${isSelected ? 'bg-violet-400' : 'bg-white'} border-b text-xs font-light sm:hover:cursor-pointer sm:hover:bg-purple-300 sm:hover:text-white `} id={`${tr.id}`}>
+        <tr onClick={handleClicked} className={`${isSelected ? 'bg-violet-400' : 'bg-white'} border-b text-xs font-light sm:hover:cursor-pointer sm:hover:bg-purple-300 sm:hover:text-white`} id={`${tr.id}`}>
             <th scope="col" className={tableHeaderStyle}>{formatToStandardEuDate(tr.transaction_date)}</th>
             <th scope="col" className={tableHeaderStyle}>{tr.description}</th>
             <th scope="col" className={tableHeaderStyle}>{tr.transaction_category}</th>
