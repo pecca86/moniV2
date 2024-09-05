@@ -24,7 +24,7 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
             </div>
         )
     }
-    const newData: LineChartData[] = []
+    const chartData: LineChartData[] = []
 
     // Create an initial data point, cointaing just the months in the same order we receive them from the server
     let dataPoint = {}
@@ -32,7 +32,7 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
         dataPoint = {
             name: key,
         }
-        newData.push(dataPoint)
+        chartData.push(dataPoint)
     });
 
 
@@ -40,8 +40,8 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
         let accumulatingSum: number = 0;
         let accountName = accountStatisticsData.data[i].account.name.trim()
         for (let j = 0; j < 12; j++) {
-            accumulatingSum += accountStatisticsData.data[i].sumsPerMonth[newData[j]?.name]
-            newData[j][accountName] = accumulatingSum;
+            accumulatingSum += accountStatisticsData.data[i].sumsPerMonth[chartData[j]?.name]
+            chartData[j][accountName] = accumulatingSum;
         }
     }
 
@@ -68,11 +68,16 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
         }
     }
 
+    // shorten the month name from eg. SEPTEMBER to SEP
+    chartData.map(dataPoint => {
+        dataPoint.name = dataPoint?.name.substring(0, 3);
+        return dataPoint
+    })
+
     return (
         <div className='bg-white rounded-lg p-1 shadow-md'>
-            {/* <button onClick={() => showHide('Account 3')}>Show / Hide</button> */}
             <ResponsiveContainer width="100%" height={300}>
-                <LineChart width={500} height={300} data={newData}>
+                <LineChart width={500} height={300} data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
                     <YAxis />
@@ -88,7 +93,6 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
                                 dataKey={dp.account.name.trim()}
                                 stroke={`#${randomHexColor}`}  //"#8884d8"
                                 activeDot={{ r: 8 }}
-                                // hide={dp.account.name.trim() === hiddenName}
                                 hide={hiddenNameList.includes(dp.account.name.trim())}
                             />
                         )
