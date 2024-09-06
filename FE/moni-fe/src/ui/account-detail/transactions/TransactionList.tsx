@@ -114,7 +114,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
                         />
                     
                         <AddModal
-                            ctaText="Delete all old transaction"
+                            ctaText="Delete old"
                             heading='Delete old transactions'
                             paragraph={`This will delete all transaction with a date older than ${formatToStandardEuDate(new Date().toISOString())}`}
                             form={<DeleteOldTransactionsForm />}
