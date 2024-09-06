@@ -37,3 +37,20 @@ export async function getAccountTransactionStatistics(accountId: string) {
         // log error
     }
 }
+
+export async function getAccountCategoryStatistics(accountId: string) {
+    try {
+        const response: Response = await fetch(`http://localhost:8080/api/v1/statistics/${accountId}/category`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return await response.json();
+    } catch (error) {
+        // toast.error('Error fetching account category statistics');
+        // log error
+    }
+}

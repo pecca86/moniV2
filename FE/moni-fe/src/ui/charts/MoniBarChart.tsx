@@ -1,37 +1,57 @@
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
-const data = [
-    {
-        name: 'Hobbies',
-        sum: 4000,
-    },
-    {
-        name: 'Home',
-        sum: -3000,
-    },
-    {
-        name: 'Kids',
-        sum: 2000,
-    },
-    {
-        name: 'Savings',
-        sum: 2780,
-    },
-    {
-        name: 'Entertainment',
-        sum: 1890,
-    },
-    {
-        name: 'Salary',
-        sum: 2390,
-    },
-    {
-        name: 'Other',
-        sum: 3490,
-    },
-];
+import { useFetchAccountCategoryStatistics } from '../../hooks/statistics/useFetchAccountCategoryStatistics';
+import { useParams } from 'react-router-dom';
+import MoniBanner from '../banners/MoniBanner';
+import { CircularProgress } from '@mui/material';
 
 const MoniBarChart = () => {
+    const { accountId } = useParams();
+    if (!accountId) {
+        return (
+            <div className="flex justify-center items-center">
+                <MoniBanner style='warning'>Failed to get account data...</MoniBanner>
+            </div>
+        )
+    }
+
+    const { isPending, data, error } = useFetchAccountCategoryStatistics(accountId);
+
+
+    if (isPending) {
+        return (
+            <div className="flex justify-center items-center">
+                <MoniBanner style='info'>Fetching account statistics...</MoniBanner>
+                <CircularProgress />
+            </div>
+        )
+    }
+
+    if (!isPending && error) {
+        return (
+            <div className="flex justify-center items-center">
+                <MoniBanner style='warning'>Failed to get statistics for account!</MoniBanner>
+            </div>
+        )
+    }
+
+    if (!isPending && !error && !data) {
+        return (
+            <div className="flex justify-center items-center">
+                <MoniBanner style='info'>No data available...</MoniBanner>
+            </div>
+        )
+    }
+
+    let chartData = [];
+    // format [{name: string, sum: number}]
+    for (let d of Object.keys(data?.data)) {
+        let dp = {
+            name: d.substring(0, 4).toLowerCase(),
+            sum: data.data[d]
+        }
+        chartData.push(dp);
+    }
+
     return (
         <>
             <div className='bg-white rounded-lg p-1 shadow-md'>
@@ -39,7 +59,7 @@ const MoniBarChart = () => {
                     <BarChart
                         width={500}
                         height={300}
-                        data={data}
+                        data={chartData}
                         margin={{
                             top: 5,
                             right: 30,

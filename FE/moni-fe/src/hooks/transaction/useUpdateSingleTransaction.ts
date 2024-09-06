@@ -12,6 +12,7 @@ export function useUpdateSingleTransaction() {
             queryClient.refetchQueries({ queryKey: ['account'] });
             queryClient.invalidateQueries({ queryKey: ['statistics'] });
             queryClient.invalidateQueries({ queryKey: ['account-statistics'] });
+            queryClient.invalidateQueries({ queryKey: ['account-category-statistics'] });
         },
         onError: () => {
             toast.error('Error updating transaction');

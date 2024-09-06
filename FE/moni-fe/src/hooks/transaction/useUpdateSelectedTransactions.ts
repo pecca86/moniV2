@@ -12,6 +12,7 @@ export function useUpdateSelectedTransactions() {
             queryClient.refetchQueries({ queryKey: ['account'] });
             queryClient.invalidateQueries({ queryKey: ['statistics'] });
             queryClient.invalidateQueries({ queryKey: ['account-statistics'] });
+            queryClient.invalidateQueries({ queryKey: ['account-category-statistics'] });
         },
         onError: (e) => {
             console.log("HOOK ERROR", e);
