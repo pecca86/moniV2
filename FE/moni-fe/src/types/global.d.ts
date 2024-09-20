@@ -107,3 +107,8 @@ interface Statistics {
 interface AccountsStatisticData {
     data: Statistics[];
 }
+
+type User = {
+    email: string;
+    password: string;
+}

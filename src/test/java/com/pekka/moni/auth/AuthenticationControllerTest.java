@@ -5,6 +5,7 @@ import com.pekka.moni.auth.dto.AuthenticationResponse;
 import com.pekka.moni.auth.dto.NewPasswordRequest;
 import com.pekka.moni.auth.dto.RegisterRequest;
 import com.pekka.moni.customer.Customer;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,7 @@ class AuthenticationControllerTest {
         authenticationResponse.setToken("token");
         given(authenticationServiceMock.login(any())).willReturn(authenticationResponse);
         //when
-        ResponseEntity<AuthenticationResponse> response = underTest.login(request);
+        ResponseEntity<AuthenticationResponse> response = underTest.login(request, null);
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(authenticationResponse);

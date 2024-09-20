@@ -10,6 +10,8 @@ import ProfilePage from "./pages/ProfilePage";
 import { Toaster } from "react-hot-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import Login from "./pages/Login";
+import ProtectedRoute from "./ProtectedRoute";
 
 
 // using v5 == isLoading --> isPending, cacheTime --> gcTime
@@ -30,7 +32,11 @@ function App() {
 
         <BrowserRouter>
           <Routes>
-            <Route element={<AppLayout />}>
+            <Route element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }>
               {/* This makes all childs routes render inside this route when calling Outlet inside AppLayout */}
               <Route index element={<Navigate replace to={'/accounts'} />} />
               <Route path="/accounts" element={<Accounts />} />
@@ -43,6 +49,8 @@ function App() {
                 <Route path="/account-details/:accountId/charts" element={<DetailCharts />} />
               </Route>
             </Route>
+            <Route path="login" element={<Login />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
 

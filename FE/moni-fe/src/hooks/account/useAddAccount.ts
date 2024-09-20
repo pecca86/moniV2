@@ -15,7 +15,5 @@ export function useAddAccount() {
             toast.error('Error adding account');
         }
     });
-
     return { isAdding, addAccountMutation };
-
 }

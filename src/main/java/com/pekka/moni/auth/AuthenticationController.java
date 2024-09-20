@@ -8,6 +8,8 @@ import com.pekka.moni.customer.Customer;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -40,9 +42,16 @@ public class AuthenticationController {
     }
 
     @PostMapping(path = "/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest loginRequest) {
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest loginRequest, HttpServletResponse reponse) {
         if (bucket.tryConsume(1)) {
-            return ResponseEntity.ok(authenticationService.login(loginRequest));
+            var token = authenticationService.login(loginRequest);
+            Cookie cookie = new Cookie("token", token.getToken());
+//            cookie.setHttpOnly(true);
+//            cookie.setSecure(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(10 * 60 * 60); // 10 hrs
+            reponse.addCookie(cookie);
+            return ResponseEntity.ok(token);
         }
         return ResponseEntity.status(429).body(AuthenticationResponse.builder().build());
     }
