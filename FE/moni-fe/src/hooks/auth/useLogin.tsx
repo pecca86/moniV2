@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import { login } from "../../services/apiAuth";
 import { useNavigate } from "react-router-dom";
 
-
 export function useLogin() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
