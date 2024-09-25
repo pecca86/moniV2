@@ -1,7 +1,8 @@
 import toast from "react-hot-toast";
 import { DeleteSelectedTransactionsFormData, MonthlyTransactionFormData, Transaction, TransactionFormData, UpdateSelectedTransactionFormData } from "../types/global";
 
-const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjUwOTIyOTQsImV4cCI6MTcyNTY5NzA5NH0.g1Sbqke24LwyJDZot5xFW_sPCop8kZ6-DYXkRAyWl18";
+// const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjUwOTIyOTQsImV4cCI6MTcyNTY5NzA5NH0.g1Sbqke24LwyJDZot5xFW_sPCop8kZ6-DYXkRAyWl18";
+const token = localStorage.getItem('token');
 
 export async function getAccountTransactions(accountId: string | undefined) {
     try {

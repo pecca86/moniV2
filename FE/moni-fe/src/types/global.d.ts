@@ -1,4 +1,3 @@
-import TransactionForm from "../ui/account-detail/transactions/TransactionForm";
 
 type Account = {
     id: number;
@@ -110,5 +109,12 @@ interface AccountsStatisticData {
 
 type User = {
     email: string;
+    password: string;
+}
+
+type RegistrationData = {
+    email: string;
+    firstname: string;
+    lastname: string;
     password: string;
 }

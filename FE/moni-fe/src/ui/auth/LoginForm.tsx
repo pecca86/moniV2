@@ -7,7 +7,6 @@ const LoginForm = () => {
     const { loginMutation, isLoggingIn } = useLogin();
 
     const onSubmit = (data: any) => {
-        console.log('submitted: ', data);
         loginMutation(data);
     }
 
