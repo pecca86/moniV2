@@ -11,7 +11,6 @@ const Register = () => {
     return (
         <div className="flex flex-col justify-center items-center align-middle mt-10">
             <h1 className="my-10 text-xl tracking-widest">Register a new account</h1>
-            {/* <LoginForm /> */}
             <MoniForm formHook={registerMutation}>
                 <MoniForm.MoniLabel htmlFor="email" label="Email" />
                 <MoniForm.MoniInput type="text" validationMsg={{ required: 'Email is required' }} id="email" name="email" placeholder="example@ex.com" />

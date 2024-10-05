@@ -18,7 +18,6 @@ function MoniForm({ children, formHook }) {
     const { errors } = formState;
 
     const onSubmit = (data: any) => {
-        console.log('submitted: ', data);
         if ( !data.email || !data.firstname || !data.lastname || !data.password || !data.password2) {
             toast.error('All fields are required');
             return;

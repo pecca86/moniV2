@@ -9,8 +9,9 @@ export function useRegister() {
     const { isPending: isRegistering, mutate: registerMutation } = useMutation({
         mutationFn: (registrationData) => register(registrationData),
         onSuccess: (data) => {
-            console.log("HOOK DATA", data)
-            // localStorage.removeItem('token');
+            if (data?.status) {
+                throw new Error(data.message);
+            }
             localStorage.setItem('token', data.token);
             toast.success("Welcome to M O N I !")
             nagivate('/accounts')

@@ -18,7 +18,6 @@ export async function login(user: User) {
 }
 
 export async function register(registrationData: RegistrationData) {
-    console.log("REGISTRATION DATA ", registrationData);
     try {
         const payload = {
             email: registrationData.email,
@@ -33,6 +32,7 @@ export async function register(registrationData: RegistrationData) {
             },
             body: JSON.stringify(payload)
         });
+
         return await response.json();
     } catch (err) {
         toast.error('Error registering user');
