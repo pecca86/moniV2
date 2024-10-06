@@ -1,8 +1,10 @@
 import HamburgerMenu from "./HamburgerMenu";
+import DesktopMenu from "./DesktopMenu";
 
 const SideNav = () => {
     return (
-        <div className="absolute">
+        <div className="absolute lg:relative">
+            <DesktopMenu />
             <HamburgerMenu />
         </div>
     );

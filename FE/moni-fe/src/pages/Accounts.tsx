@@ -13,22 +13,26 @@ const Accounts = () => {
     const { isPending, data, error } = useFetchAllAccountsStatistics();
 
     return (
-        <section className='px-8 flex flex-col gap-10'>
+        <section className='px-8 flex flex-col gap-10 lg:mx-10'>
             <div className='mt-2'>
-                <AddModal
-                    ctaText='Add Account'
-                    heading='Add a new account'
-                    paragraph='Fill in the form below to add a new account'
-                    form={<AccountForm />}
-                    buttonIcon={<AddIcon />}
-                />
-                <AccountList />
+                <section className='lg:w-[80rem] lg:m-auto'>
+                    <AddModal
+                        ctaText='Add Account'
+                        heading='Add a new account'
+                        paragraph='Fill in the form below to add a new account'
+                        form={<AccountForm />}
+                        buttonIcon={<AddIcon />}
+                    />
+                    <AccountList />
+                </section>
             </div>
             <Divider />
             {isPending ? <CircularProgress /> :
-                <MoniLineChart accountStatisticsData={data} />
+                <section className='lg:w-[80rem] lg:m-auto'>
+                    <MoniLineChart accountStatisticsData={data} />
+                </section>
             }
-            { error && <MoniBanner style='warning'>Some went wrong while fetching the statistics data!</MoniBanner>} 
+            {error && <MoniBanner style='warning'>Some went wrong while fetching the statistics data!</MoniBanner>}
         </section>
     );
 }

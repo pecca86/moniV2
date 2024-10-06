@@ -4,10 +4,9 @@ import { Outlet } from "react-router-dom";
 const AccountDetail = () => {
     return (
         <>
-            {/* <section className="grid grid-rows-3 grid-flow-col gap-0 h-screen"> */}
             <SideNav />
             <section className="flex mt-[55px]">
-                <div className="h-svh w-full mx-2 overflow-scroll">
+                <div className="h-svh w-full mx-2 overflow-scroll lg:w-[80rem] lg:m-auto">
                     <Outlet />
                 </div>
             </section>
