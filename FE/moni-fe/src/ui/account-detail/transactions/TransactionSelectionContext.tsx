@@ -1,12 +1,18 @@
 import { createContext, useContext, useReducer } from "react";
 
-const TransactionSelectionContext = createContext();
+type InitialState ={
+    selections: number[],
+    dispatch: React.Dispatch<any>;
+}
 
-const initialState = {
+const TransactionSelectionContext = createContext<InitialState | undefined>(undefined);
+
+const initialState: InitialState = {
     selections: [],
+    dispatch: () => {},
 };
 
-function reducer(state, action) {
+function reducer(state: any, action: any) {
     switch (action.type) {
         case "ADD":
             return {
@@ -25,7 +31,11 @@ function reducer(state, action) {
     }
 }
 
-function TransactionSelectionProvider({ children }) {
+type props = {
+    children: React.ReactNode;
+};
+
+function TransactionSelectionProvider({ children }: props) {
     const [
         { selections },
         dispatch,
