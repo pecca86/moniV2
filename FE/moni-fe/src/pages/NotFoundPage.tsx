@@ -1,5 +1,3 @@
-import React from 'react';
-
 const NotFoundPage = () => {
     return (
         <div className='m-10 grid justify-center gap-3'>

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { InvalidateQueryFilters, useQueryClient } from "@tanstack/react-query";
+import { Account } from "../../types/global";
 
 interface AccountListItemProps {
     acc: Account;
@@ -11,7 +12,7 @@ const AccountListItem: React.FC<AccountListItemProps> = ({ acc }) => {
     const navigate = useNavigate();
 
     const handleNavigateClick: any = () => {
-        queryClient.invalidateQueries(['account']);
+        queryClient.invalidateQueries(['account'] as InvalidateQueryFilters);
         navigate(`/account-details/${acc.id}/main`);
     }
 

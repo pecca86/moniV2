@@ -1,7 +1,7 @@
 import { RegistrationData, User } from "../types/global";
 import toast from "react-hot-toast";
 
-export async function login(user: User) {
+export async function login(user: User): Promise<any> {
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/auth/login`, {
             method: 'POST',

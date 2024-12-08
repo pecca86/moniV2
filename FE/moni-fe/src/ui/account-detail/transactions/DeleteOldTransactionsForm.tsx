@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useDeleteOldTransactions } from "../../../hooks/transaction/useDeleteOldTransactions";
 import { useForm } from "react-hook-form";
 
-const DeleteOldTransactionsForm = ({ handleClose }: { handleSubmit: any }) => {
+const DeleteOldTransactionsForm = ({ handleClose }: { handleClose: any }) => {
 
     const { accountId } = useParams<{ accountId: string }>();
     const { deleteOldTransactionsMutation } = useDeleteOldTransactions(accountId);

@@ -14,7 +14,7 @@ export async function getAccountTransactions(accountId: string | undefined) {
             }
         });
 
-        const data: Array<Transaction> = await response.json();
+        const data: any = await response.json();
 
         return data;
     } catch (error) {

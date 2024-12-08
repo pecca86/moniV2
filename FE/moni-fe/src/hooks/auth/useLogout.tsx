@@ -1,4 +1,4 @@
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export function useLogout() {
     const naviggate = useNavigate();

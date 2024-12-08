@@ -1,15 +1,13 @@
-import { CircularProgress } from "@mui/material";
 import { useUser } from "./hooks/auth/useUser";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 
-function ProtectedRoute({ children }) {
+import { ReactNode } from "react";
+
+function ProtectedRoute({ children }: { children: ReactNode }) {
     const { token } = useUser();
     const navigate = useNavigate();
-
-    console.log("THE TOKEN IS: ", token);
-
 
     useEffect(() => {
         if (!token) {

@@ -56,7 +56,7 @@ const TimeSpans = () => {
     }
 
     function filterTransactionsByDateSpan(timespan: TimeSpan): Transaction[] | undefined {
-        return transactions.transactions.content?.filter(tr => isBewteenDates(timespan.from, timespan.to, tr.transaction_date));
+        return transactions.transactions.content?.filter((tr: { transaction_date: string; }) => isBewteenDates(timespan.from, timespan.to, tr.transaction_date));
     }
 
 
@@ -77,7 +77,7 @@ const TimeSpans = () => {
                 <div><MoniBanner style='info'>Please add a new time span from the button above!</MoniBanner></div>
             ) : (
                 <div>
-                    {timeSpans?.map(t => {
+                    {timeSpans?.map((t: { id?: any; from: any; to: any; }) => {
                         let filteredTransactions = filterTransactionsByDateSpan(t);
                         let dateSpanSum = filteredTransactions?.reduce((acc, curr) => acc + curr.sum, 0);
                         let income = filteredTransactions?.filter(tr => tr.transaction_type === 'DEPOSIT').reduce((acc, curr) => acc + curr.sum, 0);

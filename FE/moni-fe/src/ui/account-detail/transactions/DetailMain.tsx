@@ -9,7 +9,7 @@ const DetailMain = () => {
             <Panel />
             <Divider />
             <TransactionSelectionProvider>
-                <TransactionList />
+                <TransactionList timeSpanTransactions={undefined} />
             </TransactionSelectionProvider>
         </div>
     );

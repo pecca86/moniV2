@@ -20,7 +20,7 @@ const Accounts = () => {
                         ctaText='Add Account'
                         heading='Add a new account'
                         paragraph='Fill in the form below to add a new account'
-                        form={<AccountForm />}
+                        form={<AccountForm handleClose={undefined} update={false} accountData={undefined} />}
                         buttonIcon={<AddIcon />}
                     />
                     <AccountList />

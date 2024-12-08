@@ -10,7 +10,14 @@ import Slider from '@mui/material/Slider';
 import Checkbox from '@mui/material/Checkbox';
 import { Transaction } from "../../../types/global";
 
-const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode = 'none' }: { handleClose: any, ids?: Array<number>, transactionData?: Transaction | undefined, mode: string }) => {
+type Props = {
+    handleClose: any;
+    ids?: number[];
+    transactionData?: Transaction;
+    mode: string;
+};
+
+const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode = 'none' }: Props) => {
     const { accountId } = useParams<{ accountId: string }>();
     const [hidden, toggleHidden] = useState(true);
     const [months, setMonths] = useState(1);
@@ -80,7 +87,7 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
     function handleUpdateSelectedTransactions(data: any) {
         updateSelectedTransactionMutation(
             // make ids from set to array
-            { ...data, transactionIds: Array.from(ids) },
+            { ...data, transactionIds: ids ? Array.from(ids) : [] },
             {
                 onSuccess: () => {
                     toast.success('Transactions updated successfully');
@@ -109,6 +116,7 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
 
     const onError = (errors: any) => {
         // log errors
+        console.log(errors);
     }
 
     const validateDate = (value: any) => {
@@ -124,7 +132,7 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
         return value > 0 || "Sum should be greater than 0";
     }
 
-    const onToggleMonths = (e) => {
+    const onToggleMonths = (e : any) => {
         toggleHidden(!e.target.checked);
     }
 
@@ -215,7 +223,10 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
                             marks
                             min={1}
                             max={12}
-                            onChange={(e, value) => onMonthsChange(value)}
+                            onChange={(e, value) => {
+                                console.log(e);
+                                onMonthsChange(value)
+                            }}
                         />
                     </>
                 )}

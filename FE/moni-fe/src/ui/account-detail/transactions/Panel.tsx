@@ -45,7 +45,7 @@ const Panel = () => {
                         ctaText=""
                         heading='Update Account Info'
                         paragraph='Edit the fields below'
-                        form={<AccountForm update={true} accountData={account} />}
+                        form={<AccountForm update={true} accountData={account} handleClose={undefined} />}
                         buttonIcon={<EditIcon />}
                     />
                     <AddModal

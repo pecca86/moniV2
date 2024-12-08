@@ -9,13 +9,14 @@ interface Props {
     accountStatisticsData: AccountsStatisticData
 }
 
-interface LineChartData {
-    [key: string]: string;
-    name?: string | undefined;
+type DataPoint = {
+        name: string,
+        [key: string]: number | string,
 }
-
+type LineChartData = DataPoint[];
 
 const MoniLineChart = ({ accountStatisticsData }: Props) => {
+    const [hiddenNameList, setHiddenNameList] = useState<string[]>([]);
 
     if (!accountStatisticsData || accountStatisticsData?.data.length === 0) {
         return (
@@ -24,10 +25,10 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
             </div>
         )
     }
-    const chartData: LineChartData[] = []
+    const chartData: LineChartData = []
 
     // Create an initial data point, cointaing just the months in the same order we receive them from the server
-    let dataPoint = {}
+    let dataPoint: DataPoint = { name: '' }
     Object.keys(accountStatisticsData.data[0].sumsPerMonth).forEach(key => {
         dataPoint = {
             name: key,
@@ -57,9 +58,7 @@ const MoniLineChart = ({ accountStatisticsData }: Props) => {
         return hash;
     }
 
-    const [hiddenNameList, setHiddenNameList] = useState([]);
-
-    function handleHideLine(e) {
+    function handleHideLine(e : any) {
         let legend: string = e.dataKey
         if (hiddenNameList.includes(legend)) {
             setHiddenNameList((hiddenNameList) => hiddenNameList.filter(item => item !== e.dataKey));

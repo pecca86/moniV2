@@ -14,7 +14,13 @@ const PasswordForm = () => {
             toast.error('Passwords do not match');
             return;
         }
-        changePassword(data.password, token);
+        if (token) {
+            changePassword(data.password, token);
+            localStorage.removeItem('token');
+            navigate('/login');
+        } else {
+            toast.error('Token is missing');
+        }
         localStorage.removeItem('token')
         navigate('/login');
     }

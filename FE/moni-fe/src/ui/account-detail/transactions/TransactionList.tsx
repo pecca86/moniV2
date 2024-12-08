@@ -15,6 +15,7 @@ import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import { useSelection } from "./TransactionSelectionContext";
 import { formatToStandardEuDate } from "../../../utils/date-utils";
 import DeleteOldTransactionsForm from "./DeleteOldTransactionsForm";
+import { Transaction } from "../../../types/global";
 
 type Props = {
     timeSpanTransactions: Transaction[] | undefined;
@@ -30,7 +31,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
     const sortValue = searchParams.get('sort') || 'date';
     const searchValue = searchParams.get('search') || '';
 
-    let transactionsData: Transaction[] | undefined = [];
+    let transactionsData: any[] = [];
 
     // Table selection related state
     if (!timeSpanTransactions) {
@@ -45,7 +46,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
             return <MoniBanner style="warning">There was a problem fetching the transaction data, please try again later!</MoniBanner>
         }
 
-        transactionsData = transactions.transactions.content;
+        transactionsData = transactions.transactions?.content;
     } else {
         transactionsData = timeSpanTransactions;
     }
@@ -108,7 +109,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
                             ctaText="Add transaction"
                             heading='Add a new transaction'
                             paragraph='Fill in the form below to add a new transaction'
-                            form={<TransactionForm mode='add' />}
+                            form={<TransactionForm mode='add' handleClose={undefined} />}
                             buttonIcon={<Add />}
                             ctaStyle='bg-violet-500 mx-2'
                         />
@@ -117,7 +118,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
                             ctaText="Delete old"
                             heading='Delete old transactions'
                             paragraph={`This will delete all transaction with a date older than ${formatToStandardEuDate(new Date().toISOString())}`}
-                            form={<DeleteOldTransactionsForm />}
+                            form={<DeleteOldTransactionsForm handleClose={undefined} />}
                             buttonIcon={<Delete />}
                             ctaStyle="bg-red-400 mx-2"
                         />
@@ -133,7 +134,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
                             <TransactionForm
                                 ids={selections}
                                 mode='edit'
-                                onHandleEmptyIdSet={handleEmptyIdSet}
+                                handleClose={handleEmptyIdSet}
                                 transactionData={
                                     selections.length === 1 && transactionsData?.find(tr => tr.id === selections[0])
                                 }
@@ -151,7 +152,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
                         form={
                             <TransactionForm
                                 ids={selections}
-                                onHandleEmptyIdSet={handleEmptyIdSet}
+                                handleClose={() => handleEmptyIdSet()}
                                 mode='edit-many'
                             />
                         }
@@ -163,7 +164,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
                     ctaText="Delete"
                     heading='Are you sure you want to delete the selected transactionsData?'
                     paragraph={`${selections.length} transaction/s selected`}
-                    form={<DeleteSelectedTransactionsForm ids={selections} onHandleEmptyIdSet={handleEmptyIdSet} />}
+                    form={<DeleteSelectedTransactionsForm ids={selections} onHandleEmptyIdSet={handleEmptyIdSet} handleClose={undefined} />}
                     buttonIcon={<Delete />}
                     ctaStyle={`${selections.length > 0 ? 'bg-red-400' : 'hidden'} `}
                 />

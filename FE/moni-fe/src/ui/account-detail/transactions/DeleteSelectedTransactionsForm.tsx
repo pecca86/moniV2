@@ -1,7 +1,8 @@
 import { useDeleteSelectedTransactions } from "../../../hooks/transaction/useDeleteSelectedTransactions";
 import { useParams } from "react-router-dom";
+import { DeleteSelectedTransactionsFormData } from "../../../types/global";
 
-const DeleteSelectedTransactionsForm = ({ handleClose, ids, onHandleEmptyIdSet }: { handleSubmit: any, ids: Set<number>, onHandleEmptyIdSet: any }) => {
+const DeleteSelectedTransactionsForm = ({ handleClose, ids, onHandleEmptyIdSet }: { handleClose: any, ids: Array<number>, onHandleEmptyIdSet: any }) => {
 
     const { accountId: urlId } = useParams<{ accountId: string }>();
 

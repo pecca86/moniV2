@@ -1,5 +1,4 @@
 import toast from "react-hot-toast";
-import { TimeSpanResponse } from "../types/global";
 // const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjUwOTIyOTQsImV4cCI6MTcyNTY5NzA5NH0.g1Sbqke24LwyJDZot5xFW_sPCop8kZ6-DYXkRAyWl18";
 const token = localStorage.getItem('token');
 
@@ -14,7 +13,7 @@ export async function getDateSpansForAccount(accountId: string | number | undefi
             }
         });
 
-        const data: TimeSpanResponse[] = await response.json();
+        const data: any = await response.json();
 
         return data;
     } catch (error) {

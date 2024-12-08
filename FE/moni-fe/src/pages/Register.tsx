@@ -13,15 +13,15 @@ const Register = () => {
             <h1 className="my-10 text-xl tracking-widest">Register a new account</h1>
             <MoniForm formHook={registerMutation}>
                 <MoniForm.MoniLabel htmlFor="email" label="Email" />
-                <MoniForm.MoniInput type="text" validationMsg={{ required: 'Email is required' }} id="email" name="email" placeholder="example@ex.com" />
+                <MoniForm.MoniInput type="text" validation={{ required: 'Email is required' }} id="email" name="email" placeholder="example@ex.com" />
                 <MoniForm.MoniLabel htmlFor="firstname" label="First name" />
-                <MoniForm.MoniInput type="text" validationMsg={{ required: 'First name is required' }} id="firstname" name="firstname" placeholder="First name" />
+                <MoniForm.MoniInput type="text" validation={{ required: 'First name is required' }} id="firstname" name="firstname" placeholder="First name" />
                 <MoniForm.MoniLabel htmlFor="lastname" label="Last name" />
-                <MoniForm.MoniInput type="text" validationMsg={{ required: 'Last name is required' }} id="lastname" name="lastname" placeholder="Last name" />
+                <MoniForm.MoniInput type="text" validation={{ required: 'Last name is required' }} id="lastname" name="lastname" placeholder="Last name" />
                 <MoniForm.MoniLabel htmlFor="password" label="Password" />
-                <MoniForm.MoniInput type="password" validationMsg={{ required: 'Password is required' }} id="password" name="password" />
+                <MoniForm.MoniInput type="password" validation={{ required: 'Password is required' }} id="password" name="password" />
                 <MoniForm.MoniLabel htmlFor="password2" label="Confirm password" />
-                <MoniForm.MoniInput type="password" validationMsg={{ required: 'Password confirmation is required' }} id="password2" name="password2" />
+                <MoniForm.MoniInput type="password" validation={{ required: 'Password confirmation is required' }} id="password2" name="password2" />
                 <MoniForm.MoniSubmit ctaText="Register" />
             </MoniForm>
             <div className="my-5">

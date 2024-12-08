@@ -1,5 +1,5 @@
 
-type Account = {
+export type Account = {
     id: number;
     balance: number;
     iban: string;
@@ -10,12 +10,12 @@ type Account = {
     status?: string;
 };
 
-type AccountsResponse = {
+export type AccountsResponse = {
     accounts: Array<Account>;
     totalBalance: number;
 };
 
-type AccountFormData = {
+export type AccountFormData = {
     iban: string;
     name: string;
     balance: number;
@@ -24,13 +24,13 @@ type AccountFormData = {
     id: string;
 };
 
-type AccountDataResponse = {
+export type AccountDataResponse = {
     account: Account;
     status: string;
     message: string;
 }
 
-type Transaction = {
+export type Transaction = {
     id: number;
     sum: number;
     description: string;
@@ -40,7 +40,7 @@ type Transaction = {
     accountId?: number;
 };
 
-type TransactionFormData = {
+export type TransactionFormData = {
     accountId: string;
     sum: number;
     description: string;
@@ -51,17 +51,17 @@ type TransactionFormData = {
     months?: number;
 };
 
-type MonthlyTransactionFormData = {
+export type MonthlyTransactionFormData = {
     transactionData: TransactionFormData;
     months: number;
 }
 
-type DeleteSelectedTransactionsFormData = {
+export type DeleteSelectedTransactionsFormData = {
     transactions: Number[];
     accountId: number;
 }
 
-type UpdateSelectedTransactionFormData = {
+export type UpdateSelectedTransactionFormData = {
     transactionIds: Number[];
 
     accountId: number;
@@ -72,18 +72,19 @@ type UpdateSelectedTransactionFormData = {
     transaction_date: string;
 }
 
-type TimeSpan = {
+export type TimeSpan = {
     from: string;
     to: string;
 }
 
-type TimeSpanResponse = {
+export type TimeSpanResponse = {
     id: number;
     from: string;
     to: string;
+    status?: string;
 }
 
-interface SumsPerMonth {
+export interface SumsPerMonth {
     SEPTEMBER: number;
     OCTOBER: number;
     NOVEMBER: number;
@@ -96,23 +97,24 @@ interface SumsPerMonth {
     JUNE: number;
     JULY: number;
     AUGUST: number;
+    [key: string]: number;
 }
 
-interface Statistics {
+export interface Statistics {
     account: Account;
     sumsPerMonth: SumsPerMonth;
 }
 
-interface AccountsStatisticData {
+export interface AccountsStatisticData {
     data: Statistics[];
 }
 
-type User = {
+export type User = {
     email: string;
     password: string;
 }
 
-type RegistrationData = {
+export type RegistrationData = {
     email: string;
     firstname: string;
     lastname: string;

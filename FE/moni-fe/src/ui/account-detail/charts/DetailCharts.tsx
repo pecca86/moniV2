@@ -37,9 +37,15 @@ const DetailCharts = () => {
 
     return (
         <div className="w-full">
-            <MoniLineChart accountStatisticsData={data} />
-            <Divider sx={{ 'margin': '10px' }} />
-            <MoniBarChart />
+            {data ? (
+                <>
+                    <MoniLineChart accountStatisticsData={data} />
+                    <Divider sx={{ 'margin': '10px' }} />
+                    <MoniBarChart />
+                </>
+            ) : (
+                <MoniBanner style='warning'>No data available</MoniBanner>
+            )}
         </div>
     );
 }

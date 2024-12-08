@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
 import { useCreateTimeSpan } from "../../../hooks/timespan/useCreateTimeSpan";
 import { useParams } from "react-router-dom";
 
@@ -10,7 +9,6 @@ const TimeSpanForm = ({ handleClose }: any) => {
     const { errors } = formState;
 
     const onSubmit = (data: any) => {
-        console.log('submitted: ', data);
         createTimeSpanMutation(
             { ...data },
             {
@@ -50,7 +48,7 @@ const TimeSpanForm = ({ handleClose }: any) => {
                     validate: (value) => validateFromDate(value) || "Date must be present or future"
                 })}
             />
-            <span className="text-red-500 ita">{errors?.from?.message}</span>
+            <span className="text-red-500 ita">{typeof errors?.from?.message === 'string' ? errors.from.message : ''}</span>
 
             <label htmlFor="lastname">End date</label>
             <input className={inputStyle}
@@ -61,7 +59,7 @@ const TimeSpanForm = ({ handleClose }: any) => {
                     validate: (value) => validateToDate(value) || "End date must be after start date"
                 })}
             />
-            <span className="text-red-500 ita">{errors?.to?.message}</span>
+            <span className="text-red-500 ita">{typeof errors?.to?.message === 'string' ? errors.to.message : ''}</span>
 
             <input type="hidden" value={accountId} {...register('accountId')} />
 

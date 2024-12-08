@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useAddAccount } from "../../hooks/account/useAddAccount";
 import { useUpdateAccount } from "../../hooks/account/useUpdateAccount";
+import { Account } from "../../types/global";
 
 const AccountForm = ({ handleClose = null, update = false, accountData }: { handleClose: any, update: boolean, accountData: Account | undefined }) => {
 
@@ -49,6 +50,7 @@ const AccountForm = ({ handleClose = null, update = false, accountData }: { hand
 
     const onError = (errors: any) => {
         // log errors
+        console.log(errors);
     }
 
 

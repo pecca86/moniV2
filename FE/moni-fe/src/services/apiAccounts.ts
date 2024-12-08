@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import { Account, AccountDataResponse, AccountFormData, AccountsResponse } from "../types/global";
 
 const token = localStorage.getItem('token');
 
