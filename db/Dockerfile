@@ -1,0 +1,4 @@
+FROM postgres:13-alpine
+ENV POSTGRES_USER=pekka
+ENV POSTGRES_PASSWORD=""
+ENV POSTGRES_DB=moni
