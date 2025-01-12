@@ -2,11 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { deleteTimeSpan } from "../../services/apiTimeSpans";
 
-export function useDeleteTimeSpan(accountId: string | undefined, timeSpanId: number | undefined) {
+export function useDeleteTimeSpan(accountId: string | undefined, timeSpanId: number | undefined, token: string | null) {
     const queryClient = useQueryClient();
 
     const { isPending: isDeleting, mutate: deleteTimeSpanMutation } = useMutation({
-        mutationFn: () => deleteTimeSpan(accountId, timeSpanId),
+        mutationFn: () => deleteTimeSpan(accountId, timeSpanId, token),
         onSuccess: () => {
             toast.success('Time span deleted successfully');
             queryClient.refetchQueries({ queryKey: ['timespans'] });

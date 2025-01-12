@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { useDeleteTimeSpan } from "../../../hooks/timespan/useDeleteTimeSpan";
+import { useUser } from "../../../hooks/auth/useUser";
 
 
 interface Props {
@@ -10,12 +11,13 @@ interface Props {
 
 const TimeSpanDeleteForm = ({ handleClose, timeSpanId }: Props) => {
     const { accountId } = useParams<{ accountId: string }>();
+    const { token } = useUser();
     const { register, handleSubmit } = useForm({
         defaultValues: {
             accountId: accountId
         }
     });
-    const { deleteTimeSpanMutation } = useDeleteTimeSpan(accountId, timeSpanId);
+    const { deleteTimeSpanMutation } = useDeleteTimeSpan(accountId, timeSpanId, token);
 
     function onSubmit(data: any) {
         deleteTimeSpanMutation(

@@ -7,10 +7,12 @@ import AddIcon from '@mui/icons-material/Add';
 import { useFetchAllAccountsStatistics } from '../hooks/statistics/useFetchAllAccountsStatistics';
 import { CircularProgress } from '@mui/material';
 import MoniBanner from '../ui/banners/MoniBanner';
+import { useUser } from '../hooks/auth/useUser';
 
 
 const Accounts = () => {
-    const { isPending, data, error } = useFetchAllAccountsStatistics();
+    const { token } = useUser();
+    const { isPending, data, error } = useFetchAllAccountsStatistics(token);
 
     return (
         <section className='px-8 flex flex-col gap-10 lg:mx-10'>

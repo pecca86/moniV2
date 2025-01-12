@@ -1,10 +1,7 @@
 import toast from "react-hot-toast";
 import { DeleteSelectedTransactionsFormData, MonthlyTransactionFormData, Transaction, TransactionFormData, UpdateSelectedTransactionFormData } from "../types/global";
 
-// const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjUwOTIyOTQsImV4cCI6MTcyNTY5NzA5NH0.g1Sbqke24LwyJDZot5xFW_sPCop8kZ6-DYXkRAyWl18";
-const token = localStorage.getItem('token');
-
-export async function getAccountTransactions(accountId: string | undefined) {
+export async function getAccountTransactions(accountId: string | undefined, token: string | null){
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${accountId}`, {
             method: 'GET',
@@ -22,7 +19,7 @@ export async function getAccountTransactions(accountId: string | undefined) {
     }
 }
 
-export async function addTransaction(transactionData: TransactionFormData) {
+export async function addTransaction(transactionData: TransactionFormData, token: string | null) {
     try {
         transactionData.transaction_type = transactionData.transaction_type.toUpperCase();
         transactionData.transaction_category = transactionData.transaction_category.toUpperCase();
@@ -43,7 +40,7 @@ export async function addTransaction(transactionData: TransactionFormData) {
     }
 }
 
-export async function addMonthlyTransaction(data: MonthlyTransactionFormData) {
+export async function addMonthlyTransaction(data: MonthlyTransactionFormData, token: string | null) {
     const { transactionData, months } = data;
     transactionData.transaction_type = transactionData.transaction_type.toUpperCase();
     transactionData.transaction_category = transactionData.transaction_category.toUpperCase();
@@ -73,7 +70,7 @@ export async function addMonthlyTransaction(data: MonthlyTransactionFormData) {
     }
 }
 
-export async function deleteSelectedTransactions(data: DeleteSelectedTransactionsFormData) {
+export async function deleteSelectedTransactions(data: DeleteSelectedTransactionsFormData, token: string | null) {
     try {
         await fetch(`http://localhost:8080/api/v1/transactions/${data.accountId}/delete-all`, {
             method: 'DELETE',
@@ -91,7 +88,7 @@ export async function deleteSelectedTransactions(data: DeleteSelectedTransaction
     }
 }
 
-export async function deleteAllOldTransactions(accountId: string | undefined): Promise<void> {
+export async function deleteAllOldTransactions(accountId: string | undefined, token: string | null): Promise<void> {
 
     try {
         await fetch(`http://localhost:8080/api/v1/transactions/${accountId}/delete-old`, {
@@ -107,7 +104,7 @@ export async function deleteAllOldTransactions(accountId: string | undefined): P
     }
 }
 
-export async function updateTransaction(transactionData: Transaction) {
+export async function updateTransaction(transactionData: Transaction, token: string | null) {
     try {
         transactionData.transaction_type = transactionData.transaction_type.toUpperCase();
         transactionData.transaction_category = transactionData.transaction_category.toUpperCase();
@@ -128,7 +125,7 @@ export async function updateTransaction(transactionData: Transaction) {
     }
 }
 
-export async function updateSelectedTransactions(data: UpdateSelectedTransactionFormData) {
+export async function updateSelectedTransactions(data: UpdateSelectedTransactionFormData, token: string | null) {
     try {
         data.transaction_type = data.transaction_type.toUpperCase();
         data.transaction_category = data.transaction_category.toUpperCase();

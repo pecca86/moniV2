@@ -9,13 +9,15 @@ import Stack from '@mui/material/Stack';
 import MoniBanner from "../../banners/MoniBanner";
 import { Delete } from "@mui/icons-material";
 import AccountDeleteForm from "../../accounts/AccountDeleteForm";
+import { useUser } from "../../../hooks/auth/useUser";
 
 const Panel = () => {
 
     // accountId is specified in App.tsx as a route parameter
     const { accountId } = useParams<{ accountId: string }>();
+    const { token } = useUser();
 
-    const { isPending, account, error } = useFetchAccount(accountId as string);
+    const { isPending, account, error } = useFetchAccount(accountId as string, token);
 
     if (isPending) {
         return (

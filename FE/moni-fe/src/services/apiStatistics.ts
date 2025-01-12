@@ -1,8 +1,5 @@
-// const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjUwOTIyOTQsImV4cCI6MTcyNTY5NzA5NH0.g1Sbqke24LwyJDZot5xFW_sPCop8kZ6-DYXkRAyWl18";
-const token = localStorage.getItem('token');
 
-
-export async function getAllAccountsAndTransactionsStatistics() {
+export async function getAllAccountsAndTransactionsStatistics(token: string | null): Promise<any> {
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/statistics`, {
             method: 'GET',
@@ -14,12 +11,11 @@ export async function getAllAccountsAndTransactionsStatistics() {
 
         return  await response.json();
     } catch (error) {
-        // toast.error('Error fetching accounts statistics');
-        // log error
+        console.error(error);
     }
 }
 
-export async function getAccountTransactionStatistics(accountId: string) {
+export async function getAccountTransactionStatistics(accountId: string, token: string | null) {
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/statistics/${accountId}`, {
             method: 'GET',
@@ -34,12 +30,11 @@ export async function getAccountTransactionStatistics(accountId: string) {
         return { data: [data]};
         // return data;
     } catch (error) {
-        // toast.error('Error fetching account statistics');
-        // log error
+        console.error(error);
     }
 }
 
-export async function getAccountCategoryStatistics(accountId: string) {
+export async function getAccountCategoryStatistics(accountId: string, token: string | null): Promise<any> {
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/statistics/${accountId}/category`, {
             method: 'GET',
@@ -51,7 +46,6 @@ export async function getAccountCategoryStatistics(accountId: string) {
 
         return await response.json();
     } catch (error) {
-        // toast.error('Error fetching account category statistics');
-        // log error
+        console.error(error);
     }
 }

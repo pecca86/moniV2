@@ -1,9 +1,6 @@
 import toast from "react-hot-toast";
-// const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwQHBleC5jb20iLCJpYXQiOjE3MjUwOTIyOTQsImV4cCI6MTcyNTY5NzA5NH0.g1Sbqke24LwyJDZot5xFW_sPCop8kZ6-DYXkRAyWl18";
-const token = localStorage.getItem('token');
 
-
-export async function getDateSpansForAccount(accountId: string | number | undefined) {
+export async function getDateSpansForAccount(accountId: string | number | undefined, token: string | null) {
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/datespans/${accountId}`, {
             method: 'GET',
@@ -22,7 +19,7 @@ export async function getDateSpansForAccount(accountId: string | number | undefi
 }
 
 
-export async function createTimeSpan(data: any) {
+export async function createTimeSpan(data: any, token: string | null) {
     const payload = {
         from: data.from,
         to: data.to
@@ -44,7 +41,7 @@ export async function createTimeSpan(data: any) {
     }
 }
 
-export async function deleteTimeSpan(accountId: string | number | undefined, timeSpanId: string | number | undefined) {
+export async function deleteTimeSpan(accountId: string | number | undefined, timeSpanId: string | number | undefined, token: string | null) {
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/datespans/${accountId}/${timeSpanId}`, {
             method: 'DELETE',

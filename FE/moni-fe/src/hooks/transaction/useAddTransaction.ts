@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { addTransaction } from "../../services/apiTransactions";
+import { TransactionFormData } from "../../types/global";
 
-export function useAddTransaction() {
+export function useAddTransaction(token: string | null) {
     const queryClient = useQueryClient();
 
     const { isPending: isAdding, mutate: addTransactionMutation } = useMutation({
-        mutationFn: addTransaction,
+        mutationFn: (data: TransactionFormData) => addTransaction(data, token),
         onSuccess: () => {
             queryClient.refetchQueries({ queryKey: ['transactions'] });
             queryClient.refetchQueries({ queryKey: ['account'] });

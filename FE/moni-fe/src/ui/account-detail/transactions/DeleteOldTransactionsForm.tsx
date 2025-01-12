@@ -1,12 +1,14 @@
 import { useParams } from "react-router-dom";
 import { useDeleteOldTransactions } from "../../../hooks/transaction/useDeleteOldTransactions";
 import { useForm } from "react-hook-form";
+import { useUser } from "../../../hooks/auth/useUser";
 
 const DeleteOldTransactionsForm = ({ handleClose }: { handleClose: any }) => {
 
     const { accountId } = useParams<{ accountId: string }>();
-    const { deleteOldTransactionsMutation } = useDeleteOldTransactions(accountId);
-    const { handleSubmit }  = useForm();
+    const { token } = useUser();
+    const { deleteOldTransactionsMutation } = useDeleteOldTransactions(accountId, token);
+    const { handleSubmit } = useForm();
 
 
     function onSubmit(data: any) {

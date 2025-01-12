@@ -1,10 +1,12 @@
 import { useForm } from "react-hook-form";
 import { useCreateTimeSpan } from "../../../hooks/timespan/useCreateTimeSpan";
 import { useParams } from "react-router-dom";
+import { useUser } from "../../../hooks/auth/useUser";
 
 const TimeSpanForm = ({ handleClose }: any) => {
+    const { token } = useUser();
     const { register, handleSubmit, formState, getValues } = useForm();
-    const { isAdding, createTimeSpanMutation } = useCreateTimeSpan();
+    const { isAdding, createTimeSpanMutation } = useCreateTimeSpan(token);
     const { accountId } = useParams<{ accountId: string }>();
     const { errors } = formState;
 

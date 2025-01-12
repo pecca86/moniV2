@@ -9,6 +9,7 @@ import { useState } from "react";
 import Slider from '@mui/material/Slider';
 import Checkbox from '@mui/material/Checkbox';
 import { Transaction } from "../../../types/global";
+import { useUser } from "../../../hooks/auth/useUser";
 
 type Props = {
     handleClose: any;
@@ -19,6 +20,7 @@ type Props = {
 
 const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode = 'none' }: Props) => {
     const { accountId } = useParams<{ accountId: string }>();
+    const { token } = useUser();
     const [hidden, toggleHidden] = useState(true);
     const [months, setMonths] = useState(1);
 
@@ -42,10 +44,10 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
 
     const { errors } = formState;
 
-    const { isAdding, addTransactionMutation } = useAddTransaction();
-    const { isAddingMonthly, addMonthlyTransactionMutation } = useAddMonthlyTransaction();
-    const { isUpdating, updateTransactionMutation } = useUpdateSingleTransaction();
-    const { isUpdatingTransactions, updateSelectedTransactionMutation } = useUpdateSelectedTransactions();
+    const { isAdding, addTransactionMutation } = useAddTransaction(token);
+    const { isAddingMonthly, addMonthlyTransactionMutation } = useAddMonthlyTransaction(token);
+    const { isUpdating, updateTransactionMutation } = useUpdateSingleTransaction(token);
+    const { isUpdatingTransactions, updateSelectedTransactionMutation } = useUpdateSelectedTransactions(token);
 
     function handleAddTransaction(data: any) {
         if (hidden) {
@@ -132,7 +134,7 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
         return value > 0 || "Sum should be greater than 0";
     }
 
-    const onToggleMonths = (e : any) => {
+    const onToggleMonths = (e: any) => {
         toggleHidden(!e.target.checked);
     }
 

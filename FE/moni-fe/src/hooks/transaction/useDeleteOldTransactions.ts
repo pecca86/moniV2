@@ -2,11 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { deleteAllOldTransactions } from "../../services/apiTransactions";
 
-export function useDeleteOldTransactions(accountId: string | undefined) {
+export function useDeleteOldTransactions(accountId: string | undefined, token: string | null) {
     const queryClient = useQueryClient();
 
     const { isPending: isDeleting, mutate: deleteOldTransactionsMutation } = useMutation({
-        mutationFn: () => deleteAllOldTransactions(accountId),
+        mutationFn: () => deleteAllOldTransactions(accountId, token),
         onSuccess: () => {
             toast.success('Old Transactions deleted successfully');
             queryClient.refetchQueries({ queryKey: ['transactions'] });

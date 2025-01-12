@@ -16,6 +16,7 @@ import { useSelection } from "./TransactionSelectionContext";
 import { formatToStandardEuDate } from "../../../utils/date-utils";
 import DeleteOldTransactionsForm from "./DeleteOldTransactionsForm";
 import { Transaction } from "../../../types/global";
+import { useUser } from "../../../hooks/auth/useUser";
 
 type Props = {
     timeSpanTransactions: Transaction[] | undefined;
@@ -23,6 +24,7 @@ type Props = {
 
 const TransactionList = ({ timeSpanTransactions }: Props) => {
 
+    const { token } = useUser();
     const [searchParams] = useSearchParams();
     const { dispatch, selections }: { dispatch: any, selections: number[] } = useSelection();
 
@@ -36,7 +38,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
     // Table selection related state
     if (!timeSpanTransactions) {
         const { accountId } = useParams<{ accountId: string }>();
-        const { isPending, transactions, error } = useFetchTransactions(accountId as string);
+        const { isPending, transactions, error } = useFetchTransactions(accountId as string, token);
 
         if (isPending) {
             return <div className="flex items-center justify-center"><CircularProgress /></div>
@@ -113,7 +115,7 @@ const TransactionList = ({ timeSpanTransactions }: Props) => {
                             buttonIcon={<Add />}
                             ctaStyle='bg-violet-500 mx-2'
                         />
-                    
+
                         <AddModal
                             ctaText="Delete old"
                             heading='Delete old transactions'

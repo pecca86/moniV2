@@ -17,12 +17,14 @@ import { Delete } from '@mui/icons-material';
 import TimeSpanDeleteForm from './TimeSpanDeleteForm';
 import { Divider } from "@mui/material";
 import { formatToStandardEuDate } from '../../../utils/date-utils';
+import { useUser } from '../../../hooks/auth/useUser';
 
 const TimeSpans = () => {
 
+    const { token } = useUser();
     const { accountId } = useParams<{ accountId: string }>();
-    const { isPending, transactions, error } = useFetchTransactions(accountId);
-    const { isPending: isFetchingTimeSpans, timeSpans, error: timeSpanError } = useFetchTimeSpansForAccount(accountId);
+    const { isPending, transactions, error } = useFetchTransactions(accountId, token);
+    const { isPending: isFetchingTimeSpans, timeSpans, error: timeSpanError } = useFetchTimeSpansForAccount(accountId, token);
 
     if (isPending || isFetchingTimeSpans) {
         return (

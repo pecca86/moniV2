@@ -5,9 +5,12 @@ import MoniBanner from "../../banners/MoniBanner";
 import { CircularProgress } from "@mui/material";
 import { Divider } from "@mui/material";
 import MoniBarChart from "../../charts/MoniBarChart";
+import { useUser } from "../../../hooks/auth/useUser";
 
 const DetailCharts = () => {
     const { accountId } = useParams();
+    const { token } = useUser();
+
     if (!accountId) {
         return (
             <div className="flex justify-center items-center">
@@ -16,7 +19,7 @@ const DetailCharts = () => {
         )
 
     }
-    const { isPending, data, error } = useFetchAccountsTransactionStatistics(accountId);
+    const { isPending, data, error } = useFetchAccountsTransactionStatistics(accountId, token);
 
     if (isPending) {
         return (

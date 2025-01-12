@@ -3,10 +3,12 @@ import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import MoniBanner from "../banners/MoniBanner";
 import { useFetchAccounts } from "../../hooks/account/useFetchAccounts";
+import { useUser } from "../../hooks/auth/useUser";
 
 const AccountList = () => {
 
-    const { isPending, accountsData, error } = useFetchAccounts();
+    const {token} = useUser();
+    const { isPending, accountsData, error } = useFetchAccounts(token);
 
     if (isPending) {
         return (

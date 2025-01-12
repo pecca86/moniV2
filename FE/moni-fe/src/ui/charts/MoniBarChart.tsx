@@ -3,9 +3,11 @@ import { useFetchAccountCategoryStatistics } from '../../hooks/statistics/useFet
 import { useParams } from 'react-router-dom';
 import MoniBanner from '../banners/MoniBanner';
 import { CircularProgress } from '@mui/material';
+import { useUser } from '../../hooks/auth/useUser';
 
 const MoniBarChart = () => {
     const { accountId } = useParams();
+    const { token } = useUser();
     if (!accountId) {
         return (
             <div className="flex justify-center items-center">
@@ -14,7 +16,7 @@ const MoniBarChart = () => {
         )
     }
 
-    const { isPending, data, error } = useFetchAccountCategoryStatistics(accountId);
+    const { isPending, data, error } = useFetchAccountCategoryStatistics(accountId, token);
 
 
     if (isPending) {

@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { updateSelectedTransactions } from "../../services/apiTransactions";
+import { UpdateSelectedTransactionFormData } from "../../types/global";
 
-export function useUpdateSelectedTransactions() {
+export function useUpdateSelectedTransactions(token: string | null) {
     const queryClient = useQueryClient();
 
     const { isPending: isUpdatingTransactions, mutate: updateSelectedTransactionMutation} = useMutation({
-        mutationFn: updateSelectedTransactions,
+        mutationFn:(data: UpdateSelectedTransactionFormData) => updateSelectedTransactions(data, token),
         onSuccess: () => {
             queryClient.refetchQueries({ queryKey: ['transactions'] });
             queryClient.refetchQueries({ queryKey: ['account'] });

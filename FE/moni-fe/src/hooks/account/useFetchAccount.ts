@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAccountById } from "../../services/apiAccounts";
 
-export function useFetchAccount(id: string) {
+export function useFetchAccount(id: string, token: string | null) {
     const queryClient = useQueryClient();
 
     const {
@@ -10,7 +10,7 @@ export function useFetchAccount(id: string) {
         error,
     } = useQuery({
         queryKey: ['account'],
-        queryFn: () => getAccountById(id),
+        queryFn: () => getAccountById(id, token),
     });
 
     queryClient.invalidateQueries({ queryKey: ['statistics'] });

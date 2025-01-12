@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAccountTransactionStatistics } from "../../services/apiStatistics";
 
-export function useFetchAccountsTransactionStatistics(accountId: string) {
+export function useFetchAccountsTransactionStatistics(accountId: string, token: string | null) {
     const queryClient = useQueryClient();
     const {
         isPending,
@@ -9,7 +9,7 @@ export function useFetchAccountsTransactionStatistics(accountId: string) {
         error,
     } = useQuery({
         queryKey: ['account-statistics'],
-        queryFn: () => getAccountTransactionStatistics(accountId),
+        queryFn: () => getAccountTransactionStatistics(accountId, token),
     });
 
     queryClient.invalidateQueries({ queryKey: ['statistics'] });

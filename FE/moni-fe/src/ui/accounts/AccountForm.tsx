@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useAddAccount } from "../../hooks/account/useAddAccount";
 import { useUpdateAccount } from "../../hooks/account/useUpdateAccount";
 import { Account } from "../../types/global";
+import { useUser } from "../../hooks/auth/useUser";
 
 const AccountForm = ({ handleClose = null, update = false, accountData }: { handleClose: any, update: boolean, accountData: Account | undefined }) => {
 
@@ -19,9 +20,10 @@ const AccountForm = ({ handleClose = null, update = false, accountData }: { hand
 
     // capture the errors from our form
     const { errors } = formState;
+    const {token} = useUser();
 
-    const { isAdding, addAccountMutation } = useAddAccount();
-    const { isUpdating, updateAccountMutation } = useUpdateAccount();
+    const { isAdding, addAccountMutation } = useAddAccount(token);
+    const { isUpdating, updateAccountMutation } = useUpdateAccount(token);
 
     const onSubmit = (data: any) => {
         // mutate(data); // let react-query handle the mutation
@@ -33,7 +35,7 @@ const AccountForm = ({ handleClose = null, update = false, accountData }: { hand
                         reset(); // reset the form using react-hook-form
                         handleClose();
                     }
-                }
+                },
             )
         } else {
             addAccountMutation(

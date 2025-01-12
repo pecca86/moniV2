@@ -1,0 +1,25 @@
+version: '3'
+services:
+  moni-be:
+    image: moni-be
+    container_name: moni-be-compose
+    ports:
+      - "8080:8080"
+    depends_on:
+      - moni-db
+  moni-db:
+    image: postgres:latest
+    container_name: moni-db-compose
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pekka
+      POSTGRES_DB: moni
+    ports:
+      - "5432:5432"
+  moni-fe:
+    image: moni-fe
+    container_name: moni-fe-compose
+    ports:
+      - "4173:80"
+    depends_on:
+        - moni-be

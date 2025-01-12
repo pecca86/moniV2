@@ -1,9 +1,7 @@
 import toast from "react-hot-toast";
 import { Account, AccountDataResponse, AccountFormData, AccountsResponse } from "../types/global";
 
-const token = localStorage.getItem('token');
-
-export async function getAccounts() {
+export async function getAccounts(token: string | null) {
     try {
         const response: Response = await fetch('http://localhost:8080/api/v1/accounts', {
             method: 'GET',
@@ -21,7 +19,7 @@ export async function getAccounts() {
     }
 }
 
-export async function getAccountById(id: string) {
+export async function getAccountById(id: string, token: string | null) {
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${id}`, {
             method: 'GET',
@@ -39,7 +37,7 @@ export async function getAccountById(id: string) {
     }
 }
 
-export async function addAccount(accountData: AccountFormData) {
+export async function addAccount(accountData: AccountFormData, token: string | null) {
     console.log("Account: ", accountData);
     try {
         accountData.account_type = accountData.account_type.toUpperCase();
@@ -60,7 +58,7 @@ export async function addAccount(accountData: AccountFormData) {
     }
 }
 
-export async function updateAccount(accountData: AccountFormData) {
+export async function updateAccount(accountData: AccountFormData, token: string | null) {
     try {
         accountData.account_type = accountData.account_type.toUpperCase();
         const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${accountData.id}`, {
@@ -81,7 +79,7 @@ export async function updateAccount(accountData: AccountFormData) {
     }
 }
 
-export async function deleteAccount(id: string | undefined) { 
+export async function deleteAccount(id: string | undefined, token: string | null) { 
     try {
         const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${id}`, {
             method: 'DELETE',
