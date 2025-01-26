@@ -1,0 +1,1 @@
+/Users/pekkaranta-aho/Coding/Code/Java/Spring boot/moni/devbox/.devbox/virtenv/python312/bin/venvShellHook.sh

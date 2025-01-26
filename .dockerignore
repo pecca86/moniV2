@@ -1,0 +1,8 @@
+Dockerfile*
+HELP.md
+/FE
+.idea
+/logs
+/postgres
+/target
+/nginx

@@ -1,8 +1,10 @@
 FROM node:18 AS builder
 WORKDIR /app
+ENV NODE_ENV production
 COPY package*.json ./
-RUN npm install
-COPY . .
+RUN npm ci --only=production
+USER node
+COPY --chown=node:node . .
 RUN npm run build
 
 # Stage 2: Setup the Nginx Server to serve the React Application

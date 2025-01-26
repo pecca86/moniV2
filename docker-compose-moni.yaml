@@ -1,15 +1,19 @@
-version: '3'
+version: '3.9'
 services:
   moni-be:
-    image: moni-be
+    image: moni-be-slim
     container_name: moni-be-compose
+    restart: unless-stopped
     ports:
       - "8080:8080"
+    volumes:
+      - moni-data:/var/lib/postgresql/data
     depends_on:
       - moni-db
   moni-db:
     image: postgres:latest
     container_name: moni-db-compose
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pekka
@@ -23,3 +27,6 @@ services:
       - "4173:80"
     depends_on:
         - moni-be
+volumes:
+    moni-data:
+      driver: local

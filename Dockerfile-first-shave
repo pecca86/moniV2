@@ -1,0 +1,10 @@
+FROM arm64v8/maven:3.8.3-openjdk-17 AS build
+WORKDIR /moni-build
+COPY . .
+RUN mvn clean package -DskipTests
+
+## Use a lightweight base image instead of scratch
+FROM eclipse-temurin:17-jre
+COPY --from=build /moni-build/target/moni-0.0.1-SNAPSHOT.jar /moni.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/moni.jar"]
