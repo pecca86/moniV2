@@ -1,7 +1,10 @@
 version: '3.9'
 services:
   moni-be:
-    image: moni-be-slim
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: moni-be
     container_name: moni-be-compose
     restart: unless-stopped
     ports:
@@ -21,6 +24,9 @@ services:
     ports:
       - "5432:5432"
   moni-fe:
+    build:
+      context: ./FE/moni-fe
+      dockerfile: Dockerfile
     image: moni-fe
     container_name: moni-fe-compose
     ports:

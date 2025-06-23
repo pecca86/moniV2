@@ -12,7 +12,7 @@ export default defineConfig({
 //         rewrite: (path) => path.replace(/^\/api\/moni/, '/api/moni')
 //         secure: false,
     }
-  }
-})
+  })
+// })
 
 

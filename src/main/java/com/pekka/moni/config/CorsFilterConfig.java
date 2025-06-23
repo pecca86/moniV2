@@ -13,6 +13,13 @@ public class CorsFilterConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.addAllowedOrigin("http://localhost:4173");
+        corsConfiguration.addAllowedOrigin("http://localhost:31773"); // NodePort
+        corsConfiguration.addAllowedOrigin("http://localhost:8081"); // NodePort
+        corsConfiguration.addAllowedOrigin("http://localhost:8081/login"); // NodePort
+        corsConfiguration.addAllowedOrigin("http://localhost:8081/register"); // NodePort
+        corsConfiguration.addAllowedOriginPattern("http://localhost:31773/**"); // NodePort
+        corsConfiguration.addAllowedOriginPattern("http://localhost:31777/**"); // NodePort
+        corsConfiguration.addAllowedOriginPattern("http://localhost:8081/**"); // NodePort
         corsConfiguration.addAllowedOriginPattern("http://localhost:4173/**");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");

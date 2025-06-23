@@ -15,7 +15,7 @@ export function useAddMonthlyTransaction(token: string | null) {
         queryClient.invalidateQueries({ queryKey: ['account-statistics'] });
         queryClient.invalidateQueries({ queryKey: ['account-category-statistics'] });
       },
-      onError: (err) => toast.error(err.message),
+      onError: (err: Error) => { toast.error(err.message); },
     });
   
     return { isAddingMonthly, addMonthlyTransactionMutation };
