@@ -1,7 +1,7 @@
 
 export async function getAllAccountsAndTransactionsStatistics(token: string | null): Promise<any> {
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/statistics`, {
+        const response: Response = await fetch(`/api/v1/statistics`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ export async function getAllAccountsAndTransactionsStatistics(token: string | nu
 
 export async function getAccountTransactionStatistics(accountId: string, token: string | null) {
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/statistics/${accountId}`, {
+        const response: Response = await fetch(`/api/v1/statistics/${accountId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ export async function getAccountTransactionStatistics(accountId: string, token: 
 
 export async function getAccountCategoryStatistics(accountId: string, token: string | null): Promise<any> {
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/statistics/${accountId}/category`, {
+        const response: Response = await fetch(`/api/v1/statistics/${accountId}/category`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

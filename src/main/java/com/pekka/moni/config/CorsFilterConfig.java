@@ -1,33 +1,36 @@
-package com.pekka.moni.config;
+     package com.pekka.moni.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+     import org.springframework.context.annotation.Bean;
+     import org.springframework.context.annotation.Configuration;
+     import org.springframework.web.cors.CorsConfiguration;
+     import org.springframework.web.cors.CorsConfigurationSource;
+     import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+     import org.springframework.web.filter.CorsFilter;
 
-@Configuration
-public class CorsFilterConfig {
+     import java.util.List;
 
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:4173");
-        corsConfiguration.addAllowedOrigin("http://localhost:31773"); // NodePort
-        corsConfiguration.addAllowedOrigin("http://localhost:8081"); // NodePort
-        corsConfiguration.addAllowedOrigin("http://localhost:8081/login"); // NodePort
-        corsConfiguration.addAllowedOrigin("http://localhost:8081/register"); // NodePort
-        corsConfiguration.addAllowedOriginPattern("http://localhost:31773/**"); // NodePort
-        corsConfiguration.addAllowedOriginPattern("http://localhost:31777/**"); // NodePort
-        corsConfiguration.addAllowedOriginPattern("http://localhost:8081/**"); // NodePort
-        corsConfiguration.addAllowedOriginPattern("http://localhost:4173/**");
-        corsConfiguration.addAllowedMethod("*");
-        corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.setAllowCredentials(true);
+     @Configuration
+     public class CorsFilterConfig {
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration);
+         @Bean
+         public CorsConfigurationSource corsConfigurationSource() {
+             CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        return new CorsFilter(source);
-    }
-}
+             corsConfiguration.setAllowedOrigins(List.of(
+                     "http://localhost:4173",
+                     "http://localhost:8081",
+                     "http://localhost:8080",
+                     "http://localhost:80",
+                     "http://moni-be:8080",
+                     "http://localhost:31773" // NodePort direct access
+                     ));
+             corsConfiguration.setAllowCredentials(true);
+             corsConfiguration.addAllowedHeader("*");
+             corsConfiguration.addAllowedMethod("*");
+
+             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+             source.registerCorsConfiguration("/**", corsConfiguration);
+
+             return source;
+         }
+     }

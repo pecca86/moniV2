@@ -3,7 +3,7 @@ import { Account, AccountDataResponse, AccountFormData, AccountsResponse } from 
 
 export async function getAccounts(token: string | null) {
     try {
-        const response: Response = await fetch('http://localhost:8080/api/v1/accounts', {
+        const response: Response = await fetch('/api/v1/accounts', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -21,7 +21,7 @@ export async function getAccounts(token: string | null) {
 
 export async function getAccountById(id: string, token: string | null) {
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${id}`, {
+        const response: Response = await fetch(`/api/v1/accounts/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ export async function addAccount(accountData: AccountFormData, token: string | n
     console.log("Account: ", accountData);
     try {
         accountData.account_type = accountData.account_type.toUpperCase();
-        const response: Response = await fetch('http://localhost:8080/api/v1/accounts', {
+        const response: Response = await fetch('/api/v1/accounts', {
             method: 'POST',
             body: JSON.stringify(accountData),
             headers: {
@@ -61,7 +61,7 @@ export async function addAccount(accountData: AccountFormData, token: string | n
 export async function updateAccount(accountData: AccountFormData, token: string | null) {
     try {
         accountData.account_type = accountData.account_type.toUpperCase();
-        const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${accountData.id}`, {
+        const response: Response = await fetch(`/api/v1/accounts/${accountData.id}`, {
             method: 'PUT',
             body: JSON.stringify(accountData),
             headers: {
@@ -81,7 +81,7 @@ export async function updateAccount(accountData: AccountFormData, token: string 
 
 export async function deleteAccount(id: string | undefined, token: string | null) { 
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/accounts/${id}`, {
+        const response: Response = await fetch(`/api/v1/accounts/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

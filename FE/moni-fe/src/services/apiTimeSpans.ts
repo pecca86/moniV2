@@ -2,7 +2,7 @@ import toast from "react-hot-toast";
 
 export async function getDateSpansForAccount(accountId: string | number | undefined, token: string | null) {
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/datespans/${accountId}`, {
+        const response: Response = await fetch(`/api/v1/datespans/${accountId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -26,7 +26,7 @@ export async function createTimeSpan(data: any, token: string | null) {
     }
 
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/datespans/${data.accountId}`, {
+        const response: Response = await fetch(`/api/v1/datespans/${data.accountId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -43,7 +43,7 @@ export async function createTimeSpan(data: any, token: string | null) {
 
 export async function deleteTimeSpan(accountId: string | number | undefined, timeSpanId: string | number | undefined, token: string | null) {
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/datespans/${accountId}/${timeSpanId}`, {
+        const response: Response = await fetch(`/api/v1/datespans/${accountId}/${timeSpanId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

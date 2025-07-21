@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 export async function login(user: User): Promise<any> {
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/auth/login`, {
+        const response: Response = await fetch(`/api/v1/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ export async function register(registrationData: RegistrationData) {
             lastName: registrationData.lastname,
             password: registrationData.password
         }
-        const response: Response = await fetch(`http://localhost:8080/api/v1/auth/register`, {
+        const response: Response = await fetch(`/api/v1/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ export async function register(registrationData: RegistrationData) {
 
 export async function getUserDetails(token: string) {
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/auth/me`, {
+        const response: Response = await fetch(`/api/v1/auth/me`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ export async function getUserDetails(token: string) {
 
 export async function changePassword(password: string, token: string) {
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/auth/password`, {
+        const response: Response = await fetch(`/api/v1/auth/password`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

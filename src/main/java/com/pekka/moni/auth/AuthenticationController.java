@@ -46,7 +46,7 @@ public class AuthenticationController {
         if (bucket.tryConsume(1)) {
             var token = authenticationService.login(loginRequest);
             Cookie cookie = new Cookie("token", token.getToken());
-//            cookie.setHttpOnly(true);
+//            cookie.setHttpOnly(true); //TODO: check if these are needed?
 //            cookie.setSecure(true);
             cookie.setPath("/");
             cookie.setMaxAge(10 * 60 * 60); // 10 hrs

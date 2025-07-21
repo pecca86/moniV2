@@ -3,7 +3,7 @@ import { DeleteSelectedTransactionsFormData, MonthlyTransactionFormData, Transac
 
 export async function getAccountTransactions(accountId: string | undefined, token: string | null){
     try {
-        const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${accountId}`, {
+        const response: Response = await fetch(`/api/v1/transactions/${accountId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -23,7 +23,7 @@ export async function addTransaction(transactionData: TransactionFormData, token
     try {
         transactionData.transaction_type = transactionData.transaction_type.toUpperCase();
         transactionData.transaction_category = transactionData.transaction_category.toUpperCase();
-        const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${transactionData.accountId}`, {
+        const response: Response = await fetch(`/api/v1/transactions/${transactionData.accountId}`, {
             method: 'POST',
             body: JSON.stringify(transactionData),
             headers: {
@@ -53,7 +53,7 @@ export async function addMonthlyTransaction(data: MonthlyTransactionFormData, to
     }
 
     try {
-        await fetch(`http://localhost:8080/api/v1/transactions/${transactionData.accountId}/create-monthly`, {
+        await fetch(`/api/v1/transactions/${transactionData.accountId}/create-monthly`, {
             method: 'POST',
             body: JSON.stringify(requestBody),
             headers: {
@@ -72,7 +72,7 @@ export async function addMonthlyTransaction(data: MonthlyTransactionFormData, to
 
 export async function deleteSelectedTransactions(data: DeleteSelectedTransactionsFormData, token: string | null) {
     try {
-        await fetch(`http://localhost:8080/api/v1/transactions/${data.accountId}/delete-all`, {
+        await fetch(`/api/v1/transactions/${data.accountId}/delete-all`, {
             method: 'DELETE',
             body: JSON.stringify(data),
             headers: {
@@ -91,7 +91,7 @@ export async function deleteSelectedTransactions(data: DeleteSelectedTransaction
 export async function deleteAllOldTransactions(accountId: string | undefined, token: string | null): Promise<void> {
 
     try {
-        await fetch(`http://localhost:8080/api/v1/transactions/${accountId}/delete-old`, {
+        await fetch(`/api/v1/transactions/${accountId}/delete-old`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export async function updateTransaction(transactionData: Transaction, token: str
     try {
         transactionData.transaction_type = transactionData.transaction_type.toUpperCase();
         transactionData.transaction_category = transactionData.transaction_category.toUpperCase();
-        const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${transactionData.id}`, {
+        const response: Response = await fetch(`/api/v1/transactions/${transactionData.id}`, {
             method: 'PUT',
             body: JSON.stringify(transactionData),
             headers: {
@@ -139,7 +139,7 @@ export async function updateSelectedTransactions(data: UpdateSelectedTransaction
                 transaction_date: data.transaction_date
             }
         }
-        const response: Response = await fetch(`http://localhost:8080/api/v1/transactions/${data.accountId}/update-all`, {
+        const response: Response = await fetch(`/api/v1/transactions/${data.accountId}/update-all`, {
             method: 'PUT',
             body: JSON.stringify(payload),
             headers: {
