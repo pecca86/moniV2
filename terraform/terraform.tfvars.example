@@ -1,0 +1,43 @@
+# Terraform variables for different environments
+# Copy this file to terraform.tfvars and customize for your environment
+
+# Basic Configuration
+aws_region   = "us-west-2"  # Change to your preferred region
+project_name = "moni"
+environment  = "dev"        # Options: dev, staging, prod
+
+# EKS Configuration
+cluster_version = "1.28"    # Latest supported EKS version
+
+# Node Group Configuration
+node_group_instance_types = ["t3.medium"]  # Use ["m5.large"] for production
+node_group_desired_size   = 2              # Number of nodes to start with
+node_group_max_size      = 4              # Maximum nodes for autoscaling
+node_group_min_size      = 1              # Minimum nodes for autoscaling
+
+# Feature Flags
+enable_irsa                         = true   # IAM Roles for Service Accounts
+enable_cluster_autoscaler          = true   # Automatically scale nodes
+enable_aws_load_balancer_controller = true   # For ALB/NLB support
+enable_ebs_csi_driver              = true   # For persistent volumes
+create_ecr_repositories            = true   # Create ECR repos for your images
+
+# Security Configuration
+allowed_cidr_blocks = [
+  "0.0.0.0/0"  # CHANGE THIS! Restrict to your IP ranges in production
+  # Example: ["203.0.113.0/24", "198.51.100.0/24"]
+]
+
+# Example configurations for different environments:
+
+# Development Environment
+# node_group_instance_types = ["t3.small"]
+# node_group_desired_size   = 1
+# node_group_max_size      = 3
+# node_group_min_size      = 1
+
+# Production Environment
+# node_group_instance_types = ["m5.large", "m5.xlarge"]
+# node_group_desired_size   = 3
+# node_group_max_size      = 10
+# node_group_min_size      = 2
