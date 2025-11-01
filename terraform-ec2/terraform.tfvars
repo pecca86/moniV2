@@ -2,7 +2,7 @@
 # Copy this file to terraform.tfvars and customize for your environment
 
 # Basic Configuration
-aws_region   = "us-west-2"  # Change to your preferred region
+aws_region   = "eu-central-1"  # Change to your preferred region
 project_name = "moni"
 environment  = "dev"        # Options: dev, staging, prod
 
@@ -31,12 +31,12 @@ domain_name = ""     # e.g., "moni.yourdomain.com" - leave empty for IP-based ac
 enable_ssl  = false  # Set to true if you have a domain and want SSL
 
 # Container Images
-docker_registry    = "dockerhub"  # Options: dockerhub, ghcr, ecr
-create_ecr_repos   = false        # Set to true for private ECR repositories
+docker_registry    = "ecr"  # Options: dockerhub, ghcr, ecr
+create_ecr_repos   = false  # Set to false when using existing ECR repos
 
-# Existing ECR repositories (alternative to creating new ones)
-# existing_ecr_backend_url  = "YOUR_ACCOUNT.dkr.ecr.REGION.amazonaws.com/your-backend-repo"
-# existing_ecr_frontend_url = "YOUR_ACCOUNT.dkr.ecr.REGION.amazonaws.com/your-frontend-repo"
+# Existing ECR repositories (use these instead of creating new ones)
+existing_ecr_backend_url  = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moniv2"
+existing_ecr_frontend_url = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moniv2"
 
 # Monitoring
 enable_monitoring = false  # Set to true for detailed CloudWatch monitoring ($2.10/month extra)

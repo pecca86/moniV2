@@ -45,11 +45,14 @@ output "application_urls" {
 }
 
 output "ecr_repositories" {
-  description = "ECR repository URLs (if created)"
-  value = var.create_ecr_repos ? {
-    backend  = aws_ecr_repository.moni_backend[0].repository_url
-    frontend = aws_ecr_repository.moni_frontend[0].repository_url
-  } : null
+  description = "ECR repository URLs being used"
+  value = {
+    backend_url  = local.backend_image_url
+    frontend_url = local.frontend_image_url
+    source = var.existing_ecr_backend_url != "" ? "existing_ecr" : (
+      var.create_ecr_repos ? "new_ecr" : "public_dockerhub"
+    )
+  }
 }
 
 output "instance_specs" {

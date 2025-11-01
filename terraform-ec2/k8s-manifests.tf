@@ -44,12 +44,25 @@ resource "local_file" "k3s_manifest" {
   filename = "${path.module}/moni-k3s.yaml"
   
   content = templatefile("${path.module}/moni-k3s.yaml.tpl", {
-    backend_image  = var.create_ecr_repos ? "${aws_ecr_repository.moni_backend[0].repository_url}:latest" : "pecca86/moni-be:latest"
-    frontend_image = var.create_ecr_repos ? "${aws_ecr_repository.moni_frontend[0].repository_url}:latest" : "pecca86/moni-fe:latest"
+    backend_image  = local.backend_image_url
+    frontend_image = local.frontend_image_url
     domain_name    = var.domain_name
     enable_ssl     = var.enable_ssl
     environment    = var.environment
   })
+}
+
+# Local values to determine which image URLs to use
+locals {
+  # Backend image logic: existing ECR > new ECR > public image
+  backend_image_url = var.existing_ecr_backend_url != "" ? "${var.existing_ecr_backend_url}:latest" : (
+    var.create_ecr_repos ? "${aws_ecr_repository.moni_backend[0].repository_url}:latest" : "pecca86/moni-be:latest"
+  )
+  
+  # Frontend image logic: existing ECR > new ECR > public image  
+  frontend_image_url = var.existing_ecr_frontend_url != "" ? "${var.existing_ecr_frontend_url}:latest" : (
+    var.create_ecr_repos ? "${aws_ecr_repository.moni_frontend[0].repository_url}:latest" : "pecca86/moni-fe:latest"
+  )
 }
 
 # Upload the manifest to the EC2 instance

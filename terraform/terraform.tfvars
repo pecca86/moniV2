@@ -2,7 +2,7 @@
 # Copy this file to terraform.tfvars and customize for your environment
 
 # Basic Configuration
-aws_region   = "us-west-2"  # Change to your preferred region
+aws_region   = "eu-central-1"  # Change to your preferred region
 project_name = "moni"
 environment  = "dev"        # Options: dev, staging, prod
 
@@ -10,9 +10,8 @@ environment  = "dev"        # Options: dev, staging, prod
 cluster_version = "1.28"    # Latest supported EKS version
 
 # Node Group Configuration
-node_group_instance_types = ["t3.small"]   # Minimum for EKS: t3.small (2GB RAM)
-                                           # Options: t3.small, t3.medium, t3.large
-                                           # Production: ["m5.large", "m5.xlarge"]
+node_group_instance_types = ["t3.small"]   # Cost-optimized for development
+                                           # t3.small: 2GB RAM, sufficient for EKS
 node_group_desired_size   = 2              # Number of nodes to start with
 node_group_max_size      = 4              # Maximum nodes for autoscaling
 node_group_min_size      = 1              # Minimum nodes for autoscaling
@@ -32,10 +31,10 @@ allowed_cidr_blocks = [
 
 # Example configurations for different environments:
 
-# Development Environment (Cost-optimized)
-# node_group_instance_types = ["t3.small"]    # Minimum for EKS (2GB RAM)
+# Development Environment
+# node_group_instance_types = ["t3.small"]
 # node_group_desired_size   = 1
-# node_group_max_size      = 2
+# node_group_max_size      = 3
 # node_group_min_size      = 1
 
 # Production Environment
@@ -43,8 +42,3 @@ allowed_cidr_blocks = [
 # node_group_desired_size   = 3
 # node_group_max_size      = 10
 # node_group_min_size      = 2
-
-# Why not t3.micro or t4g.micro for EKS?
-# - EKS worker nodes need minimum 2GB RAM for system components
-# - t3.micro (1GB) and t4g.micro (1GB) are insufficient
-# - Use terraform-ec2/ for t4g.micro with K3s instead

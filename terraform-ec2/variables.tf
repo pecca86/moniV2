@@ -83,3 +83,15 @@ variable "create_ecr_repos" {
   type        = bool
   default     = false  # Use false for cost savings, true for private repos
 }
+
+variable "existing_ecr_backend_url" {
+  description = "Existing ECR repository URL for backend image (if not creating new repos)"
+  type        = string
+  default     = ""
+}
+
+variable "existing_ecr_frontend_url" {
+  description = "Existing ECR repository URL for frontend image (if not creating new repos)"
+  type        = string
+  default     = ""
+}
