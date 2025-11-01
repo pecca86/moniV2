@@ -1,0 +1,206 @@
+# HOW TO RUN LOCALLY WITH KIND:
+# 1. Build images:
+#    docker build -t moni-be-slim:latest -f Dockerfile-latest .
+#    cd FE/moni-fe && docker build -t moni-fe:latest . && cd ../../..
+# 2. Load images into kind:
+#    kind load docker-image moni-be-slim:latest --name kind
+#    kind load docker-image moni-fe:latest --name kind
+# 3. Ensure /data/moni-db exists in kind node:
+#    docker exec kind-control-plane mkdir -p /data/moni-db
+# 4. Apply this YAML:
+#    kubectl apply -f Moni.yaml
+# 5. Port-forward backend:
+#    kubectl port-forward service/moni-be 8080:8080 -n moni
+# 6. (Optional) Port-forward frontend if NodePort not accessible:
+#    kubectl port-forward service/moni-fe 8081:80 -n moni
+
+
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: moni
+---
+# Persistent Volume (local example, adjust for production)
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: moni-pv
+  # namespace: moni
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  hostPath:
+    path: /data/moni-db
+---
+# Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: moni-pvc
+  namespace: moni
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 1Gi
+---
+# PostgreSQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moni-db
+  namespace: moni
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moni-db
+  template:
+    metadata:
+      labels:
+        app: moni-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "pekka"
+            - name: POSTGRES_DB
+              value: "moni"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: moni-storage
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      volumes:
+        - name: moni-storage
+          persistentVolumeClaim:
+            claimName: moni-pvc
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: moni-db
+  namespace: moni
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: moni-db
+---
+# Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moni-be
+  namespace: moni
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moni-be
+  template:
+    metadata:
+      labels:
+        app: moni-be
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: ['sh', '-c', 'until nc -z moni-db 5432; do echo waiting for db; sleep 2; done;']
+      containers:
+        - name: moni-be
+          image: moni-be-slim:latest
+          imagePullPolicy: Never
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://moni-db:5432/moni"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "pekka"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+# Backend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: moni-be
+  namespace: moni
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 31808
+  selector:
+    app: moni-be
+---
+# Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moni-fe
+  namespace: moni
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moni-fe
+  template:
+    metadata:
+      labels:
+        app: moni-fe
+    spec:
+      containers:
+        - name: moni-fe
+          image: moni-fe:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+---
+# Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: moni-fe
+  namespace: moni
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 31773
+  selector:
+    app: moni-fe

@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../base/Moni.yaml
+namespace: moni-test
+namePrefix: test-
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/ports/0/nodePort
+      value: 31809
+  target:
+    kind: Service
+    name: moni-be
+- patch: |-
+    - op: replace
+      path: /spec/ports/0/nodePort
+      value: 31774
+  target:
+    kind: Service
+    name: moni-fe

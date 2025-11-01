@@ -68,7 +68,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:latest
+          image: postgres:16
           env:
             - name: POSTGRES_USER
               value: "postgres"
@@ -81,6 +81,13 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: moni-storage
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
       volumes:
         - name: moni-storage
           persistentVolumeClaim:
@@ -115,16 +122,14 @@ spec:
       labels:
         app: moni-be
     spec:
-      initContainers:                # NEW
-          - name: wait-for-postgres    # NEW
-            image: busybox             # NEW
-            command: ['sh', '-c', 'until nc -z moni-db 5432; do echo waiting for db; sleep 2; done;'] # NEW
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: ['sh', '-c', 'until nc -z moni-db 5432; do echo waiting for db; sleep 2; done;']
       containers:
         - name: moni-be
           image: moni-be-slim:latest
           imagePullPolicy: Never
-          ports:
-            - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://moni-db:5432/moni"
@@ -132,6 +137,13 @@ spec:
               value: "postgres"
             - name: SPRING_DATASOURCE_PASSWORD
               value: "pekka"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
 ---
 # Backend Service
 apiVersion: v1
@@ -170,6 +182,13 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
 ---
 # Frontend Service
 apiVersion: v1

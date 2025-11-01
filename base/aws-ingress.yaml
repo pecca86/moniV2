@@ -1,0 +1,93 @@
+# AWS Application Load Balancer Ingress Configuration
+# This provides a single entry point for both frontend and backend
+# Requires AWS Load Balancer Controller to be installed in your EKS cluster
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moni-ingress
+  namespace: moni
+  annotations:
+    # AWS ALB Ingress Controller annotations
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    # Redirect HTTP to HTTPS (uncomment when you have SSL certificate)
+    # alb.ingress.kubernetes.io/ssl-redirect: '443'
+    # SSL Certificate (add your certificate ARN)
+    # alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:REGION:ACCOUNT:certificate/CERTIFICATE_ID
+    
+    # Health check configuration
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '3'
+spec:
+  rules:
+    # Option 1: Using custom domain (recommended for production)
+    - host: moni.yourdomain.com  # Replace with your actual domain
+      http:
+        paths:
+          # Frontend - serve from root
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moni-fe
+                port:
+                  number: 80
+          # Backend API - serve from /api path
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: moni-be
+                port:
+                  number: 8080
+    # Option 2: Without custom domain (uses ALB DNS name)
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moni-fe
+                port:
+                  number: 80
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: moni-be
+                port:
+                  number: 8080
+  # TLS configuration (uncomment when you have SSL certificate)
+  # tls:
+  #   - hosts:
+  #       - moni.yourdomain.com
+---
+# Alternative: Separate services for frontend and backend with different paths
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moni-ingress-simple
+  namespace: moni
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+spec:
+  rules:
+    - http:
+        paths:
+          # All traffic goes to frontend, frontend should handle routing
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moni-fe
+                port:
+                  number: 80

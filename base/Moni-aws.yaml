@@ -1,0 +1,249 @@
+# AWS EKS Deployment Configuration for Moni Application
+# This replaces the need for kubectl port-forward by exposing services properly
+
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: moni
+---
+# Persistent Volume Claim (using AWS EBS)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: moni-pvc
+  namespace: moni
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp3  # AWS EBS GP3 storage class (faster and cheaper than gp2)
+  resources:
+    requests:
+      storage: 20Gi  # Increased for production use
+---
+# Database Secret (Change the password!)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: moni-db-secret
+  namespace: moni
+type: Opaque
+data:
+  password: cGVra2E=  # base64 encoded "pekka" - CHANGE THIS IN PRODUCTION!
+---
+# PostgreSQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moni-db
+  namespace: moni
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moni-db
+  template:
+    metadata:
+      labels:
+        app: moni-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: moni-db-secret
+                  key: password
+            - name: POSTGRES_DB
+              value: "moni"
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: moni-storage
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          # Health checks for better reliability
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: moni-storage
+          persistentVolumeClaim:
+            claimName: moni-pvc
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: moni-db
+  namespace: moni
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: moni-db
+---
+# Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moni-be
+  namespace: moni
+spec:
+  replicas: 2  # Multiple replicas for high availability
+  selector:
+    matchLabels:
+      app: moni-be
+  template:
+    metadata:
+      labels:
+        app: moni-be
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: ['sh', '-c', 'until nc -z moni-db 5432; do echo waiting for db; sleep 2; done;']
+      containers:
+        - name: moni-be
+          # Replace with your ECR repository URL
+          image: YOUR_ACCOUNT.dkr.ecr.YOUR_REGION.amazonaws.com/moni-be:latest
+          imagePullPolicy: Always  # Always pull latest for production updates
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://moni-db:5432/moni"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: moni-db-secret
+                  key: password
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+---
+# Backend Service (ClusterIP - will be exposed via Ingress)
+apiVersion: v1
+kind: Service
+metadata:
+  name: moni-be
+  namespace: moni
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: moni-be
+---
+# Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moni-fe
+  namespace: moni
+spec:
+  replicas: 2  # Multiple replicas for high availability
+  selector:
+    matchLabels:
+      app: moni-fe
+  template:
+    metadata:
+      labels:
+        app: moni-fe
+    spec:
+      containers:
+        - name: moni-fe
+          # Replace with your ECR repository URL
+          image: YOUR_ACCOUNT.dkr.ecr.YOUR_REGION.amazonaws.com/moni-fe:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+# Frontend Service - LoadBalancer type for direct internet access
+apiVersion: v1
+kind: Service
+metadata:
+  name: moni-fe
+  namespace: moni
+  annotations:
+    # AWS Load Balancer annotations
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"  # Network Load Balancer
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: moni-fe
