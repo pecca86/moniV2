@@ -95,3 +95,4 @@ variable "existing_ecr_frontend_url" {
   type        = string
   default     = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-fe:latest"
 }
+

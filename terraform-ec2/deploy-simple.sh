@@ -97,13 +97,13 @@ rm .env.production
 print_status "🔐 Step 5: Deploying application..."
 
 # Deploy the application
-ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ec2-user@$INSTANCE_IP << 'DEPLOY_EOF'
+ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ec2-user@$INSTANCE_IP << DEPLOY_EOF
 set -e
 
 cd ~/moni-deployment
 
 echo "Authenticating with ECR..."
-aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin $(grep ECR_BACKEND_URI .env | cut -d'=' -f2 | cut -d':' -f1)
+aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin \$(grep ECR_BACKEND_URI .env | cut -d'=' -f2 | cut -d':' -f1)
 
 echo "Starting Moni Application..."
 sudo docker-compose --env-file .env up -d

@@ -38,6 +38,10 @@ create_ecr_repos   = false  # Set to false when using existing ECR repos
 existing_ecr_backend_url  = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-be"
 existing_ecr_frontend_url = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-fe"
 
+# ECR URIs for deployment script (corrected repository names with moni prefix)
+ecr_backend_uri  = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-be"
+ecr_frontend_uri = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-fe"
+
 # Monitoring
 enable_monitoring = false  # Set to true for detailed CloudWatch monitoring ($2.10/month extra)
 

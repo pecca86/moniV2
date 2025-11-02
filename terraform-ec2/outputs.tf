@@ -25,33 +25,33 @@ output "ssh_command" {
   value       = "ssh -i ${var.key_name == "" ? "${path.module}/${local.instance_name}-key.pem" : "~/.ssh/${var.key_name}.pem"} ec2-user@${aws_instance.k3s.public_ip}"
 }
 
-output "kubeconfig_path" {
-  description = "Path to the kubeconfig file"
-  value       = "${path.module}/kubeconfig"
-}
-
-output "kubeconfig_command" {
-  description = "Command to use the kubeconfig"
-  value       = "export KUBECONFIG=${path.module}/kubeconfig"
+output "docker_compose_info" {
+  description = "Docker Compose deployment information"
+  value = {
+    deployment_path = "~/moni-deployment"
+    compose_file    = "docker-compose.yml"
+    env_file        = ".env"
+    config_path     = "nginx-config/default.conf"
+  }
 }
 
 output "application_urls" {
-  description = "URLs to access the application"
+  description = "URLs to access the application via Docker Compose"
   value = {
-    frontend_nodeport = "http://${aws_instance.k3s.public_ip}:30081"
-    backend_nodeport  = "http://${aws_instance.k3s.public_ip}:30080"
-    domain_url        = var.domain_name != "" ? "http${var.enable_ssl ? "s" : ""}://${var.domain_name}" : null
+    frontend_direct = "http://${aws_instance.k3s.public_ip}:30081"
+    backend_api     = "http://${aws_instance.k3s.public_ip}:30080"
+    frontend_proxy  = "http://${aws_instance.k3s.public_ip}:30081/api"
+    note            = "Frontend proxies API requests to backend automatically"
   }
 }
 
 output "ecr_repositories" {
-  description = "ECR repository URLs being used"
+  description = "ECR repository URLs for Docker Compose deployment"
   value = {
-    backend_url  = local.backend_image_url
-    frontend_url = local.frontend_image_url
-    source = var.existing_ecr_backend_url != "" ? "existing_ecr" : (
-      var.create_ecr_repos ? "new_ecr" : "public_dockerhub"
-    )
+    backend_url  = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-be"
+    frontend_url = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-fe"
+    source       = "existing_ecr"
+    note         = "Using existing ECR repositories with Docker Compose"
   }
 }
 
@@ -80,24 +80,28 @@ output "cost_estimate" {
 }
 
 output "useful_commands" {
-  description = "Useful commands for managing the deployment"
+  description = "Useful commands for managing the Docker Compose deployment"
   value = {
-    ssh_connect      = "ssh -i ${var.key_name == "" ? "${path.module}/${local.instance_name}-key.pem" : "~/.ssh/${var.key_name}.pem"} ec2-user@${aws_instance.k3s.public_ip}"
-    set_kubeconfig   = "export KUBECONFIG=${path.module}/kubeconfig"
-    deploy_app       = "ssh -i ${var.key_name == "" ? "${path.module}/${local.instance_name}-key.pem" : "~/.ssh/${var.key_name}.pem"} ec2-user@${aws_instance.k3s.public_ip} './deploy-moni.sh'"
-    check_k3s_status = "ssh -i ${var.key_name == "" ? "${path.module}/${local.instance_name}-key.pem" : "~/.ssh/${var.key_name}.pem"} ec2-user@${aws_instance.k3s.public_ip} 'k3s-status'"
-    view_logs        = "ssh -i ${var.key_name == "" ? "${path.module}/${local.instance_name}-key.pem" : "~/.ssh/${var.key_name}.pem"} ec2-user@${aws_instance.k3s.public_ip} 'moni-logs'"
+    ssh_connect     = "ssh -i ${var.key_name == "" ? "${path.module}/${local.instance_name}-key.pem" : "~/.ssh/${var.key_name}.pem"} ec2-user@${aws_instance.k3s.public_ip}"
+    deploy_app      = "./deploy-simple.sh ${aws_instance.k3s.public_ip}"
+    check_status    = "./manage-app.sh ${aws_instance.k3s.public_ip} status"
+    view_logs       = "./manage-app.sh ${aws_instance.k3s.public_ip} logs"
+    restart_app     = "./manage-app.sh ${aws_instance.k3s.public_ip} restart"
+    update_images   = "./manage-app.sh ${aws_instance.k3s.public_ip} update"
+    validate_app    = "./validate-deployment.sh ${aws_instance.k3s.public_ip}"
   }
 }
 
 output "next_steps" {
-  description = "Next steps after deployment"
+  description = "Next steps after Terraform deployment"
   value = [
-    "1. Wait for deployment to complete (5-10 minutes)",
-    "2. SSH to instance: ${local.ssh_command_short}",
-    "3. Deploy application: ./deploy-moni.sh",
+    "1. Wait for EC2 instance to be ready (2-3 minutes)",
+    "2. Deploy application: ./deploy-simple.sh ${aws_instance.k3s.public_ip}",
+    "3. Check status: ./manage-app.sh ${aws_instance.k3s.public_ip} status",
     "4. Access frontend: http://${aws_instance.k3s.public_ip}:30081",
-    var.domain_name != "" ? "5. Configure DNS: Point ${var.domain_name} to ${var.domain_name != "" ? aws_eip.k3s[0].public_ip : aws_instance.k3s.public_ip}" : "5. Optional: Configure a domain name for easier access"
+    "5. Access backend API: http://${aws_instance.k3s.public_ip}:30080",
+    "6. Validate deployment: ./validate-deployment.sh ${aws_instance.k3s.public_ip}",
+    var.domain_name != "" ? "7. Configure DNS: Point ${var.domain_name} to ${var.domain_name != "" ? aws_eip.k3s[0].public_ip : aws_instance.k3s.public_ip}" : "7. Optional: Configure a domain name for easier access"
   ]
 }
 
@@ -108,38 +112,22 @@ locals {
 
 # ECR login command (if ECR repos are created)
 output "ecr_login_command" {
-  description = "Command to login to ECR (if repositories are created)"
-  value = var.create_ecr_repos ? "aws ecr get-login-password --region ${var.aws_region} | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com" : null
+  description = "Command to login to ECR for Docker operations"
+  value = "aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 026596707189.dkr.ecr.eu-central-1.amazonaws.com"
 }
 
-output "docker_build_commands" {
-  description = "Commands to build and push images to ECR (if repositories are created)"
-  value = var.create_ecr_repos ? {
-    backend_commands = [
-      "# Build and push backend image",
-      "docker build -t moni-be-slim:latest -f Dockerfile .",
-      "docker tag moni-be-slim:latest ${aws_ecr_repository.moni_backend[0].repository_url}:latest", 
-      "docker push ${aws_ecr_repository.moni_backend[0].repository_url}:latest"
+output "deployment_commands" {
+  description = "Commands to deploy application using Docker Compose"
+  value = {
+    deploy_command = "./deploy-simple.sh ${aws_instance.k3s.public_ip}"
+    manage_commands = [
+      "./manage-app.sh ${aws_instance.k3s.public_ip} status",
+      "./manage-app.sh ${aws_instance.k3s.public_ip} update", 
+      "./manage-app.sh ${aws_instance.k3s.public_ip} logs",
+      "./manage-app.sh ${aws_instance.k3s.public_ip} restart"
     ]
-    frontend_commands = [
-      "# Build and push frontend image", 
-      "cd FE/moni-fe",
-      "docker build -t moni-fe:latest .",
-      "docker tag moni-fe:latest ${aws_ecr_repository.moni_frontend[0].repository_url}:latest",
-      "docker push ${aws_ecr_repository.moni_frontend[0].repository_url}:latest"
-    ]
-    note = "ECR repositories created - use these commands to push images"
-    recommendation = "Run 'terraform output ecr_login_command' first to authenticate"
-  } : {
-    backend_commands = [
-      "# Using existing or public images - no build needed",
-      "echo 'Backend image: ${local.backend_image_url}'",
-    ]
-    frontend_commands = [
-      "# Using existing or public images - no build needed", 
-      "echo 'Frontend image: ${local.frontend_image_url}'",
-    ]
-    note = var.existing_ecr_backend_url != "" ? "Using existing ECR images" : "Using public Docker Hub images"
-    recommendation = var.existing_ecr_backend_url != "" ? "Images already available in ECR" : "Set create_ecr_repos = true for private repositories"
+    validation_command = "./validate-deployment.sh ${aws_instance.k3s.public_ip}"
+    note = "Using Docker Compose with ECR images"
+    ecr_login = "aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 026596707189.dkr.ecr.eu-central-1.amazonaws.com"
   }
 }

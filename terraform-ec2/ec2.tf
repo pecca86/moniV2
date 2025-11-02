@@ -19,6 +19,7 @@ resource "aws_instance" "k3s" {
   key_name               = local.key_name
   vpc_security_group_ids = [aws_security_group.k3s.id]
   subnet_id              = aws_subnet.public.id
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   
   # User data for K3s installation
   user_data_replace_on_change = true

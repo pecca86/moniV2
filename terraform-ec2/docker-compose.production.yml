@@ -38,12 +38,8 @@ services:
     restart: unless-stopped
     networks:
       - moni-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/transactions/categories"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+    # Health check disabled - minimal Java image doesn't include curl/wget
+    # Backend is monitored through external endpoint testing
 
   moni-fe:
     image: "${ECR_FRONTEND_URI:-moni-fe:latest}"
@@ -51,8 +47,7 @@ services:
     ports:
       - "30081:80"
     depends_on:
-      moni-be:
-        condition: service_healthy
+      - moni-be
     restart: unless-stopped
     networks:
       - moni-network
