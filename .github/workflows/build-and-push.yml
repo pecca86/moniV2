@@ -37,13 +37,7 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-
-    - name: Cache Maven dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+        cache: maven
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -55,7 +49,7 @@ jobs:
     - name: Build Backend JAR
       run: |
         echo "🔨 Building Spring Boot JAR..."
-        ./mvnw clean package -DskipTests
+        mvn -B clean package -DskipTests --file pom.xml
         ls -la target/
         
     - name: Build Frontend
@@ -104,6 +98,9 @@ jobs:
         echo "Frontend SHA: $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:${{ github.sha }}"
         echo ""
         echo "🚀 Images are ready for deployment!"
+
+    - name: Update dependency graph
+      uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
 
     - name: Create deployment summary
       run: |
