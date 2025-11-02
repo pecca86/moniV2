@@ -63,36 +63,29 @@ jobs:
         npm run build
         ls -la dist/
 
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
     - name: Build and tag Backend Docker image
       run: |
-        echo "🐳 Building Backend Docker image with pre-built JAR..."
-        docker build --platform linux/amd64 \
-                     -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest \
-                     -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:${{ github.sha }} .
-        echo "Backend image built successfully"
+        echo "🐳 Building Backend Docker image with multi-platform support..."
+        docker buildx build --platform linux/amd64,linux/arm64 \
+                            --push \
+                            -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest \
+                            -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:${{ github.sha }} .
+        echo "Backend image built and pushed successfully"
 
     - name: Build and tag Frontend Docker image
       run: |
-        echo "🐳 Building Frontend Docker image..."
+        echo "🐳 Building Frontend Docker image with multi-platform support..."
         cd FE/moni-fe
-        docker build --platform linux/amd64 \
-                     -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest \
-                     -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:${{ github.sha }} .
-        echo "Frontend image built successfully"
+        docker buildx build --platform linux/amd64,linux/arm64 \
+                            --push \
+                            -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest \
+                            -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:${{ github.sha }} .
+        echo "Frontend image built and pushed successfully"
 
-    - name: Push Backend image to ECR
-      run: |
-        echo "🚀 Pushing Backend image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:${{ github.sha }}
-        echo "Backend image pushed successfully"
 
-    - name: Push Frontend image to ECR
-      run: |
-        echo "🚀 Pushing Frontend image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:${{ github.sha }}
-        echo "Frontend image pushed successfully"
 
     - name: Output image URIs
       run: |
