@@ -54,13 +54,6 @@ jobs:
         # Copy JAR to root for Docker build context
         cp target/moni-0.0.1-SNAPSHOT.jar ./moni-backend.jar
         ls -la *.jar
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: FE/moni-fe/package-lock.json
         
     - name: Build Frontend
       run: |
@@ -73,7 +66,8 @@ jobs:
     - name: Build and tag Backend Docker image
       run: |
         echo "🐳 Building Backend Docker image with pre-built JAR..."
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest \
+        docker build --platform linux/amd64 \
+                     -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest \
                      -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:${{ github.sha }} .
         echo "Backend image built successfully"
 
@@ -81,7 +75,8 @@ jobs:
       run: |
         echo "🐳 Building Frontend Docker image..."
         cd FE/moni-fe
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest \
+        docker build --platform linux/amd64 \
+                     -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest \
                      -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:${{ github.sha }} .
         echo "Frontend image built successfully"
 
