@@ -1,0 +1,82 @@
+name: Deploy to EC2 after ECR Push
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Images to ECR"]
+    types:
+      - completed
+    branches: [main]
+
+env:
+  AWS_REGION: eu-central-1
+
+jobs:
+  deploy-to-ec2:
+    name: Deploy Latest Images to EC2
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Get EC2 Instance IP
+      id: get-ip
+      run: |
+        # Get the EC2 instance IP from terraform output (if available)
+        # This assumes your EC2 instance has a specific tag
+        INSTANCE_IP=$(aws ec2 describe-instances \
+          --filters "Name=tag:Name,Values=moni-dev-k3s" "Name=instance-state-name,Values=running" \
+          --query "Reservations[0].Instances[0].PublicIpAddress" \
+          --output text 2>/dev/null || echo "")
+        
+        if [ "$INSTANCE_IP" = "None" ] || [ -z "$INSTANCE_IP" ]; then
+          echo "⚠️  Could not automatically detect EC2 instance IP"
+          echo "Please set EC2_INSTANCE_IP as a repository secret"
+          echo "instance_ip=" >> $GITHUB_OUTPUT
+        else
+          echo "✅ Found EC2 instance IP: $INSTANCE_IP"
+          echo "instance_ip=$INSTANCE_IP" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Deploy to EC2 (if IP available)
+      if: steps.get-ip.outputs.instance_ip != ''
+      run: |
+        echo "🚀 Deploying latest images to EC2: ${{ steps.get-ip.outputs.instance_ip }}"
+        
+        # Note: This would require SSH key setup in GitHub Actions
+        # For now, we'll just show the command that should be run
+        echo "To complete deployment, run locally:"
+        echo "./terraform-ec2/manage-app.sh ${{ steps.get-ip.outputs.instance_ip }} update"
+
+    - name: Create deployment notification
+      run: |
+        echo "## 🚀 Deployment Ready" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -n "${{ steps.get-ip.outputs.instance_ip }}" ]; then
+          echo "### ✅ EC2 Instance Found" >> $GITHUB_STEP_SUMMARY
+          echo "**IP Address:** \`${{ steps.get-ip.outputs.instance_ip }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔄 Deploy Latest Images" >> $GITHUB_STEP_SUMMARY
+          echo "Run this command to update your deployment:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "cd terraform-ec2" >> $GITHUB_STEP_SUMMARY
+          echo "./manage-app.sh ${{ steps.get-ip.outputs.instance_ip }} update" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### ⚠️  Manual Deployment Required" >> $GITHUB_STEP_SUMMARY
+          echo "Could not automatically detect EC2 instance." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**To deploy manually:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "cd terraform-ec2" >> $GITHUB_STEP_SUMMARY
+          echo "./manage-app.sh <YOUR_EC2_IP> update" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        fi
