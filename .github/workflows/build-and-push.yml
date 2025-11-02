@@ -62,7 +62,7 @@ jobs:
 
     - name: Build and tag Backend Docker image
       run: |
-        echo "🐳 Building Backend Docker image..."
+        echo "🐳 Building Backend Docker image with pre-built JAR..."
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest \
                      -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:${{ github.sha }} .
         echo "Backend image built successfully"

@@ -1,9 +1,21 @@
-# Example of custom Java runtime using jlink in a multi-stage container build
+# Alternative Dockerfile for local builds (uses Maven directly)
+FROM maven:3.9-eclipse-temurin-17 AS maven-build
+WORKDIR /app
+
+# Copy pom.xml first for better layer caching
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source code and build
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+# Create custom JRE using jlink
 FROM eclipse-temurin:17 AS jre-build
 WORKDIR /app
 
-# Copy the pre-built JAR file from GitHub Actions
-COPY target/moni-0.0.1-SNAPSHOT.jar target/moni-0.0.1-SNAPSHOT.jar
+# Copy JAR from maven build stage
+COPY --from=maven-build /app/target/moni-0.0.1-SNAPSHOT.jar target/moni-0.0.1-SNAPSHOT.jar
 
 # List jar modules
 RUN jar xf target/moni-0.0.1-SNAPSHOT.jar
@@ -24,7 +36,7 @@ RUN $JAVA_HOME/bin/jlink \
          --compress=2 \
          --output /javaruntime
 
-# Define your base image
+# Final runtime image
 FROM debian:buster-slim
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
