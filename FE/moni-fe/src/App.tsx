@@ -9,7 +9,7 @@ import DetailCharts from "./ui/account-detail/charts/DetailCharts";
 import ProfilePage from "./pages/ProfilePage";
 import { Toaster } from "react-hot-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Login from "./pages/Login";
 import ProtectedRoute from "./ProtectedRoute";
 import Register from "./pages/Register";
