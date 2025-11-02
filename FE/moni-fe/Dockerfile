@@ -1,10 +1,11 @@
 FROM node:18 AS builder
 WORKDIR /app
-ENV NODE_ENV=production
+# Copy package files and install all dependencies (including devDependencies for build)
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+# Build the application using npx to ensure tools are available
+RUN npx tsc -b && npx vite build
 
 # Stage 2: Setup the Nginx Server to serve the Vue.js Application
 FROM nginx:1.25.0-alpine AS production
