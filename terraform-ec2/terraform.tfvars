@@ -7,11 +7,11 @@ project_name = "moni"
 environment  = "dev"        # Options: dev, staging, prod
 
 # EC2 Configuration
-instance_type = "t4g.micro"  # ARM64, Free tier eligible
+instance_type = "t4g.small"  # ARM64, 2GB RAM - better for K3s + apps
                              # Other options: t4g.small, t4g.medium, t3.micro, t3.small
 
 # Storage
-volume_size = 20  # GB - Minimum 20GB recommended for K3s + apps
+volume_size = 30  # GB - Required minimum for AMI snapshot + K3s + apps
 
 # SSH Access
 key_name = ""  # Leave empty to generate a new key pair
@@ -35,8 +35,8 @@ docker_registry    = "ecr"  # Options: dockerhub, ghcr, ecr
 create_ecr_repos   = false  # Set to false when using existing ECR repos
 
 # Existing ECR repositories (use these instead of creating new ones)
-existing_ecr_backend_url  = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moniv2"
-existing_ecr_frontend_url = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moniv2"
+existing_ecr_backend_url  = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-be"
+existing_ecr_frontend_url = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-fe"
 
 # Monitoring
 enable_monitoring = false  # Set to true for detailed CloudWatch monitoring ($2.10/month extra)

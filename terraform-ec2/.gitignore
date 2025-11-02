@@ -1,0 +1,7 @@
+# Add to .gitignore to prevent future commits
+*.pem
+*.key
+.env
+.env.*
+terraform.tfstate*
+.terraform/

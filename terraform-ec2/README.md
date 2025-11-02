@@ -1,322 +1,197 @@
-# EC2 K3s Deployment for Moni Application
+# Moni Application - Simplified Deployment Guide
 
-A cost-effective Terraform configuration that deploys your Moni application using K3s (lightweight Kubernetes) on a single EC2 instance.
-
-## 💰 Cost Comparison
-
-| Component | EKS (terraform/) | EC2 K3s (terraform-ec2/) |
-|-----------|------------------|---------------------------|
-| **Control Plane** | $73/month | $0 (K3s is free) |
-| **Worker Nodes** | $30+/month | $3.50/month (t4g.micro) |
-| **Load Balancer** | $16+/month | $0 (NodePort/Ingress) |
-| **Storage** | $2+/month | $1.60/month (20GB) |
-| **Total** | **~$120+/month** | **~$5/month** |
-| **Free Tier** | Not eligible | **$0/month** (first 12 months) |
-
-## 🏗️ What This Creates
-
-### Infrastructure
-- ✅ **Single EC2 instance** (t4g.micro - ARM64, free tier eligible)
-- ✅ **Custom VPC** with public subnet
-- ✅ **Security Groups** properly configured
-- ✅ **K3s cluster** with Docker runtime
-- ✅ **Traefik ingress** controller (built-in)
-
-### Features
-- ✅ **Auto-installation** of K3s, Docker, and tools
-- ✅ **Kubernetes manifests** for your Moni application
-- ✅ **Helper scripts** for deployment and management
-- ✅ **Optional ECR repositories** for private images
-- ✅ **Optional SSL/TLS** with Let's Encrypt
-- ✅ **Cost optimization** with ARM64 instances
-
-## 📋 Prerequisites
-
-1. **AWS CLI** configured with appropriate permissions
-2. **Terraform** >= 1.0
-3. **Your Docker images** available (public or push to ECR)
+This guide covers the optimized deployment approach using template files instead of inline configuration generation.
 
 ## 🚀 Quick Start
 
-### 1. Configure Variables
+### Prerequisites
+- AWS CLI configured with appropriate permissions
+- SSH access to EC2 instance
+- Docker images built and pushed to ECR
 
+### Deploy Application
 ```bash
-cd terraform-ec2
+# Deploy using existing configuration templates
+./deploy-simple.sh <EC2_IP>
 
-# Copy example configuration  
-cp terraform.tfvars.example terraform.tfvars
-
-# Edit for your needs
-nano terraform.tfvars
+# Example:
+./deploy-simple.sh 3.72.52.245
 ```
 
-**Important settings:**
-- `aws_region`: Your preferred AWS region
-- `allowed_ssh_cidr`: **Restrict to your IP!** (security)
-- `key_name`: Leave empty to auto-generate SSH key
-- `domain_name`: Optional custom domain
-- `create_ecr_repos`: Set to `true` for private repositories
-
-### 2. Deploy Infrastructure
-
+### Manage Application
 ```bash
-# Initialize Terraform
-terraform init
-
-# Plan deployment
-terraform plan
-
-# Deploy (takes ~5-10 minutes)
-terraform apply
-```
-
-### 3. Access Your Instance
-
-```bash
-# Get SSH command from output
-terraform output ssh_command
-
-# SSH to your instance
-ssh -i ./moni-dev-k3s-key.pem ec2-user@YOUR_INSTANCE_IP
-```
-
-### 4. Deploy Your Application
-
-```bash
-# On the EC2 instance, run the deployment script
-./deploy-moni.sh
-
 # Check status
-k3s-status
-kubectl get pods -n moni
-```
-
-### 5. Access Your Application
-
-```bash
-# Get application URLs
-terraform output application_urls
-
-# Access via NodePort
-curl http://YOUR_INSTANCE_IP:30080
-```
-
-## 🐳 Container Images
-
-### Option 1: Public Images (Default)
-Uses pre-built images from Docker Hub:
-- `pecca86/moni-be:latest`
-- `pecca86/moni-fe:latest`
-
-### Option 2: Private ECR (Recommended for Production)
-Set `create_ecr_repos = true` and push your images:
-
-```bash
-# Get ECR login command
-terraform output ecr_login_command
-
-# Build and push images
-terraform output docker_build_commands
-```
-
-## 🔧 Management Commands
-
-All available via Terraform outputs:
-
-```bash
-# View all useful commands
-terraform output useful_commands
-
-# SSH to instance
-terraform output ssh_command
-
-# Use kubectl locally
-terraform output kubeconfig_command
-export KUBECONFIG=./kubeconfig
-kubectl get pods -n moni
-```
-
-## 📊 Instance Specifications
-
-| Spec | t4g.micro | t4g.small | t4g.medium |
-|------|-----------|-----------|------------|
-| **vCPUs** | 2 | 2 | 2 |
-| **Memory** | 1 GB | 2 GB | 4 GB |
-| **Network** | Up to 5 Gbps | Up to 5 Gbps | Up to 5 Gbps |
-| **Cost/month** | $3.50 ($0 free tier) | $7.00 | $14.00 |
-| **Suitable for** | Dev/Demo | Small prod | Production |
-
-## 🌐 Access Options
-
-### 1. NodePort (Default)
-Direct access via instance IP:
-- Frontend: `http://INSTANCE_IP:30080`
-- Backend: `http://INSTANCE_IP:30080` (same port, different paths)
-
-### 2. Custom Domain (Optional)
-Set `domain_name` in variables:
-- Configure DNS to point to your instance IP
-- Access: `http://yourdomain.com`
-- Optional SSL with `enable_ssl = true`
-
-### 3. Local kubectl
-Use the generated kubeconfig:
-```bash
-export KUBECONFIG=./kubeconfig
-kubectl port-forward svc/moni-fe 8080:80 -n moni
-```
-
-## 🔒 Security Features
-
-- **Private SSH key** auto-generated
-- **Security groups** restrict access to necessary ports
-- **IMDSv2 enforced** on EC2 instance
-- **EBS encryption** enabled by default
-- **Optional SSL/TLS** with Let's Encrypt
-
-## 📈 Scaling Options
-
-### Vertical Scaling (Single Instance)
-```hcl
-# In terraform.tfvars
-instance_type = "t4g.small"  # or t4g.medium
-volume_size   = 40           # Increase storage
-```
-
-### Horizontal Scaling (Multiple Instances)
-For high availability, consider:
-- Multiple instances with load balancer
-- RDS for database (instead of PostgreSQL pod)
-- EFS for shared storage
-
-## 🛠️ Troubleshooting
-
-### Instance Issues
-```bash
-# SSH to instance
-ssh -i ./moni-dev-k3s-key.pem ec2-user@INSTANCE_IP
-
-# Check K3s status
-sudo systemctl status k3s
-kubectl get nodes
-
-# Check installation logs
-sudo cat /var/log/k3s-install.log
-```
-
-### Application Issues
-```bash
-# Check pod status
-kubectl get pods -n moni
+./manage-app.sh <EC2_IP> status
 
 # View logs
-kubectl logs -l app=moni-be -n moni
-kubectl logs -l app=moni-fe -n moni
+./manage-app.sh <EC2_IP> logs
 
-# Restart deployment
-kubectl rollout restart deployment/moni-be -n moni
+# Restart services
+./manage-app.sh <EC2_IP> restart
+
+# Update to latest images
+./manage-app.sh <EC2_IP> update
+
+# Run validation tests
+./manage-app.sh <EC2_IP> test
 ```
 
-### Common Solutions
-1. **Pod pending**: Check resource availability with `kubectl describe pod`
-2. **Image pull errors**: Verify image names and registry access
-3. **Database issues**: Check PostgreSQL pod logs and persistent volume
+## 📁 File Structure
 
-## 💡 Cost Optimization Tips
-
-### Free Tier Benefits
-- **EC2**: 750 hours/month free (t2.micro/t3.micro)
-- **EBS**: 30GB free storage
-- **Data Transfer**: 1GB/month free
-
-### Production Cost Savings
-- Use **Spot Instances** for ~70% savings
-- **Schedule shutdown** during off-hours
-- **Right-size** instance based on actual usage
-- Use **RDS Free Tier** for database
-
-### Monitoring Costs
-```bash
-# Check current AWS costs
-aws ce get-cost-and-usage \
-  --time-period Start=2024-01-01,End=2024-01-31 \
-  --granularity MONTHLY \
-  --metrics BlendedCost
-```
-
-## 🔄 Maintenance
-
-### Updates
-```bash
-# Update K3s
-ssh ec2-user@INSTANCE_IP 'curl -sfL https://get.k3s.io | sh -s - --docker'
-
-# Update application
-kubectl set image deployment/moni-be moni-be=NEW_IMAGE:TAG -n moni
-```
-
-### Backups
-```bash
-# Backup database
-kubectl exec -it deployment/moni-db -n moni -- pg_dump -U postgres moni > backup.sql
-
-# Backup K3s config
-sudo cp /var/lib/rancher/k3s/server/db/state.db /backup/
-```
-
-## 🗑️ Cleanup
-
-```bash
-# Destroy all resources
-terraform destroy
-
-# Clean up local files
-rm -f kubeconfig moni-k3s.yaml *.pem
-```
-
-## 📚 File Structure
-
+### Configuration Templates
 ```
 terraform-ec2/
-├── main.tf                    # Main configuration
-├── variables.tf               # Input variables  
-├── networking.tf              # VPC and security
-├── ssh-keys.tf               # SSH key management
-├── ec2.tf                    # EC2 instance and K3s
-├── k8s-manifests.tf          # Kubernetes configs
-├── moni-k3s.yaml.tpl         # K8s manifest template
-├── user-data.sh              # Instance initialization
-├── outputs.tf                # Output values
-├── terraform.tfvars.example  # Example configuration
-└── README.md                 # This file
+├── deploy-simple.sh              # Main deployment script
+├── manage-app.sh                 # Application management
+├── validate-deployment.sh        # Testing script
+├── docker-compose.production.yml # Production compose template
+└── nginx-config-template/
+    └── default.conf              # Nginx configuration template
 ```
 
-## 🎯 Use Cases
+### Template Variables
+- `ECR_BACKEND_URI`: Backend container image URI
+- `ECR_FRONTEND_URI`: Frontend container image URI
+- `AWS_REGION`: AWS region for ECR authentication
 
-### Perfect For:
-- **Development environments**
-- **Small production workloads**  
-- **Learning Kubernetes**
-- **Cost-conscious deployments**
-- **Single-application deployments**
+## 🔄 Deployment Process
 
-### Not Suitable For:
-- **High-availability production** (single point of failure)
-- **Large-scale applications** (resource constraints)
-- **Multi-tenant workloads** (security isolation)
-- **Compliance requirements** (managed services needed)
+### 1. Template Upload
+- Uploads `docker-compose.production.yml` to remote server
+- Uploads nginx configuration from `nginx-config-template/`
+- Creates environment file with ECR URIs
 
-## 🆚 vs EKS Comparison
+### 2. Container Management
+- Authenticates with ECR registry
+- Pulls latest container images
+- Starts services with health checks
 
-| Feature | EKS (terraform/) | K3s (terraform-ec2/) |
-|---------|------------------|----------------------|
-| **Setup Time** | 15-20 min | 5-10 min |
-| **Complexity** | High | Low |
-| **Cost** | $120+/month | $5/month |
-| **Scalability** | Excellent | Limited |
-| **High Availability** | Built-in | Manual setup |
-| **Managed Control Plane** | Yes | No |
-| **Production Ready** | Yes | Small scale |
-| **Learning Curve** | Steep | Gentle |
+### 3. Validation
+- Tests backend API endpoints
+- Validates frontend accessibility
+- Checks CORS functionality
 
-Choose **EKS** for production workloads, **K3s** for development and small applications!
+## 🛠️ Configuration Details
+
+### Docker Compose Template
+```yaml
+# docker-compose.production.yml
+services:
+  moni-be:
+    image: ${ECR_BACKEND_URI}
+    ports: ["30080:8080"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/transactions/categories"]
+      
+  moni-fe:
+    image: ${ECR_FRONTEND_URI}
+    ports: ["30081:80"]
+    depends_on:
+      moni-be: { condition: service_healthy }
+```
+
+### Nginx Configuration
+```nginx
+# nginx-config-template/default.conf
+server {
+    listen 80;
+    
+    location /api/ {
+        proxy_pass http://moni-be:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+    
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+1. **ECR Authentication Failure**
+   ```bash
+   # Re-authenticate manually
+   aws ecr get-login-password --region us-east-1 | \
+   sudo docker login --username AWS --password-stdin <ECR_URI>
+   ```
+
+2. **CORS Errors**
+   - Backend automatically allows requests from any EC2 IP
+   - No manual CORS configuration needed
+
+3. **Service Startup Issues**
+   ```bash
+   # Check service logs
+   ./manage-app.sh <IP> logs
+   
+   # Check container status
+   ./manage-app.sh <IP> status
+   ```
+
+4. **Network Connectivity**
+   ```bash
+   # Test backend directly
+   curl http://<EC2_IP>:30080/api/v1/transactions/categories
+   
+   # Test frontend proxy
+   curl http://<EC2_IP>:30081/api/v1/transactions/categories
+   ```
+
+## 🔄 Updates and Maintenance
+
+### Deploy New Version
+1. Build and push new images to ECR
+2. Run update command:
+   ```bash
+   ./manage-app.sh <EC2_IP> update
+   ```
+
+### Backup Configuration
+```bash
+# Backup remote configuration
+scp -i ./moni-dev-k3s-key.pem ec2-user@<IP>:~/moni-deployment/.env ./backup/
+scp -i ./moni-dev-k3s-key.pem ec2-user@<IP>:~/moni-deployment/docker-compose.yml ./backup/
+```
+
+## 📊 Monitoring
+
+### Health Checks
+- Backend: `GET /api/v1/transactions/categories`
+- Frontend: Proxied API requests through nginx
+
+### Log Management
+```bash
+# Real-time logs
+./manage-app.sh <IP> logs
+
+# Specific service logs
+ssh -i ./moni-dev-k3s-key.pem ec2-user@<IP>
+sudo docker-compose logs moni-be
+sudo docker-compose logs moni-fe
+```
+
+## 🔒 Security Notes
+
+- ECR authentication tokens expire after 12 hours
+- Use `manage-app.sh <IP> update` to refresh authentication
+- SSH key should be kept secure and not committed to repository
+- Environment files contain sensitive ECR URIs - handle carefully
+
+## 🚀 Advanced Usage
+
+### Custom Configuration
+1. Modify templates in `docker-compose.production.yml` or `nginx-config-template/`
+2. Re-run deployment: `./deploy-simple.sh <IP>`
+
+### Multiple Environments
+1. Create environment-specific template files
+2. Modify deployment script to accept environment parameter
+3. Deploy to different EC2 instances with different configurations
+
+---
+
+This simplified approach maintains all automation benefits while using maintainable template files instead of inline configuration generation.

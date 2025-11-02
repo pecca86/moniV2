@@ -30,3 +30,11 @@ replay_pid*
 /logs/*
 /.mvn/*
 /FE/package-lock.json
+
+# Terraform files and directories
+terraform-ec2/.terraform/
+terraform-ec2/.terraform.lock.hcl
+terraform-ec2/terraform.tfstate*
+terraform-ec2/*.pem
+terraform-ec2/*.key
+terraform-ec2/.env*

@@ -52,8 +52,22 @@ resource "aws_instance" "k3s" {
   # Wait for instance to be ready before proceeding
   provisioner "remote-exec" {
     inline = [
-      "cloud-init status --wait",
-      "sudo systemctl is-active --quiet k3s && echo 'K3s is running' || echo 'K3s failed to start'"
+      "echo 'Waiting for cloud-init to complete...'",
+      "cloud-init status --wait || echo 'Cloud-init completed with warnings'",
+      "echo 'Cloud-init status:'",
+      "cloud-init status",
+      "echo 'Checking K3s service status...'",
+      "sudo systemctl status k3s --no-pager || echo 'K3s service not found yet'",
+      "if sudo systemctl is-active --quiet k3s; then",
+      "  echo '✅ K3s is running successfully'",
+      "  kubectl get nodes || echo 'kubectl not ready yet'",
+      "else",
+      "  echo '❌ K3s is not running - checking logs...'",
+      "  echo 'K3s service logs:'",
+      "  sudo journalctl -u k3s --no-pager --lines=10 || echo 'No K3s logs yet'",
+      "  echo 'Cloud-init output:'", 
+      "  sudo tail -20 /var/log/cloud-init-output.log || echo 'No cloud-init output yet'",
+      "fi"
     ]
 
     connection {
@@ -61,7 +75,7 @@ resource "aws_instance" "k3s" {
       user        = "ec2-user"
       private_key = var.key_name == "" ? tls_private_key.generated[0].private_key_pem : file("~/.ssh/${var.key_name}.pem")
       host        = self.public_ip
-      timeout     = "10m"
+      timeout     = "15m"
     }
   }
 }
@@ -86,9 +100,32 @@ resource "null_resource" "kubeconfig" {
 
   provisioner "remote-exec" {
     inline = [
-      "while [ ! -f /etc/rancher/k3s/k3s.yaml ]; do sleep 5; done",
+      "echo 'Waiting for cloud-init to complete...'",
+      "cloud-init status --wait || echo 'Cloud-init finished with warnings'",
+      "echo 'Checking K3s installation status...'",
+      "sudo systemctl status k3s --no-pager || echo 'K3s not yet started'",
+      "echo 'Waiting for K3s to create kubeconfig (max 10 minutes)...'",
+      "timeout=600",
+      "elapsed=0",
+      "while [ ! -f /etc/rancher/k3s/k3s.yaml ] && [ $elapsed -lt $timeout ]; do",
+      "  echo \"Waiting for kubeconfig... ($elapsed/$timeout seconds)\"",
+      "  sleep 10",
+      "  elapsed=$((elapsed + 10))",
+      "done",
+      "if [ ! -f /etc/rancher/k3s/k3s.yaml ]; then",
+      "  echo 'ERROR: K3s kubeconfig not found after timeout'",
+      "  echo 'K3s service status:'",
+      "  sudo systemctl status k3s --no-pager",
+      "  echo 'K3s logs:'", 
+      "  sudo journalctl -u k3s --no-pager --lines=20",
+      "  echo 'Cloud-init logs:'",
+      "  sudo tail -50 /var/log/cloud-init-output.log",
+      "  exit 1",
+      "fi",
+      "echo 'K3s kubeconfig found, copying to /tmp'",
       "sudo cp /etc/rancher/k3s/k3s.yaml /tmp/k3s.yaml",
-      "sudo chown ec2-user:ec2-user /tmp/k3s.yaml"
+      "sudo chown ec2-user:ec2-user /tmp/k3s.yaml",
+      "echo 'Kubeconfig ready for download'"
     ]
 
     connection {
@@ -96,7 +133,7 @@ resource "null_resource" "kubeconfig" {
       user        = "ec2-user"
       private_key = var.key_name == "" ? tls_private_key.generated[0].private_key_pem : file("~/.ssh/${var.key_name}.pem")
       host        = aws_instance.k3s.public_ip
-      timeout     = "5m"
+      timeout     = "15m"
     }
   }
 

@@ -3,7 +3,7 @@
 variable "aws_region" {
   description = "AWS region for resources"
   type        = string
-  default     = "us-west-2"
+  default     = "eu-central-1"
 }
 
 variable "project_name" {
@@ -45,7 +45,7 @@ variable "allowed_http_cidr" {
 variable "volume_size" {
   description = "Size of the root EBS volume in GB"
   type        = number
-  default     = 20  # Minimum recommended for K3s + applications
+  default     = 30  # Minimum required by AMI snapshot + K3s applications
 }
 
 variable "enable_monitoring" {
@@ -61,7 +61,7 @@ variable "k3s_version" {
 }
 
 variable "domain_name" {
-  description = "Domain name for the application (optional)"
+  description = "MoniV2"
   type        = string
   default     = ""
 }
@@ -87,11 +87,11 @@ variable "create_ecr_repos" {
 variable "existing_ecr_backend_url" {
   description = "Existing ECR repository URL for backend image (if not creating new repos)"
   type        = string
-  default     = ""
+  default     = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-be:latest"
 }
 
 variable "existing_ecr_frontend_url" {
   description = "Existing ECR repository URL for frontend image (if not creating new repos)"
   type        = string
-  default     = ""
+  default     = "026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-fe:latest"
 }

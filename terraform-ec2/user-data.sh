@@ -7,12 +7,16 @@ set -e
 dnf update -y
 
 # Install required packages
-dnf install -y curl wget docker git
+dnf install -y --allowerasing curl wget docker git jq
 
 # Start and enable Docker
 systemctl start docker
 systemctl enable docker
 usermod -aG docker ec2-user
+
+# Install Docker Compose
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
 # Install K3s
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="${k3s_version}" sh -s - \

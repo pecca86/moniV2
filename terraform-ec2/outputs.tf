@@ -38,7 +38,7 @@ output "kubeconfig_command" {
 output "application_urls" {
   description = "URLs to access the application"
   value = {
-    frontend_nodeport = "http://${aws_instance.k3s.public_ip}:30080"
+    frontend_nodeport = "http://${aws_instance.k3s.public_ip}:30081"
     backend_nodeport  = "http://${aws_instance.k3s.public_ip}:30080"
     domain_url        = var.domain_name != "" ? "http${var.enable_ssl ? "s" : ""}://${var.domain_name}" : null
   }
@@ -96,7 +96,7 @@ output "next_steps" {
     "1. Wait for deployment to complete (5-10 minutes)",
     "2. SSH to instance: ${local.ssh_command_short}",
     "3. Deploy application: ./deploy-moni.sh",
-    "4. Access frontend: http://${aws_instance.k3s.public_ip}:30080",
+    "4. Access frontend: http://${aws_instance.k3s.public_ip}:30081",
     var.domain_name != "" ? "5. Configure DNS: Point ${var.domain_name} to ${var.domain_name != "" ? aws_eip.k3s[0].public_ip : aws_instance.k3s.public_ip}" : "5. Optional: Configure a domain name for easier access"
   ]
 }
@@ -128,8 +128,18 @@ output "docker_build_commands" {
       "docker tag moni-fe:latest ${aws_ecr_repository.moni_frontend[0].repository_url}:latest",
       "docker push ${aws_ecr_repository.moni_frontend[0].repository_url}:latest"
     ]
+    note = "ECR repositories created - use these commands to push images"
+    recommendation = "Run 'terraform output ecr_login_command' first to authenticate"
   } : {
-    note = "Using public Docker Hub images (pecca86/moni-be:latest, pecca86/moni-fe:latest)"
-    recommendation = "Set create_ecr_repos = true for private repositories"
+    backend_commands = [
+      "# Using existing or public images - no build needed",
+      "echo 'Backend image: ${local.backend_image_url}'",
+    ]
+    frontend_commands = [
+      "# Using existing or public images - no build needed", 
+      "echo 'Frontend image: ${local.frontend_image_url}'",
+    ]
+    note = var.existing_ecr_backend_url != "" ? "Using existing ECR images" : "Using public Docker Hub images"
+    recommendation = var.existing_ecr_backend_url != "" ? "Images already available in ECR" : "Set create_ecr_repos = true for private repositories"
   }
 }
