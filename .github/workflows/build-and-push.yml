@@ -51,6 +51,16 @@ jobs:
         echo "🔨 Building Spring Boot JAR..."
         mvn -B clean package -DskipTests --file pom.xml
         ls -la target/
+        # Copy JAR to root for Docker build context
+        cp target/moni-0.0.1-SNAPSHOT.jar ./moni-backend.jar
+        ls -la *.jar
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: FE/moni-fe/package-lock.json
         
     - name: Build Frontend
       run: |

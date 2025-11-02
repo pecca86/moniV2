@@ -2,18 +2,18 @@
 FROM eclipse-temurin:17 AS jre-build
 WORKDIR /app
 
-# Copy the pre-built JAR file from GitHub Actions
-COPY target/moni-0.0.1-SNAPSHOT.jar target/moni-0.0.1-SNAPSHOT.jar
+# Copy the pre-built JAR file from GitHub Actions (copied to root in workflow)
+COPY moni-backend.jar ./app.jar
 
 # List jar modules
-RUN jar xf target/moni-0.0.1-SNAPSHOT.jar
+RUN jar xf app.jar
 RUN jdeps \
     --ignore-missing-deps \
     --print-module-deps \
     --multi-release 17 \
     --recursive \
     --class-path 'BOOT-INF/lib/*' \
-    target/moni-0.0.1-SNAPSHOT.jar > modules.txt
+    app.jar > modules.txt
 
 # Create a custom Java runtime
 RUN $JAVA_HOME/bin/jlink \
@@ -32,5 +32,5 @@ COPY --from=jre-build /javaruntime $JAVA_HOME
 
 # Continue with your application deployment
 RUN mkdir /opt/server
-COPY --from=jre-build /app/target/moni-0.0.1-SNAPSHOT.jar /opt/server/app.jar
+COPY --from=jre-build /app/app.jar /opt/server/app.jar
 CMD ["java", "-jar", "/opt/server/app.jar"]
