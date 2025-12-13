@@ -5,7 +5,10 @@ import com.pekka.moni.auth.dto.AuthenticationResponse;
 import com.pekka.moni.auth.dto.NewPasswordRequest;
 import com.pekka.moni.auth.dto.RegisterRequest;
 import com.pekka.moni.customer.Customer;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -57,11 +61,12 @@ class AuthenticationControllerTest {
     void should_login_existing_customer() {
         //given
         AuthenticationRequest request = new AuthenticationRequest("p@p.com", "password");
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         AuthenticationResponse authenticationResponse = new AuthenticationResponse();
         authenticationResponse.setToken("token");
         given(authenticationServiceMock.login(any())).willReturn(authenticationResponse);
         //when
-        ResponseEntity<AuthenticationResponse> response = underTest.login(request, null);
+        ResponseEntity<AuthenticationResponse> response = underTest.login(request, httpServletResponse);
         //then
         assertThat(response.getStatusCode().value()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(authenticationResponse);

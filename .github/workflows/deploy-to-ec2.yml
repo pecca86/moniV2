@@ -51,30 +51,60 @@ jobs:
       run: |
         echo "🚀 Deploying latest images to EC2: ${{ steps.get-ip.outputs.instance_ip }}"
         
-        # Note: This would require SSH key setup in GitHub Actions
-        # For now, we'll just show the command that should be run
-        echo "To complete deployment, run locally:"
-        echo "./terraform-ec2/manage-app.sh ${{ steps.get-ip.outputs.instance_ip }} update"
+        # Note: This requires SSH key setup in GitHub Actions
+        # For now, we'll trigger the update via AWS Systems Manager or show manual steps
+        echo "⚠️  SSH deployment not configured in GitHub Actions"
+        echo "The new images are built and pushed to ECR:"
+        echo "- Backend: 026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-be:latest"
+        echo "- Frontend: 026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-fe:latest"
+        echo ""
+        echo "🔄 To deploy the NEW images, run this command locally:"
+        echo "cd terraform-ec2 && ./manage-app.sh ${{ steps.get-ip.outputs.instance_ip }} update"
+
+    - name: Verify ECR Images
+      run: |
+        echo "🔍 Verifying new images in ECR..."
+        aws ecr describe-images \
+          --repository-name moni-be \
+          --image-ids imageTag=latest \
+          --query 'imageDetails[0].imagePushedAt' \
+          --output text || echo "Backend image not found"
+          
+        aws ecr describe-images \
+          --repository-name moni-fe \
+          --image-ids imageTag=latest \
+          --query 'imageDetails[0].imagePushedAt' \
+          --output text || echo "Frontend image not found"
 
     - name: Create deployment notification
       run: |
-        echo "## 🚀 Deployment Ready" >> $GITHUB_STEP_SUMMARY
+        echo "## 🚀 NEW IMAGES READY FOR DEPLOYMENT" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### ✅ Fresh Docker Images Built" >> $GITHUB_STEP_SUMMARY
+        echo "- **Backend:** \`026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-be:latest\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend:** \`026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-fe:latest\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         if [ -n "${{ steps.get-ip.outputs.instance_ip }}" ]; then
-          echo "### ✅ EC2 Instance Found" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 EC2 Instance Found" >> $GITHUB_STEP_SUMMARY
           echo "**IP Address:** \`${{ steps.get-ip.outputs.instance_ip }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔄 Deploy Latest Images" >> $GITHUB_STEP_SUMMARY
-          echo "Run this command to update your deployment:" >> $GITHUB_STEP_SUMMARY
+          echo "### � DEPLOY NEW IMAGES NOW" >> $GITHUB_STEP_SUMMARY
+          echo "**Run this command to update with the fresh images:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           echo "cd terraform-ec2" >> $GITHUB_STEP_SUMMARY
           echo "./manage-app.sh ${{ steps.get-ip.outputs.instance_ip }} update" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**This will:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔐 Re-authenticate with ECR" >> $GITHUB_STEP_SUMMARY
+          echo "- 📥 Pull latest images (just built)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔄 Restart containers with new code" >> $GITHUB_STEP_SUMMARY
         else
           echo "### ⚠️  Manual Deployment Required" >> $GITHUB_STEP_SUMMARY
           echo "Could not automatically detect EC2 instance." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**To deploy manually:**" >> $GITHUB_STEP_SUMMARY
+          echo "**To deploy the NEW images manually:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           echo "cd terraform-ec2" >> $GITHUB_STEP_SUMMARY
           echo "./manage-app.sh <YOUR_EC2_IP> update" >> $GITHUB_STEP_SUMMARY

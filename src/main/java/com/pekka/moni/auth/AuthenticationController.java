@@ -42,7 +42,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(path = "/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest loginRequest, HttpServletResponse reponse) {
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest loginRequest, HttpServletResponse response) {
         if (bucket.tryConsume(1)) {
             var token = authenticationService.login(loginRequest);
             Cookie cookie = new Cookie("token", token.getToken());
@@ -50,7 +50,7 @@ public class AuthenticationController {
 //            cookie.setSecure(true);
             cookie.setPath("/");
             cookie.setMaxAge(10 * 60 * 60); // 10 hrs
-            reponse.addCookie(cookie);
+            response.addCookie(cookie);
             return ResponseEntity.ok(token);
         }
         return ResponseEntity.status(429).body(AuthenticationResponse.builder().build());

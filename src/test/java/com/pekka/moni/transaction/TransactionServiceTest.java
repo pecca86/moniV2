@@ -128,9 +128,9 @@ class TransactionServiceTest {
         List<Transaction> result = underTest.getCustomerTransactions(any());
         //then
         assertThat(result).isNotNull()
-                          .hasSize(2);
+                .hasSize(2);
         assertThat(result).extracting(Transaction::getId)
-                          .containsExactly(1L, 2L);
+                .containsExactly(1L, 2L);
     }
 
     @ParameterizedTest
@@ -263,14 +263,14 @@ class TransactionServiceTest {
         assertThat(account.getTransactions()).isNotNull();
         assertThat(account.getTransactions()).hasSize(2);
         assertThat(account.getTransactions()).extracting(Transaction::getSum,
-                                                     Transaction::getId,
-                                                     Transaction::getTransactionCategory,
-                                                     Transaction::getDescription,
-                                                     Transaction::getTransactionType)
-                                             .containsExactly(
-                                                     Tuple.tuple(BigDecimal.valueOf(999.99), 1L, TransactionCategory.FOOD, "description", Transaction.TransactionType.WITHDRAWAL),
-                                                     Tuple.tuple(BigDecimal.valueOf(999.99), 2L, TransactionCategory.FOOD, "description", Transaction.TransactionType.WITHDRAWAL)
-                                             );
+                        Transaction::getId,
+                        Transaction::getTransactionCategory,
+                        Transaction::getDescription,
+                        Transaction::getTransactionType)
+                .containsExactly(
+                        Tuple.tuple(BigDecimal.valueOf(999.99), 1L, TransactionCategory.FOOD, "description", Transaction.TransactionType.WITHDRAWAL),
+                        Tuple.tuple(BigDecimal.valueOf(999.99), 2L, TransactionCategory.FOOD, "description", Transaction.TransactionType.WITHDRAWAL)
+                );
     }
 
     @Test
@@ -331,7 +331,7 @@ class TransactionServiceTest {
         assertThat(account.getTransactions()).isNotNull();
         assertThat(account.getTransactions()).hasSize(1);
         assertThat(account.getTransactions()).extracting(Transaction::getId)
-                                             .containsExactly(3L);
+                .containsExactly(3L);
     }
 
     @Test
@@ -407,6 +407,6 @@ class TransactionServiceTest {
     void getTransactionCategories() {
         List<TransactionCategory> categories = underTest.getTransactionCategories();
         assertThat(categories).isNotNull()
-                              .hasSize(18);
+                .hasSize(18);
     }
 }

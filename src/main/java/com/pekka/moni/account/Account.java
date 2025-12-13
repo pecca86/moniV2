@@ -223,12 +223,15 @@ public class Account {
     }
 
     private BigDecimal calculateBalance() {
-        var today = LocalDate.now();
-
         return transactions.stream()
                 .filter(tr -> tr.getAccount().id.equals(this.id))
-                .filter(transaction -> transaction.getTransactionDate().isAfter(today.minusDays(1)))
-                .map(Transaction::getSum)
+                .map(t -> {
+                    if (t.getTransactionType() == Transaction.TransactionType.WITHDRAWAL) {
+                        return t.getSum().negate();
+                    } else {
+                        return t.getSum();
+                    }
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
