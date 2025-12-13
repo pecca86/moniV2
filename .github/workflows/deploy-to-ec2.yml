@@ -1,4 +1,4 @@
-name: Deploy to EC2 after ECR Push
+name: Deploy to EC2 K3s Cluster
 
 on:
   workflow_run:
@@ -6,15 +6,21 @@ on:
     types:
       - completed
     branches: [main]
+  # Allow manual trigger
+  workflow_dispatch:
 
 env:
   AWS_REGION: eu-central-1
+  ECR_REGISTRY: 026596707189.dkr.ecr.eu-central-1.amazonaws.com
+  ECR_REPOSITORY_BACKEND: moni-be
+  ECR_REPOSITORY_FRONTEND: moni-fe
 
 jobs:
   deploy-to-ec2:
-    name: Deploy Latest Images to EC2
+    name: Deploy BE/FE to EC2 K3s (Preserve DB)
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Only run if the build workflow succeeded (or manual trigger)
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     
     steps:
     - name: Checkout code
@@ -30,83 +36,115 @@ jobs:
     - name: Get EC2 Instance IP
       id: get-ip
       run: |
-        # Get the EC2 instance IP from terraform output (if available)
-        # This assumes your EC2 instance has a specific tag
         INSTANCE_IP=$(aws ec2 describe-instances \
           --filters "Name=tag:Name,Values=moni-dev-k3s" "Name=instance-state-name,Values=running" \
           --query "Reservations[0].Instances[0].PublicIpAddress" \
           --output text 2>/dev/null || echo "")
         
         if [ "$INSTANCE_IP" = "None" ] || [ -z "$INSTANCE_IP" ]; then
-          echo "⚠️  Could not automatically detect EC2 instance IP"
-          echo "Please set EC2_INSTANCE_IP as a repository secret"
-          echo "instance_ip=" >> $GITHUB_OUTPUT
+          # Fallback to secret if available
+          if [ -n "${{ secrets.EC2_INSTANCE_IP }}" ]; then
+            INSTANCE_IP="${{ secrets.EC2_INSTANCE_IP }}"
+            echo "✅ Using EC2 IP from secrets: $INSTANCE_IP"
+          else
+            echo "❌ Could not find EC2 instance IP"
+            exit 1
+          fi
         else
           echo "✅ Found EC2 instance IP: $INSTANCE_IP"
-          echo "instance_ip=$INSTANCE_IP" >> $GITHUB_OUTPUT
         fi
+        echo "instance_ip=$INSTANCE_IP" >> $GITHUB_OUTPUT
 
-    - name: Deploy to EC2 (if IP available)
-      if: steps.get-ip.outputs.instance_ip != ''
+    - name: Setup SSH Key
       run: |
-        echo "🚀 Deploying latest images to EC2: ${{ steps.get-ip.outputs.instance_ip }}"
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ec2_key
+        chmod 600 ~/.ssh/ec2_key
         
-        # Note: This requires SSH key setup in GitHub Actions
-        # For now, we'll trigger the update via AWS Systems Manager or show manual steps
-        echo "⚠️  SSH deployment not configured in GitHub Actions"
-        echo "The new images are built and pushed to ECR:"
-        echo "- Backend: 026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-be:latest"
-        echo "- Frontend: 026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-fe:latest"
+        # Add EC2 host to known hosts (skip host key verification for CI)
+        ssh-keyscan -H ${{ steps.get-ip.outputs.instance_ip }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+    - name: Deploy to K3s on EC2
+      env:
+        EC2_IP: ${{ steps.get-ip.outputs.instance_ip }}
+      run: |
+        echo "🚀 Deploying to EC2 K3s cluster at $EC2_IP"
+        
+        # SSH to EC2 and run the deployment commands
+        ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ec2-user@$EC2_IP << 'DEPLOY_SCRIPT'
+        set -e
+        
+        echo "📦 Step 1: Re-authenticate with ECR..."
+        aws ecr get-login-password --region eu-central-1 | \
+          sudo k3s crictl login --username AWS --password-stdin 026596707189.dkr.ecr.eu-central-1.amazonaws.com
+        
+        echo "🔄 Step 2: Restarting Backend deployment (pulls new image)..."
+        sudo kubectl rollout restart deployment/moni-be -n moni
+        
+        echo "🔄 Step 3: Restarting Frontend deployment (pulls new image)..."
+        sudo kubectl rollout restart deployment/moni-fe -n moni
+        
+        echo "⏳ Step 4: Waiting for rollouts to complete..."
+        sudo kubectl rollout status deployment/moni-be -n moni --timeout=300s
+        sudo kubectl rollout status deployment/moni-fe -n moni --timeout=180s
+        
+        echo "✅ Step 5: Verifying deployments..."
+        sudo kubectl get pods -n moni
+        
         echo ""
-        echo "🔄 To deploy the NEW images, run this command locally:"
-        echo "cd terraform-ec2 && ./manage-app.sh ${{ steps.get-ip.outputs.instance_ip }} update"
+        echo "🎉 Deployment complete! Database was NOT touched."
+        DEPLOY_SCRIPT
 
-    - name: Verify ECR Images
+    - name: Verify Deployment
+      env:
+        EC2_IP: ${{ steps.get-ip.outputs.instance_ip }}
       run: |
-        echo "🔍 Verifying new images in ECR..."
-        aws ecr describe-images \
-          --repository-name moni-be \
-          --image-ids imageTag=latest \
-          --query 'imageDetails[0].imagePushedAt' \
-          --output text || echo "Backend image not found"
-          
-        aws ecr describe-images \
-          --repository-name moni-fe \
-          --image-ids imageTag=latest \
-          --query 'imageDetails[0].imagePushedAt' \
-          --output text || echo "Frontend image not found"
-
-    - name: Create deployment notification
-      run: |
-        echo "## 🚀 NEW IMAGES READY FOR DEPLOYMENT" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### ✅ Fresh Docker Images Built" >> $GITHUB_STEP_SUMMARY
-        echo "- **Backend:** \`026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-be:latest\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Frontend:** \`026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-fe:latest\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        if [ -n "${{ steps.get-ip.outputs.instance_ip }}" ]; then
-          echo "### 🎯 EC2 Instance Found" >> $GITHUB_STEP_SUMMARY
-          echo "**IP Address:** \`${{ steps.get-ip.outputs.instance_ip }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### � DEPLOY NEW IMAGES NOW" >> $GITHUB_STEP_SUMMARY
-          echo "**Run this command to update with the fresh images:**" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "cd terraform-ec2" >> $GITHUB_STEP_SUMMARY
-          echo "./manage-app.sh ${{ steps.get-ip.outputs.instance_ip }} update" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**This will:**" >> $GITHUB_STEP_SUMMARY
-          echo "- 🔐 Re-authenticate with ECR" >> $GITHUB_STEP_SUMMARY
-          echo "- 📥 Pull latest images (just built)" >> $GITHUB_STEP_SUMMARY
-          echo "- 🔄 Restart containers with new code" >> $GITHUB_STEP_SUMMARY
+        echo "🔍 Verifying deployment health..."
+        
+        # Wait a moment for services to be ready
+        sleep 10
+        
+        # Check backend health via NodePort
+        HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://$EC2_IP:30080/actuator/health || echo "000")
+        
+        if [ "$HEALTH_STATUS" = "200" ]; then
+          echo "✅ Backend is healthy (HTTP 200)"
         else
-          echo "### ⚠️  Manual Deployment Required" >> $GITHUB_STEP_SUMMARY
-          echo "Could not automatically detect EC2 instance." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**To deploy the NEW images manually:**" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "cd terraform-ec2" >> $GITHUB_STEP_SUMMARY
-          echo "./manage-app.sh <YOUR_EC2_IP> update" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️  Backend health check returned: $HEALTH_STATUS"
+          echo "This might be normal if the app is still starting up"
         fi
+        
+        # Check frontend
+        FE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://$EC2_IP:30081/ || echo "000")
+        
+        if [ "$FE_STATUS" = "200" ]; then
+          echo "✅ Frontend is healthy (HTTP 200)"
+        else
+          echo "⚠️  Frontend health check returned: $FE_STATUS"
+        fi
+
+    - name: Create Deployment Summary
+      env:
+        EC2_IP: ${{ steps.get-ip.outputs.instance_ip }}
+      run: |
+        echo "## 🚀 Deployment Complete!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### ✅ Deployed Services" >> $GITHUB_STEP_SUMMARY
+        echo "| Service | Status | Image |" >> $GITHUB_STEP_SUMMARY
+        echo "|---------|--------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Backend | 🔄 Updated | \`$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest\` |" >> $GITHUB_STEP_SUMMARY
+        echo "| Frontend | 🔄 Updated | \`$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest\` |" >> $GITHUB_STEP_SUMMARY
+        echo "| Database | ✅ Preserved | PostgreSQL 16 (data intact) |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🌐 Access URLs" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend:** http://$EC2_IP:30081" >> $GITHUB_STEP_SUMMARY
+        echo "- **Backend API:** http://$EC2_IP:30080" >> $GITHUB_STEP_SUMMARY
+        echo "- **Health Check:** http://$EC2_IP:30080/actuator/health" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📝 Commit" >> $GITHUB_STEP_SUMMARY
+        echo "Deployed from: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+
+    - name: Cleanup SSH Key
+      if: always()
+      run: |
+        rm -f ~/.ssh/ec2_key

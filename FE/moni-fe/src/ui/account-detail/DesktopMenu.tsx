@@ -11,9 +11,21 @@ const DesktopMenu = () => {
         <>
             <aside className="invisible md:visible">
                 <div className="flex justify-center m-auto gap-10">
-                    <span className={navigationBtnStyle} onClick={() => navigate(`${accountId}/main`)}>Transactions</span>
-                    <span className={navigationBtnStyle} onClick={() => navigate(`${accountId}/timespans`)}>Timespans</span>
-                    <span className={navigationBtnStyle} onClick={() => navigate(`${accountId}/charts`)}>Charts</span>
+                    <span className={navigationBtnStyle} onClick={() => navigate(`${accountId}/main`)}>
+                        <a href="#" className="inline-flex items-center font-medium text-fg-brand hover:underline">
+                            Transactions
+                        </a>
+                    </span>
+                    <span className={navigationBtnStyle} onClick={() => navigate(`${accountId}/timespans`)}>
+                        <a href="#" className="inline-flex items-center font-medium text-fg-brand hover:underline">
+                            Timespans
+                        </a>
+                    </span>
+                    <span className={navigationBtnStyle} onClick={() => navigate(`${accountId}/charts`)}>
+                        <a href="#" className="inline-flex items-center font-medium text-fg-brand hover:underline">
+                            Charts
+                        </a>
+                    </span>
                 </div>
             </aside>
         </>

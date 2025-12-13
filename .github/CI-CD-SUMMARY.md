@@ -1,149 +1,121 @@
 # 🚀 Complete CI/CD Pipeline Summary
 
-## 📋 What Was Created
+## 📋 Overview
 
-### 1. **Main Build Workflow** (`build-and-push.yml`)
-- ✅ Triggers on every push to `main` branch
-- ✅ Builds Spring Boot backend with Java 21 & Maven
-- ✅ Builds Vue.js frontend with Node.js 18 & npm  
-- ✅ Creates Docker images for both services
-- ✅ Pushes to your ECR registry with `latest` and commit SHA tags
-- ✅ Provides detailed build summary and next steps
+This project uses GitHub Actions for continuous integration and **automated deployment** to an EC2-hosted K3s cluster.
 
-### 2. **Optional Deployment Workflow** (`deploy-to-ec2.yml`)
-- ✅ Triggers after successful ECR push
-- ✅ Attempts to auto-detect your EC2 instance
-- ✅ Provides deployment commands and guidance
-- ✅ Creates deployment-ready notifications
+## 🔄 Workflows
 
-### 3. **Setup Documentation** (`GITHUB-ACTIONS-SETUP.md`)
-- ✅ Complete guide for GitHub secrets setup
-- ✅ AWS IAM permissions requirements
-- ✅ Troubleshooting guide
-- ✅ Customization options
+### 1. Build and Push (`build-and-push.yml`)
+**Trigger:** Push to `main` branch
 
-## 🔧 Required Setup Steps
+**What it does:**
+1. ✅ Builds the Spring Boot backend JAR (Java 21)
+2. ✅ Builds the React/Vite frontend
+3. ✅ Creates multi-architecture Docker images (amd64/arm64)
+4. ✅ Pushes images to AWS ECR with `latest` and commit SHA tags
 
-### **1. GitHub Secrets** (⚠️ REQUIRED)
-Add these to your GitHub repository settings:
+### 2. Deploy to EC2 (`deploy-to-ec2.yml`)
+**Trigger:** Automatically after successful build, or manual trigger
+
+**What it does:**
+1. ✅ Connects to EC2 instance via SSH
+2. ✅ Re-authenticates with ECR
+3. ✅ Restarts **only** the Backend and Frontend deployments
+4. ✅ **Preserves the PostgreSQL database** (no restart, no data loss!)
+5. ✅ Verifies deployment health
+6. ✅ Creates deployment summary
+
+## 🔐 Required GitHub Secrets
+
+Add these secrets in your repository settings (`Settings > Secrets and variables > Actions`):
+
+| Secret | Description | Required |
+|--------|-------------|----------|
+| `AWS_ACCESS_KEY_ID` | AWS access key for ECR | ✅ Yes |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key | ✅ Yes |
+| `EC2_SSH_PRIVATE_KEY` | Private SSH key (.pem contents) | ✅ Yes |
+| `EC2_INSTANCE_IP` | EC2 IP (if auto-detection fails) | Optional |
+
+### Setting up the SSH Key Secret
+
+1. Get your EC2 SSH private key (the `.pem` file)
+2. Go to GitHub repo → Settings → Secrets and variables → Actions
+3. Click "New repository secret"
+4. Name: `EC2_SSH_PRIVATE_KEY`
+5. Value: Paste the **entire contents** of your `.pem` file:
+   ```
+   -----BEGIN RSA PRIVATE KEY-----
+   MIIEpAIBAAKCAQEA...
+   ...
+   -----END RSA PRIVATE KEY-----
+   ```
+
+## 📊 Deployment Flow
 
 ```
-AWS_ACCESS_KEY_ID       → Your AWS access key
-AWS_SECRET_ACCESS_KEY   → Your AWS secret key
+Push to main
+     │
+     ▼
+┌─────────────────────────────┐
+│  Build and Push Workflow    │
+│  - Build JAR (Java 21)      │
+│  - Build Docker images      │
+│  - Push to ECR              │
+└─────────────────────────────┘
+     │ (on success)
+     ▼
+┌─────────────────────────────┐
+│  Deploy to EC2 Workflow     │
+│  - SSH to EC2               │
+│  - kubectl rollout restart  │
+│    (BE and FE only!)        │
+│  - Verify health            │
+└─────────────────────────────┘
+     │
+     ▼
+  ✅ Live on EC2!
 ```
 
-**Path:** `GitHub Repo → Settings → Secrets and variables → Actions`
+## 🛡️ Database Safety
 
-### **2. AWS ECR Repositories** (✅ Already exist)
-Your repositories are already configured:
-- `026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-be`
-- `026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-fe`
+The deployment workflow **only restarts** these deployments:
+- ✅ `moni-be` (Backend) - **Updated**
+- ✅ `moni-fe` (Frontend) - **Updated**
 
-### **3. AWS IAM Permissions** 
-Your AWS user needs ECR push permissions (see setup guide).
+The database is **never touched**:
+- ❌ `moni-db` (PostgreSQL) - **NOT restarted**
+- ✅ Your data is safe
+- ✅ No connection interruptions
+- ✅ Persistent storage via PersistentVolumeClaim
 
-## 🔄 Complete Workflow
+## 🖐️ Manual Deployment
 
-### **On Push to Main:**
-```
-1. 🔨 Code pushed to main branch
-   ↓
-2. 🏗️  GitHub Actions builds both services  
-   ↓
-3. 🐳 Docker images created and tagged
-   ↓ 
-4. 🚀 Images pushed to ECR with latest + SHA tags
-   ↓
-5. 📋 Build summary created with image URIs
-   ↓
-6. 🔄 Optional: Auto-deployment notification
-```
+You can trigger deployment manually without pushing code:
 
-### **Manual Deployment:**
+**Option 1: GitHub UI**
+1. Go to Actions tab in GitHub
+2. Select "Deploy to EC2 K3s Cluster"
+3. Click "Run workflow"
+
+**Option 2: GitHub CLI**
 ```bash
-# After successful build, deploy latest images
-cd terraform-ec2
-./manage-app.sh <EC2_IP> update
+gh workflow run deploy-to-ec2.yml
 ```
 
-## 📊 Benefits
+## 🌐 Access URLs (after deployment)
 
-### **🚀 Automation Benefits:**
-- ✅ **Zero manual Docker commands** - Everything automated
-- ✅ **Consistent builds** - Same environment every time  
-- ✅ **Parallel processing** - Backend and frontend build together
-- ✅ **Caching** - Maven and npm dependencies cached for speed
-- ✅ **Multi-tagging** - Both `latest` and commit-specific tags
-- ✅ **Build notifications** - Clear success/failure feedback
+| Service | URL |
+|---------|-----|
+| Frontend | `http://<EC2_IP>:30081` |
+| Backend API | `http://<EC2_IP>:30080` |
+| Health Check | `http://<EC2_IP>:30080/actuator/health` |
 
-### **🛡️ Security Benefits:**
-- ✅ **Secure credential storage** - AWS keys in GitHub secrets
-- ✅ **Scoped permissions** - Only ECR access needed
-- ✅ **No local AWS setup** - Runs in GitHub's secure environment
-- ✅ **Audit trail** - All builds tracked and logged
+## ⚡ Quick Start
 
-### **⚡ Performance Benefits:**
-- ✅ **Fast builds** - Dependency caching and parallel execution
-- ✅ **Efficient transfers** - Only changed layers uploaded to ECR
-- ✅ **Resource optimization** - GitHub's powerful build infrastructure
+1. **Add secrets** to GitHub repository (see above)
+2. **Push to main** - workflow triggers automatically
+3. **Check Actions tab** for deployment status
+4. **Access your app** at the URLs above
 
-## 🎯 Integration with Existing Deployment
-
-### **Your Current Deployment Scripts Work Perfectly:**
-- ✅ `deploy-simple.sh` - Uses ECR images (now auto-updated)
-- ✅ `manage-app.sh` - Update command pulls latest images  
-- ✅ `validate-deployment.sh` - Tests still work as before
-
-### **Enhanced Workflow:**
-1. **Develop locally** → Push to GitHub
-2. **GitHub Actions** → Builds and pushes images automatically  
-3. **Deploy remotely** → `./manage-app.sh <IP> update`
-4. **Validate** → `./validate-deployment.sh <IP>`
-
-## 📈 Monitoring & Visibility
-
-### **Build Status:**
-- **GitHub Actions tab** - See all workflow runs
-- **Commit status** - Build success/failure on each commit
-- **Pull request checks** - Builds run on PRs for testing
-
-### **Image Management:**
-- **ECR Console** - View all pushed images and tags
-- **Image scanning** - AWS automatically scans for vulnerabilities
-- **Size optimization** - Multi-stage builds keep images lean
-
-## 🔄 Next Steps After Setup
-
-### **1. Test the Pipeline:**
-```bash
-# Make a small change and push
-echo "# Test change" >> README.md  
-git add README.md
-git commit -m "test: Trigger CI/CD pipeline"
-git push origin main
-```
-
-### **2. Monitor First Build:**
-- Go to GitHub Actions tab in your repository
-- Watch the "Build and Push Docker Images to ECR" workflow
-- Check for successful completion and image URIs
-
-### **3. Deploy Updated Images:**
-```bash
-# After successful build
-cd terraform-ec2
-./manage-app.sh <EC2_IP> update
-./validate-deployment.sh <EC2_IP>
-```
-
-## 🎉 Result
-
-You now have a **fully automated CI/CD pipeline** that:
-- ✅ Builds on every commit to main
-- ✅ Pushes production-ready images to ECR
-- ✅ Integrates seamlessly with your existing deployment scripts  
-- ✅ Provides comprehensive monitoring and feedback
-- ✅ Scales with your development workflow
-
-**Your development process is now:**
-`Code → Commit → Push → Automated Build → Deploy → Validate` 🚀
+That's it! Every push to `main` will automatically deploy your changes to EC2.

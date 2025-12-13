@@ -25,7 +25,11 @@ const Register = () => {
                 <MoniForm.MoniSubmit ctaText="Register" />
             </MoniForm>
             <div className="my-5">
-                Already a member? <span className="underline" onClick={() => navigate('/login')}>Back to login.</span>
+                Already a member? <span className="underline" onClick={() => navigate('/login')}>
+                    <a href="#" className="inline-flex items-center font-medium text-fg-brand hover:underline">
+                        Back to login.
+                    </a>
+                </span>
             </div>
         </div>
     );

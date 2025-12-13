@@ -1,0 +1,46 @@
+# K3d Cluster Configuration
+# This file defines the local K3d cluster setup
+
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: moni-local
+servers: 1  # Single control-plane node
+agents: 0   # No additional worker nodes (sufficient for local dev)
+
+# Port mappings for accessing services
+ports:
+  # Frontend - accessible at localhost:8080
+  - port: 8080:80
+    nodeFilters:
+      - loadbalancer
+  # Backend API - accessible at localhost:8081
+  - port: 8081:8081
+    nodeFilters:
+      - loadbalancer
+  # NodePort range for additional services
+  - port: 30000-30100:30000-30100
+    nodeFilters:
+      - loadbalancer
+
+# Local container registry
+registries:
+  create:
+    name: moni-registry
+    host: "0.0.0.0"
+    hostPort: "5050"
+  config: |
+    mirrors:
+      "localhost:5050":
+        endpoint:
+          - http://moni-registry:5000
+
+# K3s server configuration
+options:
+  k3s:
+    extraArgs:
+      # Keep servicelb for Traefik LoadBalancer support
+      []
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true

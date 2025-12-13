@@ -1,5 +1,5 @@
 # Alternative Dockerfile for local builds (uses Maven directly)
-FROM maven:3.9-eclipse-temurin-17 AS maven-build
+FROM maven:3.9-eclipse-temurin-21 AS maven-build
 WORKDIR /app
 
 # Copy pom.xml first for better layer caching
@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests -B
 
 # Create custom JRE using jlink
-FROM eclipse-temurin:17 AS jre-build
+FROM eclipse-temurin:21 AS jre-build
 WORKDIR /app
 
 # Copy JAR from maven build stage
@@ -22,7 +22,7 @@ RUN jar xf target/moni-0.0.1-SNAPSHOT.jar
 RUN jdeps \
     --ignore-missing-deps \
     --print-module-deps \
-    --multi-release 17 \
+    --multi-release 21 \
     --recursive \
     --class-path 'BOOT-INF/lib/*' \
     target/moni-0.0.1-SNAPSHOT.jar > modules.txt

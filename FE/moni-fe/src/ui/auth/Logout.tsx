@@ -11,7 +11,11 @@ function LogOut() {
     }
 
     return (
-        <span onClick={onLogout}>Logout <LogoutIcon /></span>
+        <span onClick={onLogout}>
+            <a href="#" className="inline-flex items-center font-medium text-fg-brand hover:underline">
+                Logout <LogoutIcon />
+            </a>
+        </span>
     )
 }
 

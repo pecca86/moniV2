@@ -1,5 +1,5 @@
 # Example of custom Java runtime using jlink in a multi-stage container build
-FROM eclipse-temurin:17 AS jre-build
+FROM eclipse-temurin:21 AS jre-build
 WORKDIR /app
 
 # Copy the pre-built JAR file from GitHub Actions (copied to root in workflow)
@@ -10,7 +10,7 @@ RUN jar xf app.jar
 RUN jdeps \
     --ignore-missing-deps \
     --print-module-deps \
-    --multi-release 17 \
+    --multi-release 21 \
     --recursive \
     --class-path 'BOOT-INF/lib/*' \
     app.jar > modules.txt
