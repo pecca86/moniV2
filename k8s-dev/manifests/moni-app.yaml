@@ -1,0 +1,312 @@
+# Moni Application Kubernetes Manifests
+# 
+# This file contains all Kubernetes resources needed to deploy the Moni application
+# Deploy with: kubectl apply -f moni-app.yaml
+# Delete with: kubectl delete -f moni-app.yaml
+
+---
+# =============================================================================
+# NAMESPACE
+# =============================================================================
+# A namespace provides isolation for resources
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: moni
+  labels:
+    app: moni
+    environment: dev
+
+---
+# =============================================================================
+# SECRET
+# =============================================================================
+# Secrets store sensitive data like passwords
+# Note: In production, use a secrets manager or sealed secrets
+apiVersion: v1
+kind: Secret
+metadata:
+  name: moni-db-secret
+  namespace: moni
+type: Opaque
+data:
+  # Base64 encoded password "pekka" - CHANGE IN PRODUCTION!
+  # To encode: echo -n 'yourpassword' | base64
+  password: cGVra2E=
+
+---
+# =============================================================================
+# PERSISTENT VOLUME CLAIM
+# =============================================================================
+# PVC requests storage for PostgreSQL data persistence
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: moni-pvc
+  namespace: moni
+spec:
+  accessModes:
+    - ReadWriteOnce  # Can be mounted read-write by one node
+  storageClassName: local-path  # K3s default storage class
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+# =============================================================================
+# POSTGRESQL DATABASE
+# =============================================================================
+
+# PostgreSQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moni-db
+  namespace: moni
+  labels:
+    app: moni-db
+    tier: database
+spec:
+  replicas: 1  # Database should always be 1 replica (unless using HA setup)
+  selector:
+    matchLabels:
+      app: moni-db
+  strategy:
+    type: Recreate  # Don't run multiple instances during updates
+  template:
+    metadata:
+      labels:
+        app: moni-db
+        tier: database
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: moni-db-secret
+                  key: password
+            - name: POSTGRES_DB
+              value: "moni"
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+              name: postgres
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: moni-storage
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          # Readiness probe - is the container ready to receive traffic?
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          # Liveness probe - should the container be restarted?
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: moni-storage
+          persistentVolumeClaim:
+            claimName: moni-pvc
+
+---
+# PostgreSQL Service (ClusterIP - internal only)
+apiVersion: v1
+kind: Service
+metadata:
+  name: moni-db
+  namespace: moni
+  labels:
+    app: moni-db
+spec:
+  type: ClusterIP  # Only accessible within the cluster
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  selector:
+    app: moni-db
+
+---
+# =============================================================================
+# BACKEND APPLICATION (Spring Boot)
+# =============================================================================
+
+# Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moni-be
+  namespace: moni
+  labels:
+    app: moni-be
+    tier: backend
+spec:
+  replicas: 1  # Can increase for load balancing
+  selector:
+    matchLabels:
+      app: moni-be
+  template:
+    metadata:
+      labels:
+        app: moni-be
+        tier: backend
+    spec:
+      # Init container waits for database to be ready
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: ['sh', '-c', 'until nc -z moni-db 5432; do echo "Waiting for database..."; sleep 2; done; echo "Database is ready!"']
+      containers:
+        - name: moni-be
+          # Replace with your ECR repository URL
+          image: 026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-be:latest
+          imagePullPolicy: Always
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://moni-db:5432/moni"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: moni-db-secret
+                  key: password
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          ports:
+            - containerPort: 8080
+              name: http
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          # Note: Health checks can be added when Spring Actuator is configured
+          # readinessProbe:
+          #   httpGet:
+          #     path: /actuator/health/readiness
+          #     port: 8080
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: /actuator/health/liveness
+          #     port: 8080
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 30
+
+---
+# Backend Service (NodePort - accessible from outside)
+apiVersion: v1
+kind: Service
+metadata:
+  name: moni-be
+  namespace: moni
+  labels:
+    app: moni-be
+spec:
+  type: NodePort
+  ports:
+    - port: 8080          # Service port (internal)
+      targetPort: 8080    # Container port
+      nodePort: 30080     # External port (30000-32767)
+      name: http
+  selector:
+    app: moni-be
+
+---
+# =============================================================================
+# FRONTEND APPLICATION (Nginx/React)
+# =============================================================================
+
+# Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moni-fe
+  namespace: moni
+  labels:
+    app: moni-fe
+    tier: frontend
+spec:
+  replicas: 1  # Can increase for load balancing
+  selector:
+    matchLabels:
+      app: moni-fe
+  template:
+    metadata:
+      labels:
+        app: moni-fe
+        tier: frontend
+    spec:
+      containers:
+        - name: moni-fe
+          # Replace with your ECR repository URL
+          image: 026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni-fe:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+          # Simple readiness check
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 30
+
+---
+# Frontend Service (NodePort - accessible from outside)
+apiVersion: v1
+kind: Service
+metadata:
+  name: moni-fe
+  namespace: moni
+  labels:
+    app: moni-fe
+spec:
+  type: NodePort
+  ports:
+    - port: 80            # Service port (internal)
+      targetPort: 80      # Container port
+      nodePort: 30081     # External port (30000-32767)
+      name: http
+  selector:
+    app: moni-fe
