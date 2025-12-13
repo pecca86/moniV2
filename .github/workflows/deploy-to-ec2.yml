@@ -74,9 +74,24 @@ jobs:
         ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ec2-user@$EC2_IP << 'DEPLOY_SCRIPT'
         set -e
         
-        echo "📦 Step 1: Re-authenticate with ECR..."
-        aws ecr get-login-password --region eu-central-1 | \
-          sudo k3s crictl login --username AWS --password-stdin 026596707189.dkr.ecr.eu-central-1.amazonaws.com
+        echo "📦 Step 1: Updating ECR credentials for containerd..."
+        # K3s uses containerd, need to update the registries config with fresh ECR token
+        ECR_TOKEN=$(aws ecr get-login-password --region eu-central-1)
+        ECR_REGISTRY="026596707189.dkr.ecr.eu-central-1.amazonaws.com"
+        
+        # Create/update containerd registry config for ECR
+        sudo mkdir -p /etc/rancher/k3s
+        sudo tee /etc/rancher/k3s/registries.yaml > /dev/null << EOF
+        mirrors:
+          "$ECR_REGISTRY":
+            endpoint:
+              - "https://$ECR_REGISTRY"
+        configs:
+          "$ECR_REGISTRY":
+            auth:
+              username: AWS
+              password: $ECR_TOKEN
+        EOF
         
         echo "🔄 Step 2: Restarting Backend deployment (pulls new image)..."
         sudo kubectl rollout restart deployment/moni-be -n moni
