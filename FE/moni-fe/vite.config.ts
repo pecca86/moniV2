@@ -6,13 +6,15 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-//     '/api/moni/': {
-//         target: 'http://<container-idn>:8080',
-//         changeOrigin: true,
-//         rewrite: (path) => path.replace(/^\/api\/moni/, '/api/moni')
-//         secure: false,
-    }
-  })
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://localhost:8080',
+    //     changeOrigin: false,
+    //     secure: false,
+    //   }
+    // }
+  }
+})
 // })
 
 

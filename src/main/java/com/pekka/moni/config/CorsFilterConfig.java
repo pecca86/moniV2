@@ -19,6 +19,7 @@
              // Allow origins - includes development and deployment patterns
              corsConfiguration.setAllowedOrigins(List.of(
                      // Development
+                     "http://localhost:5173",  // Vite dev server
                      "http://localhost:4173",
                      "http://localhost:8081",
                      "http://localhost:8080", 
