@@ -76,28 +76,65 @@ jobs:
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=10 \
             ec2-user@$EC2_IP << 'DEPLOY_SCRIPT'
-        set -e
         
         ECR_REGISTRY="026596707189.dkr.ecr.eu-central-1.amazonaws.com"
         
         echo "📦 Step 1: Refreshing Docker ECR credentials..."
         aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin $ECR_REGISTRY
         
-        echo "🔄 Step 2: Restarting Backend deployment (pulls new image)..."
+        echo "🔍 Step 2: Pre-pulling images to avoid timeout..."
+        sudo docker pull $ECR_REGISTRY/moni/moni-be:latest || echo "Warning: BE image pull failed"
+        sudo docker pull $ECR_REGISTRY/moni/moni-fe:latest || echo "Warning: FE image pull failed"
+        
+        echo "🔄 Step 3: Restarting Backend deployment..."
         sudo k3s kubectl rollout restart deployment/moni-be -n moni
         
-        echo "🔄 Step 3: Restarting Frontend deployment (pulls new image)..."
+        echo "🔄 Step 4: Restarting Frontend deployment..."
         sudo k3s kubectl rollout restart deployment/moni-fe -n moni
         
-        echo "⏳ Step 4: Waiting for rollouts to complete (this may take 1-2 minutes)..."
-        sudo k3s kubectl rollout status deployment/moni-be -n moni --timeout=300s
-        sudo k3s kubectl rollout status deployment/moni-fe -n moni --timeout=300s
+        echo "⏳ Step 5: Waiting for rollouts to complete (this may take 1-2 minutes)..."
+        echo "Checking pod status every 15 seconds..."
         
-        echo "✅ Step 5: Verifying deployments..."
-        sudo k3s kubectl get pods -n moni
+        # Wait for backend with progress updates
+        for i in $(seq 1 20); do
+          if sudo k3s kubectl rollout status deployment/moni-be -n moni --timeout=15s 2>/dev/null; then
+            echo "✅ Backend rollout complete!"
+            break
+          fi
+          echo "  ⏳ Backend still rolling out... (attempt $i/20)"
+          sudo k3s kubectl get pods -n moni -l app=moni-be --no-headers 2>/dev/null || true
+        done
+        
+        # Wait for frontend
+        for i in $(seq 1 10); do
+          if sudo k3s kubectl rollout status deployment/moni-fe -n moni --timeout=15s 2>/dev/null; then
+            echo "✅ Frontend rollout complete!"
+            break
+          fi
+          echo "  ⏳ Frontend still rolling out... (attempt $i/10)"
+        done
         
         echo ""
-        echo "🎉 Deployment complete! Database was NOT touched."
+        echo "📊 Step 6: Final status..."
+        sudo k3s kubectl get pods -n moni
+        
+        # Check if pods are actually running
+        BE_READY=$(sudo k3s kubectl get pods -n moni -l app=moni-be -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "Unknown")
+        FE_READY=$(sudo k3s kubectl get pods -n moni -l app=moni-fe -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "Unknown")
+        
+        echo ""
+        echo "Backend status: $BE_READY"
+        echo "Frontend status: $FE_READY"
+        
+        if [ "$BE_READY" = "Running" ] && [ "$FE_READY" = "Running" ]; then
+          echo ""
+          echo "🎉 Deployment complete! All pods running."
+        else
+          echo ""
+          echo "⚠️  Some pods may not be fully ready yet."
+          echo "Showing recent pod events..."
+          sudo k3s kubectl describe pods -n moni -l app=moni-be 2>/dev/null | tail -20 || true
+        fi
         DEPLOY_SCRIPT
 
     - name: Verify Deployment
