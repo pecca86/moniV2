@@ -70,8 +70,12 @@ jobs:
       run: |
         echo "🚀 Deploying to EC2 K3s cluster at $EC2_IP"
         
-        # SSH to EC2 and run the deployment commands
-        ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ec2-user@$EC2_IP << 'DEPLOY_SCRIPT'
+        # SSH to EC2 with keep-alive to prevent connection drops during long operations
+        ssh -i ~/.ssh/ec2_key \
+            -o StrictHostKeyChecking=no \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=10 \
+            ec2-user@$EC2_IP << 'DEPLOY_SCRIPT'
         set -e
         
         ECR_REGISTRY="026596707189.dkr.ecr.eu-central-1.amazonaws.com"
@@ -85,7 +89,7 @@ jobs:
         echo "🔄 Step 3: Restarting Frontend deployment (pulls new image)..."
         sudo k3s kubectl rollout restart deployment/moni-fe -n moni
         
-        echo "⏳ Step 4: Waiting for rollouts to complete..."
+        echo "⏳ Step 4: Waiting for rollouts to complete (this may take 1-2 minutes)..."
         sudo k3s kubectl rollout status deployment/moni-be -n moni --timeout=300s
         sudo k3s kubectl rollout status deployment/moni-fe -n moni --timeout=300s
         
