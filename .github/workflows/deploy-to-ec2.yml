@@ -12,8 +12,8 @@ on:
 env:
   AWS_REGION: eu-central-1
   ECR_REGISTRY: 026596707189.dkr.ecr.eu-central-1.amazonaws.com
-  ECR_REPOSITORY_BACKEND: moni-be
-  ECR_REPOSITORY_FRONTEND: moni-fe
+  ECR_REPOSITORY_BACKEND: moni/moni-be
+  ECR_REPOSITORY_FRONTEND: moni/moni-fe
 
 jobs:
   deploy-to-ec2:
@@ -74,37 +74,23 @@ jobs:
         ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ec2-user@$EC2_IP << 'DEPLOY_SCRIPT'
         set -e
         
-        echo "📦 Step 1: Updating ECR credentials for containerd..."
-        # K3s uses containerd, need to update the registries config with fresh ECR token
-        ECR_TOKEN=$(aws ecr get-login-password --region eu-central-1)
         ECR_REGISTRY="026596707189.dkr.ecr.eu-central-1.amazonaws.com"
         
-        # Create/update containerd registry config for ECR
-        sudo mkdir -p /etc/rancher/k3s
-        sudo tee /etc/rancher/k3s/registries.yaml > /dev/null << EOF
-        mirrors:
-          "$ECR_REGISTRY":
-            endpoint:
-              - "https://$ECR_REGISTRY"
-        configs:
-          "$ECR_REGISTRY":
-            auth:
-              username: AWS
-              password: $ECR_TOKEN
-        EOF
+        echo "📦 Step 1: Refreshing Docker ECR credentials..."
+        aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin $ECR_REGISTRY
         
         echo "🔄 Step 2: Restarting Backend deployment (pulls new image)..."
-        sudo kubectl rollout restart deployment/moni-be -n moni
+        sudo k3s kubectl rollout restart deployment/moni-be -n moni
         
         echo "🔄 Step 3: Restarting Frontend deployment (pulls new image)..."
-        sudo kubectl rollout restart deployment/moni-fe -n moni
+        sudo k3s kubectl rollout restart deployment/moni-fe -n moni
         
         echo "⏳ Step 4: Waiting for rollouts to complete..."
-        sudo kubectl rollout status deployment/moni-be -n moni --timeout=300s
-        sudo kubectl rollout status deployment/moni-fe -n moni --timeout=180s
+        sudo k3s kubectl rollout status deployment/moni-be -n moni --timeout=300s
+        sudo k3s kubectl rollout status deployment/moni-fe -n moni --timeout=300s
         
         echo "✅ Step 5: Verifying deployments..."
-        sudo kubectl get pods -n moni
+        sudo k3s kubectl get pods -n moni
         
         echo ""
         echo "🎉 Deployment complete! Database was NOT touched."
