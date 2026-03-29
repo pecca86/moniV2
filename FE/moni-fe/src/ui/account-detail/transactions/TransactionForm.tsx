@@ -26,9 +26,7 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
 
     let validatedSum: number | undefined;
     if (transactionData) {
-        validatedSum = transactionData?.sum < 0 ? validatedSum = transactionData?.sum * -1 : validatedSum = transactionData?.sum;
-    } else {
-        validatedSum = undefined;
+        validatedSum = transactionData?.sum < 0 ? transactionData.sum * -1 : transactionData.sum;
     }
 
     const { register, handleSubmit, formState } = useForm({
@@ -43,7 +41,6 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
     });
 
     const { errors } = formState;
-
     const { isAdding, addTransactionMutation } = useAddTransaction(token);
     const { isAddingMonthly, addMonthlyTransactionMutation } = useAddMonthlyTransaction(token);
     const { isUpdating, updateTransactionMutation } = useUpdateSingleTransaction(token);
@@ -51,126 +48,67 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
 
     function handleAddTransaction(data: any) {
         if (hidden) {
-            addTransactionMutation(
-                { ...data },
-                {
-                    onSuccess: () => {
-                        toast.success('Transaction added successfully');
-                        handleClose();
-                    }
-                }
-            );
+            addTransactionMutation({ ...data }, {
+                onSuccess: () => { toast.success('Transaction added'); handleClose(); }
+            });
         } else {
-            addMonthlyTransactionMutation(
-                { transactionData: { ...data }, months: months },
-                {
-                    onSuccess: () => {
-                        toast.success(`${months} transactions added successfully`);
-                        handleClose();
-                    }
-                }
-            );
+            addMonthlyTransactionMutation({ transactionData: { ...data }, months }, {
+                onSuccess: () => { toast.success(`${months} transactions added`); handleClose(); }
+            });
         }
     }
 
     function handleUpdateSingleTransaction(data: any) {
-        updateTransactionMutation(
-            { ...data, id: transactionData?.id },
-            {
-                onSuccess: () => {
-                    toast.success('Transaction updated successfully');
-                    handleClose();
-                }
-            }
-        );
-
+        updateTransactionMutation({ ...data, id: transactionData?.id }, {
+            onSuccess: () => { toast.success('Transaction updated'); handleClose(); }
+        });
     }
 
     function handleUpdateSelectedTransactions(data: any) {
         updateSelectedTransactionMutation(
-            // make ids from set to array
             { ...data, transactionIds: ids ? Array.from(ids) : [] },
-            {
-                onSuccess: () => {
-                    toast.success('Transactions updated successfully');
-                    handleClose();
-                }
-            }
-        )
+            { onSuccess: () => { toast.success('Transactions updated'); handleClose(); } }
+        );
     }
 
     const onSubmit = (data: any) => {
         switch (mode) {
-            case 'add':
-                handleAddTransaction(data);
-                break;
-            case 'edit':
-                handleUpdateSingleTransaction(data);
-                break;
-            case 'edit-many':
-                handleUpdateSelectedTransactions(data);
-                break;
-            default:
-                toast.error('Error in form submission, please try again later!');
-                break;
+            case 'add': handleAddTransaction(data); break;
+            case 'edit': handleUpdateSingleTransaction(data); break;
+            case 'edit-many': handleUpdateSelectedTransactions(data); break;
+            default: toast.error('Error in form submission');
         }
-    }
-
-    const onError = (errors: any) => {
-        // log errors
-        console.log(errors);
     }
 
     const validateDate = (value: any) => {
         const selectedDate = new Date(value);
         const today = new Date();
-        // Set the time of today's date to 00:00:00 to compare only the date part
         today.setHours(0, 0, 0, 0);
-
         return selectedDate >= today || "Selected date cannot be in the past";
     };
 
-    const validateSum = (value: any) => {
-        return value > 0 || "Sum should be greater than 0";
-    }
-
-    const onToggleMonths = (e: any) => {
-        toggleHidden(!e.target.checked);
-    }
-
-    const onMonthsChange = (months: any) => {
-        setMonths(months);
-    }
-
-    const inputStyle = "block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
-    const submitBtnStyle = "mt-5 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
+    const validateSum = (value: any) => value > 0 || "Sum should be greater than 0";
 
     return (
-        <form className="flex flex-col" onSubmit={handleSubmit(onSubmit, onError)}>
-            <div className="flex flex-col gap-2">
-
-                {/* SUM */}
-                <label htmlFor="sum">Sum</label>
-                <input className={inputStyle} type="number" id="sum" step="0.01" {...register('sum', {
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+            <div>
+                <label className="stripe-label">Sum</label>
+                <input className="stripe-input" type="number" step="0.01" {...register('sum', {
                     required: 'Sum is required',
-                    validate: (value) => validateSum(value)
+                    validate: validateSum
                 })} />
+                {errors?.sum?.message && <span className="stripe-error">{String(errors.sum.message)}</span>}
+            </div>
 
-                <span className="text-red-500 ita">{errors?.sum?.message}</span>
+            <div>
+                <label className="stripe-label">Description</label>
+                <input className="stripe-input" type="text" {...register('description', { required: 'Description is required' })} />
+                {errors?.description?.message && <span className="stripe-error">{String(errors.description.message)}</span>}
+            </div>
 
-                {/* DESCRIPTION */}
-                <label htmlFor="description">Description</label>
-                <input className={inputStyle} type="text" id="description" {...register('description', {
-                    required: 'Description is required',
-                })} />
-
-                <span className="text-red-500 ita">{errors?.description?.message}</span>
-
-                {/* CATEGORY */}
-                <label htmlFor="transaction_category">Transaction category</label>
-                <select className={inputStyle} {...register('transaction_category', {
-                    required: 'Transaction Category type is required',
-                })}>
+            <div>
+                <label className="stripe-label">Category</label>
+                <select className="stripe-input" {...register('transaction_category', { required: 'Category is required' })}>
                     <option value="SAVINGS">Savings</option>
                     <option value="FOOD">Food</option>
                     <option value="TRANSPORTATION">Transportation</option>
@@ -183,60 +121,68 @@ const TransactionForm = ({ handleClose, ids, transactionData = undefined, mode =
                     <option value="TRAVEL">Travel</option>
                     <option value="SALARY">Salary</option>
                     <option value="BILLS">Bills</option>
-                    <option value="MORTAGE">Mortage</option>
+                    <option value="MORTAGE">Mortgage</option>
                     <option value="CLOTHES">Clothes</option>
                     <option value="RENT">Rent</option>
                     <option value="RESTAURANTS">Restaurants</option>
                     <option value="OTHER">Other</option>
                 </select>
-                <span className="text-red-500 ita">{errors?.transaction_category?.message}</span>
+                {errors?.transaction_category?.message && <span className="stripe-error">{String(errors.transaction_category.message)}</span>}
+            </div>
 
-                {/* TYPE */}
-                <label htmlFor="transaction_type">Transaction type</label>
-                <select className={inputStyle} {...register('transaction_type', {
-                    required: 'Transaction Type type is required',
-                })}>
+            <div>
+                <label className="stripe-label">Type</label>
+                <select className="stripe-input" {...register('transaction_type', { required: 'Type is required' })}>
                     <option value="DEPOSIT">Deposit</option>
                     <option value="WITHDRAWAL">Withdrawal</option>
                 </select>
-                <span className="text-red-500 ita">{errors?.transaction_type?.message}</span>
-
-                {/* DATE */}
-                <label htmlFor="transaction_date">Date</label>
-                <input className={inputStyle} type="date" id="transaction_date" {...register('transaction_date', {
-                    required: 'Date is required',
-                    validate: (value) => validateDate(value)
-                })} />
-                <span className="text-red-500 ita">{errors?.transaction_date?.message}</span>
-
-                {/* MONTHS */}
-                {mode === 'edit-many' ? '' : (
-                    <>
-                        <div>
-                            <label htmlFor="toggleMonth">Create for time period (months)</label>
-                            <Checkbox onClick={(e) => onToggleMonths(e)} />
-                        </div>
-                        <Slider
-                            sx={{ display: hidden ? 'none' : 'block' }}
-                            aria-label="Temperature"
-                            defaultValue={1}
-                            valueLabelDisplay="auto"
-                            step={1}
-                            marks
-                            min={1}
-                            max={12}
-                            onChange={(e, value) => {
-                                console.log(e);
-                                onMonthsChange(value)
-                            }}
-                        />
-                    </>
-                )}
-                {/* ACCOUNT ID */}
-                <input value={accountId} type="hidden" {...register('accountId')} />
-
-                <input className={submitBtnStyle} disabled={isAdding || isAddingMonthly || isUpdating || isUpdatingTransactions} type="submit" value="submit" />
+                {errors?.transaction_type?.message && <span className="stripe-error">{String(errors.transaction_type.message)}</span>}
             </div>
+
+            <div>
+                <label className="stripe-label">Date</label>
+                <input className="stripe-input" type="date" {...register('transaction_date', {
+                    required: 'Date is required',
+                    validate: validateDate
+                })} />
+                {errors?.transaction_date?.message && <span className="stripe-error">{String(errors.transaction_date.message)}</span>}
+            </div>
+
+            {mode !== 'edit-many' && (
+                <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 text-sm text-[#3C4257] cursor-pointer">
+                        <Checkbox
+                            onClick={(e: any) => toggleHidden(!e.target.checked)}
+                            size="small"
+                            sx={{ color: '#E3E8EF', '&.Mui-checked': { color: '#635BFF' }, padding: 0 }}
+                        />
+                        Repeat for multiple months
+                    </label>
+                    {!hidden && (
+                        <div className="px-2">
+                            <p className="text-xs text-[#697386] mb-2">Months: {months}</p>
+                            <Slider
+                                defaultValue={1}
+                                valueLabelDisplay="auto"
+                                step={1}
+                                marks
+                                min={1}
+                                max={12}
+                                onChange={(_e, value) => setMonths(value as number)}
+                                sx={{ color: '#635BFF' }}
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
+
+            <input type="hidden" value={accountId} {...register('accountId')} />
+            <input
+                className="stripe-btn-primary w-full justify-center mt-2 cursor-pointer"
+                disabled={isAdding || isAddingMonthly || isUpdating || isUpdatingTransactions}
+                type="submit"
+                value="Save"
+            />
         </form>
     );
 }

@@ -21,22 +21,21 @@ const PasswordForm = () => {
         } else {
             toast.error('Token is missing');
         }
-        localStorage.removeItem('token')
+        localStorage.removeItem('token');
         navigate('/login');
     }
 
-    const submitBtnStyle = "mt-5 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
-    const inputStyle = "block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
-
     return (
-        <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
-            <label htmlFor="password">New password</label>
-            <input className={inputStyle} type="password" id="password" {...register('password')} />
-
-            <label htmlFor="password">Repeat new password</label>
-            <input className={inputStyle} type="password" id="password2" {...register('password2')} />
-
-            <input className={submitBtnStyle} type="submit" value="submit" />
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+            <div>
+                <label className="stripe-label" htmlFor="password">New password</label>
+                <input className="stripe-input" type="password" id="password" placeholder="••••••••" {...register('password')} />
+            </div>
+            <div>
+                <label className="stripe-label" htmlFor="password2">Repeat new password</label>
+                <input className="stripe-input" type="password" id="password2" placeholder="••••••••" {...register('password2')} />
+            </div>
+            <input className="stripe-btn-primary w-full justify-center mt-2 cursor-pointer" type="submit" value="Update password" />
         </form>
     );
 }

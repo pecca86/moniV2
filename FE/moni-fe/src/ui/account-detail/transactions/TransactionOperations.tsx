@@ -1,97 +1,73 @@
 import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
 
 const TransactionOperations = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [sort, setSort] = useState('date');
+    const activeFilter = searchParams.get('filter') || 'all';
 
     const handleFilter = (filterValue: string) => {
         searchParams.set('filter', filterValue);
         setSearchParams(searchParams);
     }
 
-    const handleChange = (event: SelectChangeEvent) => {
-        setSort(event.target.value);
-        searchParams.set('sort', event.target.value);
+    const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        setSort(value);
+        searchParams.set('sort', value);
         setSearchParams(searchParams);
     };
 
-    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-        // create a delay before evaluating the search query
-        // this way we can avoid making a request on every keystroke
-        // and only make a request when the user has stopped typing
-        // for a certain amount of time
-        const delay = 500;
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTimeout(() => {
-            searchParams.set('search', event.target.value);
+            searchParams.set('search', e.target.value);
             setSearchParams(searchParams);
-        }, delay);
-
-        // searchParams.set('search', event.target.value);
-        // setSearchParams(searchParams);
-        // console.log(event.target.value);
+        }, 300);
     }
 
+    const filterBtns = [
+        { value: 'all', label: 'All' },
+        { value: 'deposit', label: 'Income' },
+        { value: 'withdrawal', label: 'Expense' },
+    ];
+
     return (
-        <>
-            <div className='p-2 mt-2 flex gap-2 justify-between'>
-                <div>
-                    <FormControl>
-                        <InputLabel id="demo-simple-select-helper-label">Sort by</InputLabel>
-                        <Select
-                            value={sort}
-                            onChange={handleChange}
-                            defaultValue="date"
-                            label="Sort by"
-                            inputProps={{ 'aria-label': 'Without label' }}
+        <div className="flex flex-col sm:flex-row gap-3 py-3">
+            <input
+                onChange={handleSearch}
+                type="text"
+                placeholder="Search by description..."
+                className="stripe-input flex-1 min-w-0"
+            />
+            <div className="flex gap-2 flex-shrink-0">
+                <select
+                    value={sort}
+                    onChange={handleSort}
+                    className="stripe-input py-2 pr-8 text-sm"
+                >
+                    <option value="date">Sort: Date</option>
+                    <option value="sum">Sort: Sum</option>
+                    <option value="category">Sort: Category</option>
+                    <option value="type">Sort: Type</option>
+                    <option value="description">Sort: Description</option>
+                </select>
+                <div className="flex rounded-lg border border-[#E3E8EF] overflow-hidden bg-white text-sm">
+                    {filterBtns.map(btn => (
+                        <button
+                            key={btn.value}
+                            onClick={() => handleFilter(btn.value)}
+                            className={`px-3 py-2 font-medium transition-colors ${
+                                activeFilter === btn.value
+                                    ? 'bg-[#635BFF] text-white'
+                                    : 'text-[#697386] hover:bg-[#F6F9FC] hover:text-[#1A1F36]'
+                            }`}
                         >
-                            <MenuItem value={'date'}>Date</MenuItem>
-                            <MenuItem value={'sum'}>Sum</MenuItem>
-                            <MenuItem value={'category'}>Category</MenuItem>
-                            <MenuItem value={'type'}>Type</MenuItem>
-                            <MenuItem value={'description'}>Description</MenuItem>
-                        </Select>
-                    </FormControl>
-                </div>
-                <div>
-                    <ButtonGroup variant="contained" aria-label="Basic button group">
-                        <Button
-                            sx={{
-                                backgroundColor: '#d8b4fe',
-                                '&:hover': {
-                                    backgroundColor: '#a855f7'
-                                }
-                            }}
-                            onClick={() => handleFilter('all')}>All</Button>
-                        <Button
-                            sx={{
-                                backgroundColor: '#d8b4fe',
-                                '&:hover': {
-                                    backgroundColor: '#a855f7'
-                                }
-                            }}
-                            onClick={() => handleFilter('deposit')}>Income</Button>
-                        <Button
-                            sx={{
-                                backgroundColor: '#d8b4fe',
-                                '&:hover': {
-                                    backgroundColor: '#a855f7'
-                                }
-                            }}
-                            onClick={() => handleFilter('withdrawal')}>Expense</Button>
-                    </ButtonGroup>
+                            {btn.label}
+                        </button>
+                    ))}
                 </div>
             </div>
-            <TextField onChange={handleSearch} id="standard-basic" label="Search by description" variant="standard" />
-        </>
-
+        </div>
     );
 }
 

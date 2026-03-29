@@ -3,14 +3,10 @@ import { Outlet } from "react-router-dom";
 
 const AccountDetail = () => {
     return (
-        <>
+        <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col gap-6">
             <SideNav />
-            <section className="flex mt-[55px]">
-                <div className="h-svh w-full mx-2 overflow-scroll lg:w-[80rem] lg:m-auto">
-                    <Outlet />
-                </div>
-            </section>
-        </>
+            <Outlet />
+        </div>
     );
 }
 

@@ -1,10 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* CREATE A CUSTOM CSS CLASS FOR TW */
+@layer base {
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1A1F36;
+    background-color: #F6F9FC;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
 @layer components {
+  .stripe-input {
+    @apply block w-full px-3 py-2 text-sm text-[#1A1F36] bg-white border border-[#E3E8EF] rounded-lg placeholder-[#697386] focus:outline-none focus:ring-2 focus:ring-[#635BFF] focus:border-transparent transition-colors;
+  }
+
+  .stripe-label {
+    @apply block text-xs font-medium text-[#697386] uppercase tracking-wide mb-1.5;
+  }
+
+  .stripe-btn-primary {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-[#635BFF] hover:bg-[#7A73FF] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#635BFF] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+  }
+
+  .stripe-btn-danger {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-[#DF1B41] hover:bg-[#B01235] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#DF1B41] focus:ring-offset-2 disabled:opacity-50 cursor-pointer;
+  }
+
+  .stripe-btn-secondary {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-[#3C4257] bg-white border border-[#E3E8EF] hover:bg-[#F6F9FC] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#635BFF] focus:ring-offset-2 cursor-pointer;
+  }
+
+  .stripe-btn-warning {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-[#1A1F36] bg-amber-100 hover:bg-amber-200 rounded-lg transition-colors focus:outline-none disabled:opacity-50 cursor-pointer;
+  }
+
+  .stripe-card {
+    @apply bg-white rounded-xl border border-[#E3E8EF] p-5 shadow-stripe-sm;
+  }
+
+  .stripe-error {
+    @apply text-xs text-[#DF1B41] mt-1;
+  }
+
+  /* Legacy alias */
   .form-input {
-    @apply block w-full px-3 py-2 mt-1 text-base text-gray-700 placeholder-gray-400 bg-white border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+    @apply stripe-input;
   }
 }

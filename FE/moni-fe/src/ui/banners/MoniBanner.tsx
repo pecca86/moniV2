@@ -1,26 +1,12 @@
 const MoniBanner = ({ children, style }: { children: any, style: string }) => {
-
-    const warningStyle = "my-2 text-gray-800 border-solid border-2 border-red-200 p-2 rounded-lg shadow-md bg-red-100";
-    const infoStyle = "my-2 text-gray-800 border-solid border-2 border-blue-200 p-2 rounded-lg shadow-md bg-blue-100";
-    const successStyle = "my-2 text-gray-800 border-solid border-2 border-green-200 p-2 rounded-lg shadow-md bg-green-100";
-
-    let selectedStyle;
-    switch (style) {
-        case 'warning':
-            selectedStyle = warningStyle;
-            break;
-        case 'info':
-            selectedStyle = infoStyle;
-            break;
-        case 'success':
-            selectedStyle = successStyle;
-            break;
-        default:
-            selectedStyle = warningStyle;
-    }
+    const styles: Record<string, string> = {
+        warning: "flex items-start gap-2 my-2 text-sm text-[#DF1B41] border border-[#FECDD3] bg-[#FFF0F3] px-4 py-3 rounded-lg",
+        info: "flex items-start gap-2 my-2 text-sm text-[#0055DE] border border-[#BFDBFE] bg-[#EEF4FF] px-4 py-3 rounded-lg",
+        success: "flex items-start gap-2 my-2 text-sm text-[#09825D] border border-[#A7F3D0] bg-[#D7F7EE] px-4 py-3 rounded-lg",
+    };
 
     return (
-        <div className={selectedStyle}>
+        <div className={styles[style] ?? styles.warning}>
             {children}
         </div>
     );

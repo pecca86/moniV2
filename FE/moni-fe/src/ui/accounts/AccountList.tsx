@@ -1,52 +1,49 @@
 import AccountListItem from "./AccountListItem";
 import Skeleton from '@mui/material/Skeleton';
-import Stack from '@mui/material/Stack';
 import MoniBanner from "../banners/MoniBanner";
 import { useFetchAccounts } from "../../hooks/account/useFetchAccounts";
 import { useUser } from "../../hooks/auth/useUser";
 
 const AccountList = () => {
-
-    const {token} = useUser();
+    const { token } = useUser();
     const { isPending, accountsData, error } = useFetchAccounts(token);
 
     if (isPending) {
-        return (
-            <Stack spacing={1}>
-                <Skeleton variant="rectangular" width={350} height={137} />
-            </Stack>
-        )
+        return <Skeleton variant="rectangular" width="100%" height={120} sx={{ borderRadius: '12px' }} />;
     }
 
     if (!isPending && error) {
-        return <MoniBanner style="warning">There was a problem fetching the account data, please try again later!</MoniBanner>
+        return <MoniBanner style="warning">There was a problem fetching the account data, please try again later!</MoniBanner>;
     }
 
     return (
-        <div className="my-2">
-            {accountsData?.accounts?.length === 0 && <MoniBanner style="info">Click the 'add account' button on top, to create a new account!</MoniBanner>}
-
-            <div className="relative overflow-x-auto shadow-lg rounded-lg">
-                <table className="w-full text-sm text-left rtl:text-right text-gray-900">
-                    <thead className="text-xs text-gray-900 uppercase bg-gray-100">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">
+        <div>
+            {accountsData?.accounts?.length === 0 && (
+                <MoniBanner style="info">Click 'Add account' to create your first account!</MoniBanner>
+            )}
+            <div className="bg-white rounded-xl border border-[#E3E8EF] overflow-hidden shadow-stripe-sm">
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="border-b border-[#E3E8EF] bg-[#F6F9FC]">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-[#697386] uppercase tracking-wide">
                                 Account name
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th className="px-6 py-3 text-right text-xs font-medium text-[#697386] uppercase tracking-wide">
                                 Balance
                             </th>
-                            <th></th>
+                            <th className="w-8"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {accountsData?.accounts?.map((acc) => (
                             <AccountListItem key={acc.id} acc={acc} />
                         ))}
-                        <tr className="bg-purple-400 text-white">
-                            <th scope="col" className="px-6 py-3">Total:</th>
-                            <th scope="col" className="px-6 py-3">{accountsData?.totalBalance}</th>
-                            <th scope="col" className="px-6 py-3">€</th>
+                        <tr className="border-t border-[#E3E8EF] bg-[#F6F9FC]">
+                            <td className="px-6 py-3 text-sm font-semibold text-[#1A1F36]">Total</td>
+                            <td className="px-6 py-3 text-sm font-semibold text-[#1A1F36] text-right">
+                                {accountsData?.totalBalance} €
+                            </td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>

@@ -3,7 +3,6 @@ import { useFetchAccountsTransactionStatistics } from "../../../hooks/statistics
 import { useParams } from "react-router-dom";
 import MoniBanner from "../../banners/MoniBanner";
 import { CircularProgress } from "@mui/material";
-import { Divider } from "@mui/material";
 import MoniBarChart from "../../charts/MoniBarChart";
 import { useUser } from "../../../hooks/auth/useUser";
 
@@ -12,43 +11,37 @@ const DetailCharts = () => {
     const { token } = useUser();
 
     if (!accountId) {
-        return (
-            <div className="flex justify-center items-center">
-                <MoniBanner style='warning'>Failed to get account data...</MoniBanner>
-            </div>
-        )
-
+        return <MoniBanner style='warning'>Failed to get account data...</MoniBanner>;
     }
+
     const { isPending, data, error } = useFetchAccountsTransactionStatistics(accountId, token);
 
     if (isPending) {
         return (
-            <div className="flex justify-center items-center">
-                <MoniBanner style='info'>Fetching account statistics...</MoniBanner>
-                <CircularProgress />
+            <div className="flex justify-center py-12">
+                <CircularProgress size={24} sx={{ color: '#635BFF' }} />
             </div>
-        )
+        );
     }
 
     if (!isPending && error) {
-        return (
-            <div className="flex justify-center items-center">
-                <MoniBanner style='warning'>Failed to get statistics for account!</MoniBanner>
-            </div>
-        )
+        return <MoniBanner style='warning'>Failed to get statistics for account!</MoniBanner>;
+    }
+
+    if (!data) {
+        return <MoniBanner style='warning'>No data available</MoniBanner>;
     }
 
     return (
-        <div className="w-full">
-            {data ? (
-                <>
-                    <MoniLineChart accountStatisticsData={data} />
-                    <Divider sx={{ 'margin': '10px' }} />
-                    <MoniBarChart />
-                </>
-            ) : (
-                <MoniBanner style='warning'>No data available</MoniBanner>
-            )}
+        <div className="flex flex-col gap-6">
+            <div className="stripe-card">
+                <h2 className="text-sm font-semibold text-[#3C4257] mb-4">Balance over time</h2>
+                <MoniLineChart accountStatisticsData={data} />
+            </div>
+            <div className="stripe-card">
+                <h2 className="text-sm font-semibold text-[#3C4257] mb-4">Spending by category</h2>
+                <MoniBarChart />
+            </div>
         </div>
     );
 }

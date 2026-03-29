@@ -11,11 +11,13 @@ function LogOut() {
     }
 
     return (
-        <span onClick={onLogout}>
-            <a href="#" className="inline-flex items-center font-medium text-fg-brand hover:underline">
-                Logout <LogoutIcon />
-            </a>
-        </span>
+        <button
+            onClick={onLogout}
+            className="text-sm text-[#8898A9] hover:text-white transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-[#1A3A5C]"
+        >
+            <LogoutIcon fontSize="small" />
+            <span className="hidden sm:inline">Logout</span>
+        </button>
     )
 }
 

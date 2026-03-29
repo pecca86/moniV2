@@ -1,29 +1,17 @@
-import { Divider } from "@mui/material"
-
 const ProfileBanner = ({ user }: { user: any }) => {
     return (
-        <div className='bg-white flex flex-col px-2 rounded-lg shadow-lg p-2'>
-            {/* <p>First name: {user.first_name}</p>
-            <p>Last name: {user.last_name}</p>
-            <p>Username / email: {user.email}</p> */}
-            <div className="grid grid-cols-[auto_1fr] gap-2">
-                <div className="col-1">
-                    <p className="pt-1 font-semibold">First name</p>
-                    <Divider />
-                    <p className="pt-1 font-semibold">Last name</p>
-                    <Divider />
-                    <p className="pt-1 font-semibold">Username</p>
-                    <Divider />
-                </div>
-                <div className="col-2">
-                    <p className="pt-1">{user?.first_name}</p>
-                    <Divider />
-                    <p className="pt-1">{user?.last_name}</p>
-                    <Divider />
-                    <p className="pt-1">{user?.email}</p>
-                    <Divider />
-                </div>
-            </div>
+        <div className="stripe-card">
+            <h2 className="text-sm font-semibold text-[#1A1F36] mb-5">Personal information</h2>
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                <dt className="text-[#697386]">First name</dt>
+                <dd className="text-[#1A1F36] font-medium">{user?.first_name}</dd>
+
+                <dt className="text-[#697386]">Last name</dt>
+                <dd className="text-[#1A1F36] font-medium">{user?.last_name}</dd>
+
+                <dt className="text-[#697386]">Email</dt>
+                <dd className="text-[#1A1F36] font-medium">{user?.email}</dd>
+            </dl>
         </div>
     );
 }

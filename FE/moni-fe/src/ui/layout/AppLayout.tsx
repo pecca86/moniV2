@@ -6,7 +6,7 @@ const AppLayout = () => {
     return (
         <div className="grid h-screen grid-rows-[auto_1fr_auto]">
             <TopNav />
-            <main className="bg-gray-50 overflow-scroll">
+            <main className="bg-[#F6F9FC] overflow-auto">
                 <Outlet />
             </main>
             <Footer />
