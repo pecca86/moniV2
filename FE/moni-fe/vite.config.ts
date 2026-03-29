@@ -6,13 +6,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    // proxy: {
-    //   '/api': {
-    //     target: 'http://localhost:8080',
-    //     changeOrigin: false,
-    //     secure: false,
-    //   }
-    // }
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: false,
+        secure: false,
+      }
+    }
   }
 })
 // })
