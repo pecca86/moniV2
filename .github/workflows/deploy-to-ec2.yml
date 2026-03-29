@@ -6,7 +6,6 @@ on:
     types:
       - completed
     branches: [main]
-  # Allow manual trigger
   workflow_dispatch:
 
 env:
@@ -19,9 +18,8 @@ jobs:
   deploy-to-ec2:
     name: Deploy BE/FE to EC2 K3s (Preserve DB)
     runs-on: ubuntu-latest
-    # Only run if the build workflow succeeded (or manual trigger)
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -33,160 +31,96 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Get EC2 Instance IP
-      id: get-ip
+    - name: Get EC2 Instance IP and ID
+      id: get-instance
       run: |
         INSTANCE_IP=$(aws ec2 describe-instances \
           --filters "Name=tag:Name,Values=moni-dev-k3s" "Name=instance-state-name,Values=running" \
           --query "Reservations[0].Instances[0].PublicIpAddress" \
-          --output text 2>/dev/null || echo "")
-        
-        if [ "$INSTANCE_IP" = "None" ] || [ -z "$INSTANCE_IP" ]; then
-          # Fallback to secret if available
-          if [ -n "${{ secrets.EC2_INSTANCE_IP }}" ]; then
-            INSTANCE_IP="${{ secrets.EC2_INSTANCE_IP }}"
-            echo "✅ Using EC2 IP from secrets: $INSTANCE_IP"
-          else
-            echo "❌ Could not find EC2 instance IP"
-            exit 1
-          fi
-        else
-          echo "✅ Found EC2 instance IP: $INSTANCE_IP"
-        fi
+          --output text)
+        INSTANCE_ID=$(aws ec2 describe-instances \
+          --filters "Name=tag:Name,Values=moni-dev-k3s" "Name=instance-state-name,Values=running" \
+          --query "Reservations[0].Instances[0].InstanceId" \
+          --output text)
         echo "instance_ip=$INSTANCE_IP" >> $GITHUB_OUTPUT
+        echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+        echo "Found instance $INSTANCE_ID at $INSTANCE_IP"
 
-    - name: Setup SSH Key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ec2_key
-        chmod 600 ~/.ssh/ec2_key
-        
-        # Add EC2 host to known hosts (skip host key verification for CI)
-        ssh-keyscan -H ${{ steps.get-ip.outputs.instance_ip }} >> ~/.ssh/known_hosts 2>/dev/null || true
-
-    - name: Deploy to K3s on EC2
+    - name: Deploy to K3s via SSM
       env:
-        EC2_IP: ${{ steps.get-ip.outputs.instance_ip }}
+        INSTANCE_ID: ${{ steps.get-instance.outputs.instance_id }}
+        BE_IMAGE: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY_BACKEND }}:${{ github.sha }}
+        FE_IMAGE: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY_FRONTEND }}:${{ github.sha }}
       run: |
-        echo "🚀 Deploying to EC2 K3s cluster at $EC2_IP"
-        
-        # SSH to EC2 with keep-alive to prevent connection drops during long operations
-        ssh -i ~/.ssh/ec2_key \
-            -o StrictHostKeyChecking=no \
-            -o ServerAliveInterval=30 \
-            -o ServerAliveCountMax=10 \
-            ec2-user@$EC2_IP << 'DEPLOY_SCRIPT'
-        
-        ECR_REGISTRY="026596707189.dkr.ecr.eu-central-1.amazonaws.com"
-        
-        echo "📦 Step 1: Refreshing Docker ECR credentials..."
-        aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin $ECR_REGISTRY
-        
-        echo "🔍 Step 2: Pre-pulling images to avoid timeout..."
-        sudo docker pull $ECR_REGISTRY/moni/moni-be:latest || echo "Warning: BE image pull failed"
-        sudo docker pull $ECR_REGISTRY/moni/moni-fe:latest || echo "Warning: FE image pull failed"
-        
-        echo "🔄 Step 3: Restarting Backend deployment..."
-        sudo k3s kubectl rollout restart deployment/moni-be -n moni
-        
-        echo "🔄 Step 4: Restarting Frontend deployment..."
-        sudo k3s kubectl rollout restart deployment/moni-fe -n moni
-        
-        echo "⏳ Step 5: Waiting for rollouts to complete (this may take 1-2 minutes)..."
-        echo "Checking pod status every 15 seconds..."
-        
-        # Wait for backend with progress updates
-        for i in $(seq 1 20); do
-          if sudo k3s kubectl rollout status deployment/moni-be -n moni --timeout=15s 2>/dev/null; then
-            echo "✅ Backend rollout complete!"
-            break
-          fi
-          echo "  ⏳ Backend still rolling out... (attempt $i/20)"
-          sudo k3s kubectl get pods -n moni -l app=moni-be --no-headers 2>/dev/null || true
-        done
-        
-        # Wait for frontend
-        for i in $(seq 1 10); do
-          if sudo k3s kubectl rollout status deployment/moni-fe -n moni --timeout=15s 2>/dev/null; then
-            echo "✅ Frontend rollout complete!"
-            break
-          fi
-          echo "  ⏳ Frontend still rolling out... (attempt $i/10)"
-        done
-        
-        echo ""
-        echo "📊 Step 6: Final status..."
-        sudo k3s kubectl get pods -n moni
-        
-        # Check if pods are actually running
-        BE_READY=$(sudo k3s kubectl get pods -n moni -l app=moni-be -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "Unknown")
-        FE_READY=$(sudo k3s kubectl get pods -n moni -l app=moni-fe -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "Unknown")
-        
-        echo ""
-        echo "Backend status: $BE_READY"
-        echo "Frontend status: $FE_READY"
-        
-        if [ "$BE_READY" = "Running" ] && [ "$FE_READY" = "Running" ]; then
-          echo ""
-          echo "🎉 Deployment complete! All pods running."
-        else
-          echo ""
-          echo "⚠️  Some pods may not be fully ready yet."
-          echo "Showing recent pod events..."
-          sudo k3s kubectl describe pods -n moni -l app=moni-be 2>/dev/null | tail -20 || true
-        fi
-        DEPLOY_SCRIPT
+        # Encode manifests to pass to instance
+        MANIFEST_B64=$(base64 -w 0 k8s-dev/manifests/moni-app.yaml)
+
+        COMMAND_ID=$(aws ssm send-command \
+          --instance-ids "$INSTANCE_ID" \
+          --document-name "AWS-RunShellScript" \
+          --parameters commands="[
+            \"export KUBECONFIG=/etc/rancher/k3s/k3s.yaml\",
+            \"echo 'Step 1: Refreshing ECR pull secret...'\",
+            \"ECR_TOKEN=\$(aws ecr get-login-password --region $AWS_REGION)\",
+            \"kubectl create secret docker-registry ecr-pull-secret --docker-server=$ECR_REGISTRY --docker-username=AWS --docker-password=\$ECR_TOKEN -n moni --dry-run=client -o yaml | kubectl apply -f -\",
+            \"echo 'Step 2: Applying manifests...'\",
+            \"echo '$MANIFEST_B64' | base64 -d | kubectl apply -f -\",
+            \"echo 'Step 3: Deploying backend image $BE_IMAGE'\",
+            \"kubectl set image deployment/moni-be moni-be=$BE_IMAGE -n moni\",
+            \"echo 'Step 4: Deploying frontend image $FE_IMAGE'\",
+            \"kubectl set image deployment/moni-fe moni-fe=$FE_IMAGE -n moni\",
+            \"echo 'Step 5: Waiting for rollouts...'\",
+            \"kubectl rollout status deployment/moni-be -n moni --timeout=300s\",
+            \"kubectl rollout status deployment/moni-fe -n moni --timeout=300s\",
+            \"echo 'Step 6: Final status'\",
+            \"kubectl get pods -n moni\"
+          ]" \
+          --timeout-seconds 600 \
+          --query "Command.CommandId" \
+          --output text)
+
+        echo "SSM Command ID: $COMMAND_ID"
+        aws ssm wait command-executed \
+          --command-id "$COMMAND_ID" \
+          --instance-id "$INSTANCE_ID"
+
+        aws ssm get-command-invocation \
+          --command-id "$COMMAND_ID" \
+          --instance-id "$INSTANCE_ID" \
+          --query "[StandardOutputContent, StandardErrorContent]" \
+          --output text
 
     - name: Verify Deployment
       env:
-        EC2_IP: ${{ steps.get-ip.outputs.instance_ip }}
+        EC2_IP: ${{ steps.get-instance.outputs.instance_ip }}
       run: |
-        echo "🔍 Verifying deployment health..."
-        
-        # Wait a moment for services to be ready
         sleep 10
-        
-        # Check backend health via NodePort
         HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://$EC2_IP:30080/actuator/health || echo "000")
-        
         if [ "$HEALTH_STATUS" = "200" ]; then
-          echo "✅ Backend is healthy (HTTP 200)"
+          echo "Backend is healthy (HTTP 200)"
         else
-          echo "⚠️  Backend health check returned: $HEALTH_STATUS"
-          echo "This might be normal if the app is still starting up"
+          echo "Backend health check returned: $HEALTH_STATUS (may still be starting)"
         fi
-        
-        # Check frontend
+
         FE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://$EC2_IP:30081/ || echo "000")
-        
         if [ "$FE_STATUS" = "200" ]; then
-          echo "✅ Frontend is healthy (HTTP 200)"
+          echo "Frontend is healthy (HTTP 200)"
         else
-          echo "⚠️  Frontend health check returned: $FE_STATUS"
+          echo "Frontend health check returned: $FE_STATUS"
         fi
 
     - name: Create Deployment Summary
       env:
-        EC2_IP: ${{ steps.get-ip.outputs.instance_ip }}
+        EC2_IP: ${{ steps.get-instance.outputs.instance_ip }}
       run: |
-        echo "## 🚀 Deployment Complete!" >> $GITHUB_STEP_SUMMARY
+        echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### ✅ Deployed Services" >> $GITHUB_STEP_SUMMARY
-        echo "| Service | Status | Image |" >> $GITHUB_STEP_SUMMARY
-        echo "|---------|--------|-------|" >> $GITHUB_STEP_SUMMARY
-        echo "| Backend | 🔄 Updated | \`$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest\` |" >> $GITHUB_STEP_SUMMARY
-        echo "| Frontend | 🔄 Updated | \`$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest\` |" >> $GITHUB_STEP_SUMMARY
-        echo "| Database | ✅ Preserved | PostgreSQL 16 (data intact) |" >> $GITHUB_STEP_SUMMARY
+        echo "| Service | Image |" >> $GITHUB_STEP_SUMMARY
+        echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Backend | \`$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+        echo "| Frontend | \`$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+        echo "| Database | PostgreSQL 16 (data preserved) |" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 🌐 Access URLs" >> $GITHUB_STEP_SUMMARY
-        echo "- **Frontend:** http://$EC2_IP:30081" >> $GITHUB_STEP_SUMMARY
-        echo "- **Backend API:** http://$EC2_IP:30080" >> $GITHUB_STEP_SUMMARY
-        echo "- **Health Check:** http://$EC2_IP:30080/actuator/health" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📝 Commit" >> $GITHUB_STEP_SUMMARY
-        echo "Deployed from: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-
-    - name: Cleanup SSH Key
-      if: always()
-      run: |
-        rm -f ~/.ssh/ec2_key
+        echo "**Frontend:** http://$EC2_IP:30081" >> $GITHUB_STEP_SUMMARY
+        echo "**Backend:** http://$EC2_IP:30080" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY

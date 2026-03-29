@@ -38,3 +38,9 @@ terraform-ec2/terraform.tfstate*
 terraform-ec2/*.pem
 terraform-ec2/*.key
 terraform-ec2/.env*
+k8s-dev/terraform/.terraform/
+k8s-dev/terraform/.terraform.lock.hcl
+k8s-dev/terraform/terraform.tfstate*
+k8s-dev/terraform/*.pem
+k8s-dev/terraform/*.key
+k8s-dev/terraform/kubeconfig

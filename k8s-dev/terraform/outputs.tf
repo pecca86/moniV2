@@ -102,6 +102,16 @@ output "next_steps" {
   ]
 }
 
+output "github_actions_credentials" {
+  description = "GitHub Actions IAM credentials - add these as GitHub secrets"
+  sensitive   = true
+  value = {
+    AWS_ACCESS_KEY_ID     = aws_iam_access_key.github_actions.id
+    AWS_SECRET_ACCESS_KEY = aws_iam_access_key.github_actions.secret
+    note                  = "Run: terraform output -json github_actions_credentials"
+  }
+}
+
 output "k3s_learning_tips" {
   description = "Learning resources and tips"
   value = {

@@ -173,6 +173,8 @@ spec:
         app: moni-be
         tier: backend
     spec:
+      imagePullSecrets:
+        - name: ecr-pull-secret
       # Init container waits for database to be ready
       initContainers:
         - name: wait-for-postgres
@@ -271,6 +273,8 @@ spec:
         app: moni-fe
         tier: frontend
     spec:
+      imagePullSecrets:
+        - name: ecr-pull-secret
       containers:
         - name: moni-fe
           # Replace with your ECR repository URL

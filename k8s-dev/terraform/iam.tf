@@ -44,6 +44,12 @@ resource "aws_iam_role_policy" "ecr_policy" {
   })
 }
 
+# SSM policy for Session Manager access (allows GitHub Actions to connect without SSH)
+resource "aws_iam_role_policy_attachment" "ssm_policy" {
+  role       = aws_iam_role.ec2_ecr_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 # Instance profile to attach the role to EC2
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "${local.instance_name}-profile"
@@ -52,4 +58,57 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   tags = merge(local.common_tags, {
     Name = "${local.instance_name}-profile"
   })
+}
+
+# IAM user for GitHub Actions CI/CD
+resource "aws_iam_user" "github_actions" {
+  name = "${local.instance_name}-github-actions"
+  tags = merge(local.common_tags, {
+    Name = "${local.instance_name}-github-actions"
+  })
+}
+
+resource "aws_iam_user_policy" "github_actions_policy" {
+  name = "${local.instance_name}-github-actions-policy"
+  user = aws_iam_user.github_actions.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:GetAuthorizationToken",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DescribeInstances"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ssm:SendCommand",
+          "ssm:GetCommandInvocation",
+          "ssm:ListCommandInvocations"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_access_key" "github_actions" {
+  user = aws_iam_user.github_actions.name
 }

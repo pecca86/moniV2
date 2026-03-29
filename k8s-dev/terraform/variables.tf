@@ -63,7 +63,7 @@ variable "enable_monitoring" {
 variable "allowed_ssh_cidr" {
   description = "CIDR blocks allowed for SSH access"
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default     = ["92.109.78.91/32"]
 }
 
 variable "allowed_http_cidr" {
@@ -73,6 +73,12 @@ variable "allowed_http_cidr" {
 }
 
 # ECR Configuration
+variable "ecr_registry" {
+  description = "ECR registry base URL"
+  type        = string
+  default     = "026596707189.dkr.ecr.eu-central-1.amazonaws.com"
+}
+
 variable "ecr_backend_url" {
   description = "ECR URL for backend image"
   type        = string
