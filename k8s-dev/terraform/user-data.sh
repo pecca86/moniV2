@@ -14,8 +14,13 @@ echo "=========================================="
 # Update system
 dnf update -y
 
-# Install required packages
-dnf install -y --allowerasing curl wget git jq nc fail2ban
+# Ensure SSM agent is running after package updates
+systemctl enable amazon-ssm-agent
+systemctl start amazon-ssm-agent || true
+
+# Install required packages (fail2ban is optional - not in all AL2023 repos)
+dnf install -y --allowerasing curl wget git jq nc
+dnf install -y fail2ban || echo "WARNING: fail2ban not available, skipping"
 
 # Cap journal size to prevent disk fill
 mkdir -p /etc/systemd/journald.conf.d
@@ -25,8 +30,10 @@ SystemMaxUse=200M
 EOF
 systemctl restart systemd-journald
 
-# Block SSH brute force
-systemctl enable --now fail2ban
+# Block SSH brute force (only if fail2ban was installed)
+if systemctl list-unit-files fail2ban.service &>/dev/null; then
+  systemctl enable --now fail2ban
+fi
 
 # Install K3s with native containerd
 echo "Installing K3s..."

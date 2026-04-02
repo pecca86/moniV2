@@ -27,7 +27,7 @@ variable "instance_type" {
 variable "volume_size" {
   description = "Root volume size in GB"
   type        = number
-  default     = 20
+  default     = 30
 }
 
 variable "k3s_version" {
