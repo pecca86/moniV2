@@ -21,19 +21,19 @@ The following guides illustrate how to use some features concretely:
 ## PROJECT DEPENDENCIES:
 - FE
   - Typescript
-  - React + React Native
+  - React + Vite
   - Tailwind
   - SASS CSS
   - Cypress
 - BE
-  - Java 17
+  - Java 21
   - Spring Boot 3.1.3
   - GraphQL / PostgreSQL
   - JWT / OAuth2
 - DevOps
   - Docker
-  - AWS
-  - Jenkins / Github Actions
+  - AWS (ECR, EC2, SSM)
+  - Github Actions
 
 
 ### TODO

@@ -1,405 +1,301 @@
-# Kubernetes Learning Guide - K3s on EC2
+# K3s on EC2 — Moni Deployment Guide
 
-This folder contains everything you need to learn Kubernetes by deploying the Moni application on a K3s cluster running on AWS EC2.
-
-## 🎯 What You'll Learn
-
-- Kubernetes core concepts (Pods, Deployments, Services, Namespaces)
-- K3s (lightweight Kubernetes) installation and management
-- Terraform for infrastructure as code
-- Container registry integration (AWS ECR)
-- Kubernetes networking (ClusterIP, NodePort, LoadBalancer)
-- Health checks and probes
-- Persistent storage with PersistentVolumeClaims
-- `kubectl` commands for cluster management
+This folder contains the infrastructure and Kubernetes manifests for running the Moni application on a K3s cluster on AWS EC2.
 
 ---
 
-## 📁 Folder Structure
+## Folder Structure
 
 ```
 k8s-dev/
-├── README.md                 # This guide
-├── terraform/                # Infrastructure as Code
-│   ├── main.tf              # AWS provider configuration
-│   ├── variables.tf         # Configurable variables
-│   ├── ec2.tf               # EC2 instance with K3s
-│   ├── networking.tf        # VPC, subnets, security groups
-│   ├── iam.tf               # IAM roles for ECR access
-│   ├── ssh-keys.tf          # SSH key management
-│   ├── outputs.tf           # Deployment outputs
-│   ├── user-data.sh         # K3s installation script
-│   └── terraform.tfvars.example
-├── manifests/               # Kubernetes manifests
-│   └── moni-app.yaml        # Complete application deployment
-└── scripts/                 # Helper scripts
-    ├── deploy-k8s.sh        # Deploy app to K3s
-    ├── manage-k8s.sh        # Manage K3s cluster
-    └── setup-local-kubectl.sh  # Configure kubectl locally
+├── README.md                     # This guide
+├── terraform/                    # Infrastructure as Code
+│   ├── main.tf                  # AWS provider and AMI lookup
+│   ├── variables.tf             # Configurable variables
+│   ├── ec2.tf                   # EC2 instance definition
+│   ├── networking.tf            # VPC, subnet, security groups
+│   ├── iam.tf                   # IAM roles (ECR + SSM access)
+│   ├── ssh-keys.tf              # SSH key pair generation
+│   ├── outputs.tf               # Deployment outputs
+│   ├── user-data.sh             # K3s bootstrap script
+│   └── terraform.tfvars.example # Variable template
+├── manifests/
+│   └── moni-app.yaml            # All Kubernetes resources
+└── scripts/                     # Manual / local management
+    ├── deploy-k8s.sh            # Deploy app from local machine
+    ├── manage-k8s.sh            # Cluster management helpers
+    ├── setup-local-kubectl.sh   # Configure local kubectl
+    └── migrate-to-k3s.sh        # One-time migration helper
 ```
 
 ---
 
-## 🚀 Step-by-Step Guide
+## CI/CD Pipeline (Automated Deployment)
+
+Deployments happen automatically on every push to `main` via two GitHub Actions workflows.
+
+### Skipping the pipeline
+
+To push to `main` without triggering a build (e.g. documentation-only changes), add `[skip ci]` to your commit message:
+
+```bash
+git commit -m "update documentation [skip ci]"
+```
+
+GitHub Actions also recognises `[ci skip]`, `[no ci]`, and `[skip actions]`.
+
+### Workflow 1 — Build and Push (`build-and-push.yml`)
+
+Triggered on: push or PR to `main`
+
+1. Builds the Spring Boot JAR (`mvn clean package`)
+2. Builds the React frontend (`npm ci && npm run build`)
+3. Builds multi-platform Docker images (linux/amd64 + linux/arm64)
+4. Pushes to ECR with two tags: `latest` and `<git-sha>`
+
+ECR repositories:
+- Backend: `026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-be`
+- Frontend: `026596707189.dkr.ecr.eu-central-1.amazonaws.com/moni/moni-fe`
+
+### Workflow 2 — Deploy to EC2 (`deploy-to-ec2.yml`)
+
+Triggered on: successful completion of Workflow 1
+
+1. Looks up the running EC2 instance by tag `Name=moni-dev-k3s`
+2. Sends a shell script to the instance via **AWS SSM** (no SSH required)
+3. On the instance the script:
+   - Refreshes the ECR pull secret
+   - Applies `moni-app.yaml` via `kubectl apply`
+   - Updates the backend and frontend images to the new SHA tag
+   - Waits for both rollouts to complete (`kubectl rollout status`)
+4. Verifies the deployment by hitting the health endpoint
+
+### Required GitHub Secrets
+
+| Secret | Description |
+|--------|-------------|
+| `AWS_ACCESS_KEY_ID` | IAM user key (created by Terraform) |
+| `AWS_SECRET_ACCESS_KEY` | IAM user secret (created by Terraform) |
+
+Get the values after `terraform apply`:
+```bash
+terraform output -json github_actions_credentials
+```
+
+---
+
+## Initial Infrastructure Setup (One-Time)
+
+The EC2 instance and all supporting AWS resources are managed by Terraform. This only needs to be done once (or after `terraform destroy`).
 
 ### Prerequisites
 
-1. **AWS CLI** configured with appropriate credentials
-2. **Terraform** installed (v1.0+)
-3. **kubectl** installed locally
-4. **Docker images** pushed to ECR (via GitHub Actions)
+- AWS CLI configured
+- Terraform v1.0+
+- `kubectl` installed locally (optional, for manual access)
 
-### Step 1: Deploy EC2 with K3s
+### Deploy
 
 ```bash
 cd k8s-dev/terraform
 
-# Initialize Terraform
 terraform init
-
-# Review what will be created
 terraform plan
-
-# Deploy the infrastructure
 terraform apply
 ```
 
 This creates:
-- VPC with public subnet
-- EC2 instance (t4g.small ARM64)
-- K3s installation
-- Security groups (SSH, HTTP, HTTPS, K3s API, NodePorts)
-- IAM role for ECR access
+- VPC, public subnet, internet gateway, route tables
+- Security group (SSH from your IP, HTTP/HTTPS/NodePorts from anywhere)
+- EC2 t4g.small ARM64 instance with K3s pre-installed
+- IAM role with ECR pull and SSM Session Manager access
+- SSH key pair (saved as `moni-dev-k3s-key.pem` in the terraform directory)
 
-### Step 2: Get Deployment Information
+K3s installation takes **5–10 minutes** after the instance starts. Progress is logged to `/var/log/user-data.log` on the instance.
 
-After Terraform completes:
+### Useful Outputs
 
 ```bash
-# Get the instance IP
-terraform output instance_public_ip
-
-# Get the SSH command
-terraform output ssh_command
-
-# Get the kubeconfig
-terraform output -raw kubeconfig_path
+terraform output instance_public_ip   # EC2 public IP
+terraform output ssh_command          # Ready-to-use SSH command
+terraform output -json github_actions_credentials  # CI/CD secrets
 ```
 
-### Step 3: Configure Local kubectl (Optional)
+---
 
-To manage the cluster from your local machine:
+## SSH Access
 
 ```bash
-# Run the setup script
-../scripts/setup-local-kubectl.sh
+ssh -i k8s-dev/terraform/moni-dev-k3s-key.pem ec2-user@<EC2_IP>
+```
 
-# Or manually:
-export KUBECONFIG=./kubeconfig
+SSH is restricted to the IP defined in `allowed_ssh_cidr` in `variables.tf`. Update this if your IP changes and run `terraform apply`.
+
+## SSM Session Manager Access
+
+You can also connect without SSH via the AWS Console:
+EC2 → Instance → Connect → Session Manager tab.
+
+---
+
+## Manual Deployment (Local)
+
+The automated pipeline handles deployments on push. Use the scripts below for manual intervention or first-time setup.
+
+### Set Up Local kubectl
+
+```bash
+cd k8s-dev/scripts
+./setup-local-kubectl.sh
+# or manually:
+export KUBECONFIG=k8s-dev/terraform/kubeconfig
 kubectl get nodes
 ```
 
-### Step 4: Deploy the Application
-
-#### Option A: From Your Local Machine
+### Deploy / Re-deploy Application
 
 ```bash
 cd k8s-dev/scripts
 ./deploy-k8s.sh <EC2_IP>
 ```
 
-#### Option B: SSH into EC2 and Deploy
-
-```bash
-# SSH to EC2
-ssh -i ./moni-dev-k3s-key.pem ec2-user@<EC2_IP>
-
-# Deploy the application
-~/deploy-moni.sh
-```
-
-### Step 5: Verify Deployment
-
-```bash
-# Check nodes
-kubectl get nodes
-
-# Check all resources in moni namespace
-kubectl get all -n moni
-
-# Check pods are running
-kubectl get pods -n moni
-
-# Check services
-kubectl get svc -n moni
-```
-
-### Step 6: Access the Application
-
-```bash
-# Get NodePort URLs
-kubectl get svc -n moni
-
-# Access:
-# Frontend: http://<EC2_IP>:30081
-# Backend:  http://<EC2_IP>:30080
-```
+This applies `manifests/moni-app.yaml` and waits for all deployments to become ready.
 
 ---
 
-## 📚 Kubernetes Concepts Explained
+## Application Access
 
-### Pods
-The smallest deployable unit in Kubernetes. Each pod contains one or more containers.
-
-```bash
-# List pods
-kubectl get pods -n moni
-
-# Describe a pod
-kubectl describe pod <pod-name> -n moni
-
-# View pod logs
-kubectl logs <pod-name> -n moni
-
-# Execute command in pod
-kubectl exec -it <pod-name> -n moni -- /bin/sh
-```
-
-### Deployments
-Manage the desired state of your application (replicas, updates, rollbacks).
-
-```bash
-# List deployments
-kubectl get deployments -n moni
-
-# Scale a deployment
-kubectl scale deployment moni-be --replicas=3 -n moni
-
-# Update image
-kubectl set image deployment/moni-be moni-be=<new-image> -n moni
-
-# Rollback
-kubectl rollout undo deployment/moni-be -n moni
-```
-
-### Services
-Expose your pods to the network.
-
-- **ClusterIP**: Internal only (default)
-- **NodePort**: Exposes on each node's IP at a static port
-- **LoadBalancer**: Creates external load balancer (cloud provider)
-
-```bash
-# List services
-kubectl get svc -n moni
-
-# Describe a service
-kubectl describe svc moni-fe -n moni
-```
-
-### Namespaces
-Logical isolation for resources.
-
-```bash
-# List namespaces
-kubectl get namespaces
-
-# Set default namespace
-kubectl config set-context --current --namespace=moni
-```
-
-### Secrets
-Store sensitive data like passwords.
-
-```bash
-# List secrets
-kubectl get secrets -n moni
-
-# Create a secret
-kubectl create secret generic my-secret --from-literal=password=mypassword -n moni
-
-# Decode a secret
-kubectl get secret moni-db-secret -n moni -o jsonpath='{.data.password}' | base64 -d
-```
-
-### Persistent Volumes
-Storage that survives pod restarts.
-
-```bash
-# List PVCs
-kubectl get pvc -n moni
-
-# Describe PVC
-kubectl describe pvc moni-pvc -n moni
-```
+| Service | URL |
+|---------|-----|
+| Frontend | `http://<EC2_IP>:30081` |
+| Backend API | `http://<EC2_IP>:30080` |
+| Backend health | `http://<EC2_IP>:30080/actuator/health` |
 
 ---
 
-## 🔧 Common kubectl Commands
-
-```bash
-# Cluster info
-kubectl cluster-info
-kubectl get nodes
-kubectl version
-
-# Resource management
-kubectl get all -n moni
-kubectl get pods,svc,deployments -n moni
-kubectl describe <resource> <name> -n moni
-
-# Logs and debugging
-kubectl logs <pod-name> -n moni
-kubectl logs -f <pod-name> -n moni  # follow
-kubectl logs -l app=moni-be -n moni  # by label
-
-# Execute commands
-kubectl exec -it <pod-name> -n moni -- /bin/sh
-kubectl exec <pod-name> -n moni -- env
-
-# Port forwarding (local access)
-kubectl port-forward svc/moni-be 8080:8080 -n moni
-kubectl port-forward svc/moni-fe 3000:80 -n moni
-
-# Apply/delete manifests
-kubectl apply -f manifests/moni-app.yaml
-kubectl delete -f manifests/moni-app.yaml
-
-# Restart deployment
-kubectl rollout restart deployment/moni-be -n moni
-```
-
----
-
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        AWS EC2 Instance                      │
-│                     (t4g.small - ARM64)                     │
-│                                                              │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │                    K3s Cluster                         │  │
-│  │                                                        │  │
-│  │  ┌─────────────────────────────────────────────────┐  │  │
-│  │  │              Namespace: moni                     │  │  │
-│  │  │                                                  │  │  │
-│  │  │  ┌──────────┐  ┌──────────┐  ┌──────────────┐  │  │  │
-│  │  │  │ moni-fe  │  │ moni-be  │  │   moni-db    │  │  │  │
-│  │  │  │ (nginx)  │→ │ (Spring) │→ │ (PostgreSQL) │  │  │  │
-│  │  │  │ :80      │  │ :8080    │  │ :5432        │  │  │  │
-│  │  │  └──────────┘  └──────────┘  └──────────────┘  │  │  │
-│  │  │       ↓              ↓                          │  │  │
-│  │  │  NodePort:30081  NodePort:30080                 │  │  │
-│  │  │                                                  │  │  │
-│  │  │  ┌─────────────────────────────────────────┐   │  │  │
-│  │  │  │   PVC: moni-pvc (PostgreSQL data)       │   │  │  │
-│  │  │  └─────────────────────────────────────────┘   │  │  │
-│  │  │                                                  │  │  │
-│  │  └─────────────────────────────────────────────────┘  │  │
-│  │                                                        │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                                                              │
+│                     AWS EC2 (t4g.small ARM64)               │
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │                   K3s Cluster                        │   │
+│  │                                                      │   │
+│  │  ┌────────────────────────────────────────────────┐  │   │
+│  │  │             Namespace: moni                    │  │   │
+│  │  │                                                │  │   │
+│  │  │  moni-fe (React/nginx)  → NodePort 30081       │  │   │
+│  │  │       ↓                                        │  │   │
+│  │  │  moni-be (Spring Boot)  → NodePort 30080       │  │   │
+│  │  │       ↓                                        │  │   │
+│  │  │  moni-db (PostgreSQL 16) — ClusterIP only      │  │   │
+│  │  │       ↓                                        │  │   │
+│  │  │  PVC: moni-pvc (5Gi, local-path)               │  │   │
+│  │  └────────────────────────────────────────────────┘  │   │
+│  └──────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
-                              ↓
-                    Internet Access via
-                    Ports 30080, 30081
+         ↑ Images pulled from AWS ECR on every deploy
 ```
 
 ---
 
-## 🔍 Troubleshooting
-
-### K3s Not Starting
+## Common kubectl Commands
 
 ```bash
-# Check K3s status
-sudo systemctl status k3s
+# Cluster status
+kubectl get nodes
+kubectl get all -n moni
 
-# View K3s logs
-sudo journalctl -u k3s -f
+# Pod management
+kubectl get pods -n moni
+kubectl describe pod <pod-name> -n moni
+kubectl logs <pod-name> -n moni
+kubectl logs -f <pod-name> -n moni          # follow
+kubectl logs -l app=moni-be -n moni         # by label
 
-# Check cloud-init logs
-sudo cat /var/log/cloud-init-output.log
+# Deployments
+kubectl get deployments -n moni
+kubectl rollout status deployment/moni-be -n moni
+kubectl rollout restart deployment/moni-be -n moni
+kubectl rollout undo deployment/moni-be -n moni
+
+# Exec into a pod
+kubectl exec -it <pod-name> -n moni -- /bin/sh
+
+# Port forwarding (local access without NodePort)
+kubectl port-forward svc/moni-be 8080:8080 -n moni
+kubectl port-forward svc/moni-fe 3000:80 -n moni
+
+# Secrets
+kubectl get secrets -n moni
+kubectl get secret moni-db-secret -n moni -o jsonpath='{.data.password}' | base64 -d
+
+# Storage
+kubectl get pvc -n moni
 ```
 
-### Pods Not Starting
+---
+
+## Troubleshooting
+
+### K3s not starting after instance launch
 
 ```bash
-# Describe the pod for errors
-kubectl describe pod <pod-name> -n moni
+# Check bootstrap log
+sudo cat /var/log/user-data.log
 
-# Check events
+# Check K3s service
+sudo systemctl status k3s
+sudo journalctl -u k3s -f
+```
+
+### SSM Session Manager shows offline
+
+```bash
+sudo systemctl status amazon-ssm-agent
+sudo systemctl start amazon-ssm-agent
+```
+
+Wait ~60 seconds and refresh Fleet Manager in the AWS console.
+
+### Pods not starting / ImagePullBackOff
+
+```bash
+kubectl describe pod <pod-name> -n moni
 kubectl get events -n moni --sort-by='.lastTimestamp'
 
-# Check if images can be pulled
-kubectl logs <pod-name> -n moni
-```
-
-### Image Pull Errors
-
-```bash
-# On EC2, authenticate to ECR
-aws ecr get-login-password --region eu-central-1 | sudo k3s crictl login --username AWS --password-stdin 026596707189.dkr.ecr.eu-central-1.amazonaws.com
-
-# Create imagePullSecret if needed
-kubectl create secret docker-registry ecr-secret \
+# Manually refresh ECR pull secret on the instance
+aws ecr get-login-password --region eu-central-1 | \
+  kubectl create secret docker-registry ecr-pull-secret \
   --docker-server=026596707189.dkr.ecr.eu-central-1.amazonaws.com \
-  --docker-username=AWS \
-  --docker-password=$(aws ecr get-login-password --region eu-central-1) \
-  -n moni
+  --docker-username=AWS --docker-password-stdin \
+  -n moni --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-### Database Connection Issues
+### Database connection issues
 
 ```bash
-# Check database pod
 kubectl get pods -l app=moni-db -n moni
 kubectl logs -l app=moni-db -n moni
 
-# Test database connectivity from backend pod
+# Test connectivity from backend pod
 kubectl exec -it <backend-pod> -n moni -- nc -zv moni-db 5432
 ```
 
+### GitHub Actions deploy step timing out
+
+The SSM command timeout is 600 seconds. If rollouts consistently time out, check pod events for image pull or resource issues on the instance.
+
 ---
 
-## 🧹 Cleanup
-
-### Delete Application Only
+## Cleanup
 
 ```bash
-kubectl delete -f manifests/moni-app.yaml
-```
+# Remove application only (preserves infrastructure)
+kubectl delete -f k8s-dev/manifests/moni-app.yaml
 
-### Delete Everything (Terraform)
-
-```bash
-cd terraform
+# Destroy everything
+cd k8s-dev/terraform
 terraform destroy
 ```
-
----
-
-## 📖 Further Learning
-
-- [Kubernetes Official Docs](https://kubernetes.io/docs/)
-- [K3s Documentation](https://docs.k3s.io/)
-- [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
-- [Kubernetes Patterns](https://k8spatterns.io/)
-
----
-
-## ⚡ Quick Reference
-
-| Action | Command |
-|--------|---------|
-| List pods | `kubectl get pods -n moni` |
-| Pod logs | `kubectl logs <pod> -n moni` |
-| Describe pod | `kubectl describe pod <pod> -n moni` |
-| Scale deployment | `kubectl scale deploy <name> --replicas=N -n moni` |
-| Restart deployment | `kubectl rollout restart deploy <name> -n moni` |
-| Port forward | `kubectl port-forward svc/<svc> <local>:<remote> -n moni` |
-| Execute in pod | `kubectl exec -it <pod> -n moni -- /bin/sh` |
-| Apply manifest | `kubectl apply -f <file>` |
-| Delete manifest | `kubectl delete -f <file>` |
